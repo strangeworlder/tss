@@ -1,0 +1,53 @@
+general:
+  - shell:
+      - "WSL2"
+      - "fish shell, be vary of extra endline characters from Windows"
+      - "Check correct node version by running `nvm use` in the terminal"
+  - editor:
+      - "latest version of Cursor"
+      - "latest version of VS Code"
+  - frontend:
+      - "latest stable version of Vue"
+      - "Typescript"
+      - "front/src/assets/vars.css contains the global variables for the project"
+  - naming_conventions:
+      - "BEM syntax for CSS classes (block__element--modifier)"
+      - "kebab-case within BEM segments (my-block__my-element--my-modifier)"
+      - "never use inline styles"
+      - "never use tailwind css classes"
+      - "PascalCase for Vue components"
+      - "camelCase for variables and functions"
+      - "camelCase for Vue methods"
+
+backend:
+  - framework: "Node.js with Express.js for API development"
+  - language: "Typescript"
+  - api:
+      - "GraphQL for flexible data querying"
+      - "RESTful principles for any non-GraphQL endpoints"
+      - "JWT for authentication"
+      - "proper rate limiting for endpoints"
+      - "WebSockets for real-time features (notifications, chat)"
+  - database:
+      - "MongoDB as primary database for social content"
+      - "PostgreSQL for relational data (user accounts, relationships)"
+      - "Redis for caching and session management"
+  - storage: "AWS S3 or similar for media storage"
+  - architecture: "domain-driven design principles"
+  - documentation: "Swagger/OpenAPI"
+  - testing: "Jest for unit and integration tests"
+  - code_quality: "ESLint and Prettier for code formatting"
+
+structure:
+  - directories:
+      - "front/ frontend folder - this is where vue lives"
+      - "back/ backend folder - this is where the node/express app lives"
+      - "utils/: reusable utility functions"
+      - "middleware/: custom middleware"
+      - "models/: database models"
+      - "schemas/: GraphQL schemas"
+  - backend_architecture:
+      - "Organize code into modules by feature/domain"
+      - "Use a layered architecture (controllers, services, repositories)"
+  - configuration: "Keep in environment variables"
+  - database: "Maintain migrations for schema changes"

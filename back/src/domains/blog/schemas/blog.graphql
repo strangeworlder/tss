@@ -1,0 +1,27 @@
+type BlogPost {
+  id: ID!
+  title: String!
+  slug: String!
+  content: String!
+  excerpt: String!
+  author: Author!
+  heroImage: HeroImage
+  heroImageUrl: String
+  tags: [String!]!
+  createdAt: String!
+  updatedAt: String!
+  publishedAt: String
+  isPublished: Boolean!
+}
+
+type HeroImage {
+  filename: String!
+  altText: String!
+}
+
+type Author {
+  name: String!
+  avatar: String
+}
+
+# ... query types and other schema definitions 
