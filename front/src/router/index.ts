@@ -25,7 +25,7 @@ const router = createRouter({
     {
       path: '/blog/:slug',
       name: 'blog-detail',
-      component: () => import('../views/BlogDetailView.vue'),
+      component: () => import('../pages/BlogPostPage.vue'),
     },
     {
       path: '/auth',

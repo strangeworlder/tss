@@ -2,7 +2,7 @@
   <div class="blog-hero">
     <app-image 
       :filename="heroImage" 
-      size="full" 
+      :size="ImageSize.FULL" 
       :alt="altText" 
       class="blog-hero__image"
     />
@@ -15,7 +15,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import AppImage from '@/components/common/AppImage.vue';
+import AppImage from '@/components/atoms/AppImage.vue';
+import { ImageSize } from '@/types/image';
 
 export default defineComponent({
   name: 'BlogHero',
@@ -33,6 +34,12 @@ export default defineComponent({
       type: String,
       default: 'Blog hero image'
     }
+  },
+  
+  setup() {
+    return {
+      ImageSize
+    };
   }
 });
 </script>

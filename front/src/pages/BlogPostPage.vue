@@ -123,26 +123,26 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="blog-detail-view">
+  <div class="blog-post-page">
     <!-- Loading state -->
-    <div v-if="loading" class="blog-detail-view__loading">
-      <div class="blog-detail-view__spinner"></div>
+    <div v-if="loading" class="blog-post-page__loading">
+      <div class="blog-post-page__spinner"></div>
       <p>Loading blog post...</p>
     </div>
     
     <!-- Error state -->
-    <div v-else-if="error" class="blog-detail-view__error">
+    <div v-else-if="error" class="blog-post-page__error">
       <p>{{ error }}</p>
-      <div class="blog-detail-view__actions">
+      <div class="blog-post-page__actions">
         <button 
           @click="fetchPost"
-          class="blog-detail-view__button blog-detail-view__button--retry"
+          class="blog-post-page__button blog-post-page__button--retry"
         >
           Try Again
         </button>
         <button 
           @click="goBack"
-          class="blog-detail-view__button blog-detail-view__button--back"
+          class="blog-post-page__button blog-post-page__button--back"
         >
           Back to Blog
         </button>
@@ -150,46 +150,46 @@ onMounted(() => {
     </div>
     
     <!-- Blog post -->
-    <article v-else-if="post" class="blog-detail-view__article">
+    <article v-else-if="post" class="blog-post-page__article">
       <!-- Hero image -->
       <div 
         v-if="post.heroImage" 
-        class="blog-detail-view__hero"
+        class="blog-post-page__hero"
       >
         <AppImage
           :filename="post.heroImage.filename"
           :alt="post.heroImage.altText || post.title"
           :size="ImageSize.FULL"
-          class="blog-detail-view__hero-img"
+          class="blog-post-page__hero-img"
         />
       </div>
       
-      <div class="blog-detail-view__header">
+      <div class="blog-post-page__header">
         <button 
           @click="goBack"
-          class="blog-detail-view__back-button"
+          class="blog-post-page__back-button"
         >
           &larr; Back to Blog
         </button>
         
-        <h1 class="blog-detail-view__title">{{ post.title }}</h1>
+        <h1 class="blog-post-page__title">{{ post.title }}</h1>
         
-        <div class="blog-detail-view__meta">
-          <span class="blog-detail-view__date">{{ formatDate(post.publishedAt) }}</span>
-          <div class="blog-detail-view__author">
-            <div v-if="post.author.avatar" class="blog-detail-view__author-avatar">
+        <div class="blog-post-page__meta">
+          <span class="blog-post-page__date">{{ formatDate(post.publishedAt) }}</span>
+          <div class="blog-post-page__author">
+            <div v-if="post.author.avatar" class="blog-post-page__author-avatar">
               <AppImage
                 :filename="post.author.avatar.filename"
                 :alt="post.author.avatar.altText"
                 :size="ImageSize.THUMBNAIL"
-                class="blog-detail-view__author-img"
+                class="blog-post-page__author-img"
               />
             </div>
-            <span class="blog-detail-view__author-name">by {{ post.author.name }}</span>
+            <span class="blog-post-page__author-name">by {{ post.author.name }}</span>
           </div>
         </div>
         
-        <div v-if="post.tags && post.tags.length" class="blog-detail-view__tags">
+        <div v-if="post.tags && post.tags.length" class="blog-post-page__tags">
           <TagPill
             v-for="tag in post.tags" 
             :key="tag"
@@ -201,17 +201,17 @@ onMounted(() => {
       </div>
       
       <div 
-        class="blog-detail-view__content" 
+        class="blog-post-page__content" 
         v-html="parsedContent"
       ></div>
     </article>
     
     <!-- Not found state -->
-    <div v-else class="blog-detail-view__not-found">
+    <div v-else class="blog-post-page__not-found">
       <p>Blog post not found.</p>
       <button 
         @click="goBack"
-        class="blog-detail-view__button blog-detail-view__button--back"
+        class="blog-post-page__button blog-post-page__button--back"
       >
         Back to Blog
       </button>
@@ -221,7 +221,7 @@ onMounted(() => {
 
 <style scoped>
 /* Loading state styles */
-.blog-detail-view__loading {
+.blog-post-page__loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -230,7 +230,7 @@ onMounted(() => {
   text-align: center;
 }
 
-.blog-detail-view__spinner {
+.blog-post-page__spinner {
   display: inline-block;
   width: 3rem;
   height: 3rem;
@@ -246,7 +246,7 @@ onMounted(() => {
 }
 
 /* Existing styles */
-.blog-detail-view__back-button {
+.blog-post-page__back-button {
   display: inline-block;
   margin-bottom: var(--spacing-4);
   color: var(--color-text);
@@ -258,18 +258,18 @@ onMounted(() => {
   text-decoration: none;
 }
 
-.blog-detail-view__back-button:hover {
+.blog-post-page__back-button:hover {
   color: var(--vt-c-indigo);
   text-decoration: underline;
 }
 
-.blog-detail-view__actions {
+.blog-post-page__actions {
   display: flex;
   gap: var(--spacing-4);
   margin-top: var(--spacing-4);
 }
 
-.blog-detail-view__button {
+.blog-post-page__button {
   cursor: pointer;
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--border-radius);
@@ -277,41 +277,41 @@ onMounted(() => {
   border: none;
 }
 
-.blog-detail-view__button--retry {
+.blog-post-page__button--retry {
   background-color: var(--vt-c-red);
   color: var(--vt-c-white);
 }
 
-.blog-detail-view__button--back {
+.blog-post-page__button--back {
   background-color: var(--color-background-soft);
   color: var(--color-text);
 }
 
-.blog-detail-view__author {
+.blog-post-page__author {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
 }
 
-.blog-detail-view__author-avatar {
+.blog-post-page__author-avatar {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
   overflow: hidden;
 }
 
-.blog-detail-view__author-img {
+.blog-post-page__author-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.blog-detail-view__author-name {
+.blog-post-page__author-name {
   font-size: 0.875rem;
   color: var(--color-text);
 }
 
-.blog-detail-view__tags {
+.blog-post-page__tags {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2);
@@ -321,7 +321,7 @@ onMounted(() => {
 
 <style>
 /* Markdown styles - not scoped to allow styling of v-html content */
-.blog-detail-view__content h1 {
+.blog-post-page__content h1 {
   font-size: 2rem;
   margin-top: 2rem;
   margin-bottom: 1rem;
@@ -329,7 +329,7 @@ onMounted(() => {
   color: var(--color-heading);
 }
 
-.blog-detail-view__content h2 {
+.blog-post-page__content h2 {
   font-size: 1.5rem;
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
@@ -337,7 +337,7 @@ onMounted(() => {
   color: var(--color-heading);
 }
 
-.blog-detail-view__content h3 {
+.blog-post-page__content h3 {
   font-size: 1.25rem;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
@@ -345,22 +345,22 @@ onMounted(() => {
   color: var(--color-heading);
 }
 
-.blog-detail-view__content p {
+.blog-post-page__content p {
   margin-bottom: 1rem;
   line-height: 1.7;
 }
 
-.blog-detail-view__content ul {
+.blog-post-page__content ul {
   margin-bottom: 1rem;
   padding-left: 1.5rem;
 }
 
-.blog-detail-view__content li {
+.blog-post-page__content li {
   margin-bottom: 0.5rem;
   line-height: 1.7;
 }
 
-.blog-detail-view__content pre {
+.blog-post-page__content pre {
   background-color: var(--color-background-soft);
   padding: 1rem;
   border-radius: var(--border-radius);
@@ -368,17 +368,17 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-.blog-detail-view__content code {
+.blog-post-page__content code {
   font-family: 'Source Code Pro', monospace;
   font-size: 0.9rem;
 }
 
-.blog-detail-view__content a {
+.blog-post-page__content a {
   color: var(--vt-c-indigo);
   text-decoration: none;
 }
 
-.blog-detail-view__content a:hover {
+.blog-post-page__content a:hover {
   text-decoration: underline;
 }
 </style> 
