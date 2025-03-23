@@ -27,8 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
   tags: () => []
 });
 
-// Determine image size based on variant
-const imageSize = computed(() => props.variant === 'compact' ? ImageSize.THUMBNAIL : ImageSize.MEDIUM);
+const imageSize = ImageSize.MEDIUM;
 </script>
 
 <template>

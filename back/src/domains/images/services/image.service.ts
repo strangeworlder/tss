@@ -146,6 +146,115 @@ const imageService = {
       // Define dimension values for different sizes
       const dimensionMap = {
         [ImageSize.THUMBNAIL]: { width: 150, height: 150 },
+        [ImageSize.MEDIUM]: { width: 400, height: 400 },
+        [ImageSize.FULL]: { width: metadata.width, height: metadata.height }
+      };
+      
+      // 1. Process size (resize image)
+      if (options.size && options.size !== ImageSize.FULL) {
+        const dimensions = dimensionMap[options.size];
+        sharpInstance = sharpInstance.resize({
+          width: dimensions.width,
+          height: dimensions.height,
+          fit: 'inside',
+          withoutEnlargement: true
+        });
+      }
+      
+      // 2. Process format (convert image format)
+      if (options.format && options.format !== ImageFormat.ORIGINAL) {
+        switch (options.format) {
+          case ImageFormat.WEBP:
+            sharpInstance = sharpInstance.webp({ 
+              quality: options.quality || 80
+            });
+            break;
+          case ImageFormat.JPEG:
+            sharpInstance = sharpInstance.jpeg({ 
+              quality: options.quality || 80
+            });
+            break;
+          case ImageFormat.PNG:
+            sharpInstance = sharpInstance.png({ 
+              quality: options.quality ? Math.min(Math.floor(options.quality / 10), 9) : 8
+            });
+            break;
+        }
+      }
+      
+      // 3. Get the processed image as a buffer
+      const imageBuffer = await sharpInstance.toBuffer();
+      
+      // 4. Get the final metadata
+      const finalMetadata = await sharp(imageBuffer).metadata();
+      
+      // Determine the output MIME type
+      let mimeType = 'image/jpeg'; // Default fallback
+      if (options.format === ImageFormat.WEBP) {
+        mimeType = 'image/webp';
+      } else if (options.format === ImageFormat.PNG) {
+        mimeType = 'image/png';
+      } else if (finalMetadata.format) {
+        mimeType = `image/${finalMetadata.format}`;
+      }
+      
+      return {
+        imageBuffer,
+        metadata: {
+          mimeType,
+          filename,
+          width: finalMetadata.width,
+          height: finalMetadata.height
+        }
+      };
+    } catch (error) {
+      console.error('Error processing image:', error);
+      return { error: 'Failed to process image' };
+    }
+    
+    // Use server-side defaults if not provided
+    const format = options.format || ImageFormat.WEBP;
+    const quality = options.quality || 80;
+    const size = options.size || ImageSize.FULL;
+    
+    // Mock implementation - in production, we would use Sharp or another library
+    // to actually process the image
+    return {
+      imageBuffer: Buffer.from('mock image data'),
+      metadata: {
+        id: image.id,
+        filename: image.filename,
+        mimeType: format === ImageFormat.ORIGINAL 
+          ? image.mimeType
+          : format === ImageFormat.WEBP 
+            ? 'image/webp' 
+            : format === ImageFormat.JPEG 
+              ? 'image/jpeg' 
+              : format === ImageFormat.PNG 
+                ? 'image/png' 
+                : image.mimeType,
+        width: size === ImageSize.THUMBNAIL 
+          ? 150 
+          : size === ImageSize.MEDIUM 
+            ? 400 
+            : image.width,
+        height: size === ImageSize.THUMBNAIL 
+          ? 150 
+          : size === ImageSize.MEDIUM 
+            ? 300 
+            : image.height,
+        size: image.size // This would change based on processing in a real implementation
+      }
+      
+      // Start with a Sharp instance
+      let sharpInstance = sharp(imagePath);
+      
+      // Get original metadata
+      const metadata = await sharpInstance.metadata();
+      
+      // Define dimension values for different sizes
+      const dimensionMap = {
+        [ImageSize.THUMBNAIL]: { width: 150, height: 150 },
         [ImageSize.MEDIUM]: { width: 400, height: 300 },
         [ImageSize.FULL]: { width: metadata.width, height: metadata.height }
       };
