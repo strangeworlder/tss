@@ -9,7 +9,8 @@ general:
   - frontend:
       - "latest stable version of Vue"
       - "Typescript"
-      - "front/src/assets/vars.css contains the global variables for the project"
+      - "Use semantic global variables for colors, fonts, etc. front/src/assets/vars.css contains the global variables for the project"
+      - "follows atomic design principles"
   - naming_conventions:
       - "BEM syntax for CSS classes (block__element--modifier)"
       - "kebab-case within BEM segments (my-block__my-element--my-modifier)"

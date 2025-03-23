@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import AppImage from '@/components/common/AppImage.vue';
+import AppImage from '@/components/atoms/AppImage.vue';
+import TagPill from '@/components/atoms/TagPill.vue';
 import { ImageSize } from '@/types/image';
 
 interface Props {
@@ -64,15 +65,15 @@ const imageSize = ImageSize.MEDIUM;
         </div>
       </div>
       
-      <!-- Tags visible only in full variant -->
+      <!-- Tags visible only in full variant, now using TagPill component -->
       <div v-if="variant === 'full' && tags && tags.length" class="blog-post-card__tags">
-        <span 
-          v-for="tag in tags" 
-          :key="tag" 
+        <TagPill
+          v-for="tag in tags"
+          :key="tag"
+          :text="tag"
+          size="small"
           class="blog-post-card__tag"
-        >
-          {{ tag }}
-        </span>
+        />
       </div>
       
       <div class="blog-post-card__excerpt">
@@ -160,15 +161,6 @@ const imageSize = ImageSize.MEDIUM;
   flex-wrap: wrap;
   gap: var(--spacing-2);
   margin-bottom: var(--spacing-3);
-}
-
-.blog-post-card__tag {
-  background-color: var(--color-background-soft);
-  color: var(--color-text);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--border-radius-lg);
-  font-size: 0.8rem;
-  border: 1px solid var(--color-border);
 }
 
 .blog-post-card__excerpt {

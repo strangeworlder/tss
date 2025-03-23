@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useBlogStore } from '@/stores/blogStore';
-import BlogPostCard from '@/components/BlogPostCard.vue';
+import BlogPostCard from '@/components/organisms/BlogPostCard.vue';
 import { checkApiHealth } from '@/api/apiClient';
 
 // Get the blog store
