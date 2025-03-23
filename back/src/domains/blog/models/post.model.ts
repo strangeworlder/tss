@@ -27,6 +27,79 @@ export interface BlogPost {
 // Dummy blog posts data
 const blogPosts: BlogPost[] = [
   {
+    id: '6',
+    title: 'Getting Started with Vue 3',
+    slug: 'getting-started-with-vue-3',
+    content: `# Getting Started with Vue 3
+
+Vue 3 is the latest major version of the popular JavaScript framework for building user interfaces. It brings several exciting new features and performance improvements.
+
+## Setting Up Your First Vue 3 Project
+
+The easiest way to get started is using the Vue CLI:
+
+\`\`\`bash
+npm install -g @vue/cli
+vue create my-vue3-project
+\`\`\`
+
+When prompted, choose Vue 3 as the preset.
+
+## The Composition API
+
+One of the major new features in Vue 3 is the Composition API, which provides a more flexible way to organize component logic:
+
+\`\`\`vue
+<script setup>
+import { ref, onMounted } from 'vue'
+
+// Reactive state
+const count = ref(0)
+
+// Functions that mutate state and trigger updates
+function increment() {
+  count.value++
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  console.log('Component is mounted!')
+})
+</script>
+
+<template>
+  <button @click="increment">Count is: {{ count }}</button>
+</template>
+\`\`\`
+
+## Key Benefits of Vue 3
+
+1. **Smaller Bundle Size**: The core runtime is much smaller than Vue 2
+2. **Improved Performance**: Faster rendering and smaller memory footprint
+3. **Better TypeScript Support**: Built from the ground up with TypeScript
+4. **Composition API**: More flexible code organization
+5. **Teleport Component**: Render content anywhere in the DOM
+
+Start building with Vue 3 today to take advantage of these improvements!`,
+    excerpt: 'Learn the basics of Vue 3 and the Composition API.',
+    author: {
+      name: 'Jane Smith',
+      avatar: {
+        filename: 'placeholder1.webp',
+        altText: 'Jane Smith profile picture'
+      }
+    },
+    tags: ['vue', 'javascript', 'frontend', 'composition-api'],
+    createdAt: new Date('2025-03-22T09:00:00Z'),
+    updatedAt: new Date('2025-03-22T09:00:00Z'),
+    publishedAt: new Date('2025-03-22T09:00:00Z'),
+    isPublished: true,
+    heroImage: {
+      filename: 'placeholder2.webp',
+      altText: 'Vue 3 logo and code'
+    }
+  },
+  {
     id: '1',
     title: 'Getting Started with TypeScript and Express',
     slug: 'getting-started-with-typescript-and-express',
@@ -555,9 +628,12 @@ export const getPosts = (limit: number = 10): BlogPost[] => {
     .slice(0, limit);
 };
 
-// Get a single post by slug
+/**
+ * Get post by slug
+ * @param slug The post slug to find
+ */
 export const getPostBySlug = (slug: string): BlogPost | undefined => {
-  return blogPosts.find(post => post.slug === slug && post.isPublished);
+  return blogPosts.find(post => post.slug === slug);
 };
 
 // Get total post count

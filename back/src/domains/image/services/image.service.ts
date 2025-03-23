@@ -14,7 +14,7 @@ export const getImageUrl = (
 ): ImageUrlResponse => {
   // This would normally call the actual image processing service
   // For now, we'll return a mock URL
-  const baseUrl = process.env.IMAGE_API_URL || 'http://localhost:3000/api/images';
+  const baseUrl = process.env.IMAGE_API_URL || 'http://localhost:4000/api/images';
   return {
     url: `${baseUrl}/${filename}?size=${size.toLowerCase()}&format=${format.toLowerCase()}&quality=${quality}`,
     size: size,

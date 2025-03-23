@@ -5,7 +5,7 @@
 import type { ApiResponse } from '@/types/blog';
 
 // Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 const DEFAULT_TIMEOUT = 10000; // 10 seconds
 
 // HTTP request methods
@@ -97,22 +97,53 @@ export async function apiRequest<T>(
  * Check if the API server is available
  */
 export async function checkApiHealth(): Promise<boolean> {
+  const healthUrl = `${API_BASE_URL}/health`;
+  console.log('Checking API health at URL:', healthUrl);
+  
   try {
-    const response = await fetch(`${API_BASE_URL}/healthcheck`, {
+    console.log('Attempting fetch request...');
+    const response = await fetch(healthUrl, {
       method: 'GET',
-      signal: AbortSignal.timeout(5000)
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
+    
+    console.log('Fetch response received:', response.status, response.statusText);
     return response.ok;
   } catch (error) {
+    console.error('API health check failed details:', error);
     return false;
   }
 }
 
-/**
- * Typed wrapper for API responses
- */
-export async function apiGet<T>(endpoint: string, options: Omit<RequestOptions, 'method'> = {}): Promise<ApiResponse<T>> {
-  return apiRequest<ApiResponse<T>>(endpoint, { ...options, method: 'GET' });
+// Define the API response structure
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  count?: number;
+  message?: string;
+}
+
+// Generic GET method
+export async function apiGet<T>(endpoint: string): Promise<ApiResponse<T>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API request failed for ${endpoint}:`, error);
+    throw error;
+  }
 }
 
 export async function apiPost<T>(endpoint: string, data: any, options: Omit<RequestOptions, 'method' | 'body'> = {}): Promise<ApiResponse<T>> {

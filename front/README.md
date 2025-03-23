@@ -1,10 +1,10 @@
-# Vue Blog Frontend
+# TSS Project Frontend
 
-The frontend application for the Vue Blog, built with Vue 3, TypeScript, and following BEM CSS methodology.
+The frontend application for the TSS Project, built with Vue 3, TypeScript, and following BEM CSS methodology.
 
 ## Project Overview
 
-This Vue-based frontend provides a responsive and accessible blog interface with:
+This Vue-based frontend provides a responsive and accessible interface with:
 
 - Blog post listing and detail views
 - Markdown rendering for post content
@@ -26,7 +26,7 @@ All BEM segments use kebab-case: `my-block__my-element--my-modifier`
 
 ### CSS Variables
 
-Global CSS variables are defined in `front/src/assets/vars.css` and include:
+Global CSS variables are defined in `src/assets/vars.css` and include:
 
 - Color palette
 - Typography settings
@@ -40,12 +40,26 @@ Always reference these variables instead of hardcoding values.
 - PascalCase for component names
 - camelCase for variables, functions, and Vue methods
 - Composition API with `<script setup>` pattern
+- Atomic design principles for component organization
 
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) or [Cursor](https://cursor.sh/) with [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) extension (disable Vetur).
 
 ## Project Setup
+
+### Docker (Recommended)
+
+The easiest way to run the frontend is using Docker:
+
+```sh
+# From the project root
+docker-compose up frontend
+```
+
+The application will be available at http://localhost:8080
+
+### Local Setup
 
 ```sh
 npm install
@@ -56,6 +70,8 @@ npm install
 ```sh
 npm run dev
 ```
+
+The development server will be available at http://localhost:5173
 
 ### Type-Check, Compile and Minify for Production
 

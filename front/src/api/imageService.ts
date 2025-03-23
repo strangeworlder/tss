@@ -21,9 +21,9 @@ export function getImageUrl(
   format: ImageFormat = ImageFormat.WEBP
 ): string {
   // Build the URL with the filename
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
-  let url = `${baseUrl}/images/${filename}`;
-  
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  let url = `${baseUrl}/v1/images/${filename}`;
+  console.log('url', url);
   // Add size and format parameters
   const params = new URLSearchParams();
   
