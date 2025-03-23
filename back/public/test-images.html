@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .image-container {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .image-item {
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .url {
+      font-family: monospace;
+      font-size: 12px;
+      background: #f5f5f5;
+      padding: 8px;
+      border-radius: 4px;
+      word-break: break-all;
+    }
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Image API Test</h1>
+  
+  <h2>Original Images</h2>
+  <div class="image-grid">
+    <div class="image-item">
+      <div class="url">/api/v1/images/placeholder1.webp</div>
+      <img src="/api/v1/images/placeholder1.webp" alt="Placeholder 1" />
+    </div>
+    
+    <div class="image-item">
+      <div class="url">/api/v1/images/placeholder2.webp</div>
+      <img src="/api/v1/images/placeholder2.webp" alt="Placeholder 2" />
+    </div>
+  </div>
+  
+  <h2>Thumbnail Size</h2>
+  <div class="image-grid">
+    <div class="image-item">
+      <div class="url">/api/v1/images/placeholder1.webp?size=thumbnail</div>
+      <img src="/api/v1/images/placeholder1.webp?size=thumbnail" alt="Placeholder 1 Thumbnail" />
+    </div>
+    
+    <div class="image-item">
+      <div class="url">/api/v1/images/placeholder2.webp?size=thumbnail</div>
+      <img src="/api/v1/images/placeholder2.webp?size=thumbnail" alt="Placeholder 2 Thumbnail" />
+    </div>
+  </div>
+  
+  <h2>Medium Size</h2>
+  <div class="image-grid">
+    <div class="image-item">
+      <div class="url">/api/v1/images/placeholder1.webp?size=medium</div>
+      <img src="/api/v1/images/placeholder1.webp?size=medium" alt="Placeholder 1 Medium" />
+    </div>
+    
+    <div class="image-item">
+      <div class="url">/api/v1/images/placeholder2.webp?size=medium</div>
+      <img src="/api/v1/images/placeholder2.webp?size=medium" alt="Placeholder 2 Medium" />
+    </div>
+  </div>
+</body>
+</html> 

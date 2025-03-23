@@ -1,20 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
+import sharp from 'sharp';
 import { Image, ImageSize, ImageFormat } from '../models/image.model';
 
 // Mock database for development - would be replaced with actual DB in production
 let images: Image[] = [
   {
     id: '1',
-    filename: 'example-image.jpg',
+    filename: 'placeholder1.webp',
     originalFilename: 'example.jpg',
-    path: '/uploads/images/example-image.jpg',
-    url: '/api/images/example-image.jpg',
+    path: '/uploads/images/placeholder1.webp',
+    url: '/api/images/placeholder1.webp',
     size: 1024 * 50, // 50KB
-    width: 800,
-    height: 600,
-    mimeType: 'image/jpeg',
+    width: 1024,
+    height: 1024,
+    mimeType: 'image/webp',
     altText: 'Example image',
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -25,14 +26,14 @@ let images: Image[] = [
   },
   {
     id: '2',
-    filename: 'typescript-express-hero.jpg',
-    originalFilename: 'typescript-express.jpg',
-    path: '/uploads/images/typescript-express-hero.jpg',
-    url: '/api/images/typescript-express-hero.jpg',
+    filename: 'placeholder2.webp',
+    originalFilename: 'placeholder2.webp',
+    path: '/uploads/images/placeholder2.webp',
+    url: '/api/images/placeholder2.webp',
     size: 1024 * 120, // 120KB
     width: 1200,
     height: 600,
-    mimeType: 'image/jpeg',
+    mimeType: 'image/webp',
     altText: 'TypeScript and Express code on a computer screen',
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -102,51 +103,114 @@ const imageService = {
       quality?: number;
     }
   ): Promise<{
-    imageBuffer: Buffer | null;
-    metadata: Partial<Image> | null;
+    imageBuffer?: Buffer;
+    metadata?: Partial<Image>;
     error?: string;
   }> => {
-    // Find the image
-    const image = await imageService.getImageByFilename(filename);
-    
-    if (!image) {
-      return { imageBuffer: null, metadata: null, error: 'Image not found' };
-    }
-    
-    // Use server-side defaults if not provided
-    const format = options.format || ImageFormat.WEBP;
-    const quality = options.quality || 80;
-    const size = options.size || ImageSize.FULL;
-    
-    // Mock implementation - in production, we would use Sharp or another library
-    // to actually process the image
-    return {
-      imageBuffer: Buffer.from('mock image data'),
-      metadata: {
-        id: image.id,
-        filename: image.filename,
-        mimeType: format === ImageFormat.ORIGINAL 
-          ? image.mimeType
-          : format === ImageFormat.WEBP 
-            ? 'image/webp' 
-            : format === ImageFormat.JPEG 
-              ? 'image/jpeg' 
-              : format === ImageFormat.PNG 
-                ? 'image/png' 
-                : image.mimeType,
-        width: size === ImageSize.THUMBNAIL 
-          ? 150 
-          : size === ImageSize.MEDIUM 
-            ? 400 
-            : image.width,
-        height: size === ImageSize.THUMBNAIL 
-          ? 150 
-          : size === ImageSize.MEDIUM 
-            ? 300 
-            : image.height,
-        size: image.size // This would change based on processing in a real implementation
+    try {
+      // First, find the image in our "database"
+      const image = await imageService.getImageByFilename(filename);
+      let imagePath: string;
+      
+      if (!image) {
+        // If not in our database, check if it exists in the uploads directory
+        const uploadsPath = path.join(process.cwd(), 'public/uploads/images', filename);
+        
+        if (!fs.existsSync(uploadsPath)) {
+          return { error: 'Image not found' };
+        }
+        
+        imagePath = uploadsPath;
+      } else {
+        // If image exists in our mock DB, read from the actual path
+        imagePath = path.join(process.cwd(), 'public', image.path.replace(/^\//, ''));
+        
+        if (!fs.existsSync(imagePath)) {
+          // Fallback to uploads directory if path in DB is wrong
+          const uploadsPath = path.join(process.cwd(), 'public/uploads/images', filename);
+          
+          if (!fs.existsSync(uploadsPath)) {
+            return { error: 'Image file not found on disk' };
+          }
+          
+          imagePath = uploadsPath;
+        }
       }
-    };
+      
+      // Start with a Sharp instance
+      let sharpInstance = sharp(imagePath);
+      
+      // Get original metadata
+      const metadata = await sharpInstance.metadata();
+      
+      // Define dimension values for different sizes
+      const dimensionMap = {
+        [ImageSize.THUMBNAIL]: { width: 150, height: 150 },
+        [ImageSize.MEDIUM]: { width: 400, height: 300 },
+        [ImageSize.FULL]: { width: metadata.width, height: metadata.height }
+      };
+      
+      // 1. Process size (resize image)
+      if (options.size && options.size !== ImageSize.FULL) {
+        const dimensions = dimensionMap[options.size];
+        sharpInstance = sharpInstance.resize({
+          width: dimensions.width,
+          height: dimensions.height,
+          fit: 'inside',
+          withoutEnlargement: true
+        });
+      }
+      
+      // 2. Process format (convert image format)
+      if (options.format && options.format !== ImageFormat.ORIGINAL) {
+        switch (options.format) {
+          case ImageFormat.WEBP:
+            sharpInstance = sharpInstance.webp({ 
+              quality: options.quality || 80
+            });
+            break;
+          case ImageFormat.JPEG:
+            sharpInstance = sharpInstance.jpeg({ 
+              quality: options.quality || 80
+            });
+            break;
+          case ImageFormat.PNG:
+            sharpInstance = sharpInstance.png({ 
+              quality: options.quality ? Math.min(Math.floor(options.quality / 10), 9) : 8
+            });
+            break;
+        }
+      }
+      
+      // 3. Get the processed image as a buffer
+      const imageBuffer = await sharpInstance.toBuffer();
+      
+      // 4. Get the final metadata
+      const finalMetadata = await sharp(imageBuffer).metadata();
+      
+      // Determine the output MIME type
+      let mimeType = 'image/jpeg'; // Default fallback
+      if (options.format === ImageFormat.WEBP) {
+        mimeType = 'image/webp';
+      } else if (options.format === ImageFormat.PNG) {
+        mimeType = 'image/png';
+      } else if (finalMetadata.format) {
+        mimeType = `image/${finalMetadata.format}`;
+      }
+      
+      return {
+        imageBuffer,
+        metadata: {
+          mimeType,
+          filename,
+          width: finalMetadata.width,
+          height: finalMetadata.height
+        }
+      };
+    } catch (error) {
+      console.error('Error processing image:', error);
+      return { error: 'Failed to process image' };
+    }
   },
   
   /**

@@ -6,6 +6,7 @@ import { imageResolvers } from './domains/images/resolvers/image.resolvers';
 import { SERVER } from './config/config';
 import blogRoutes from './domains/blog/routes/blog.routes';
 import imageRoutes from './domains/images/routes/image.routes';
+import path from 'path';
 
 // Initialize Express
 const app = express();
@@ -14,6 +15,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
 // API Routes
 app.get(`${SERVER.API_PREFIX}/healthcheck`, (req, res) => {

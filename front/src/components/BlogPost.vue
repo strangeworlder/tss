@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import AppImage from '@/components/common/AppImage.vue';
-import { ImageSize } from '@/utils/imageUtils';
+import { ImageSize } from '@/types/image';
 
 interface Props {
   title: string;
   date: string;
-  author: string;
+  author: {
+    name: string;
+    avatar?: {
+      filename: string;
+      altText: string;
+    };
+  };
   content: string;
   imageUrl?: string;
   heroImageFilename?: string;
@@ -34,7 +40,17 @@ defineProps<Props>();
       <h2 class="blog-post__title">{{ title }}</h2>
       <div class="blog-post__meta">
         <span class="blog-post__date">{{ date }}</span>
-        <span class="blog-post__author">by {{ author }}</span>
+        <div class="blog-post__author">
+          <div v-if="author.avatar" class="blog-post__author-avatar">
+            <AppImage 
+              :filename="author.avatar.filename" 
+              :alt="author.avatar.altText" 
+              :size="ImageSize.THUMBNAIL" 
+              class="blog-post__author-img"
+            />
+          </div>
+          <span class="blog-post__author-name">by {{ author.name }}</span>
+        </div>
       </div>
       <div class="blog-post__excerpt">
         {{ content.substring(0, 150) }}...
@@ -87,6 +103,26 @@ defineProps<Props>();
 
 .blog-post__author {
   margin-left: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.blog-post__author-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.blog-post__author-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blog-post__author-name {
+  font-size: 0.875rem;
 }
 
 .blog-post__excerpt {
