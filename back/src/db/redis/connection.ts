@@ -2,7 +2,7 @@ import { createClient, RedisClientType } from 'redis';
 import { REDIS } from '../../config/config';
 
 // Create Redis client
-const redisClient: RedisClientType = createClient({
+export const redisClient: RedisClientType = createClient({
   socket: {
     host: REDIS.HOST,
     port: REDIS.PORT,
@@ -40,8 +40,6 @@ process.on('SIGINT', async () => {
   await redisClient.disconnect();
   process.exit(0);
 });
-
-export { redisClient };
 
 export default {
   connectRedis,

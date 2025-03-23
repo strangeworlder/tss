@@ -24,9 +24,10 @@ const fetchRecentPosts = async () => {
   try {
     // First check if the API is available
     const isHealthy = await checkApiHealth();
-    
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
     if (!isHealthy) {
-      error.value = 'API server is not available';
+      error.value = 'API server '+`${API_BASE_URL}/health`+' is not available. Please make sure the backend server is running.';
       return;
     }
     
@@ -34,7 +35,8 @@ const fetchRecentPosts = async () => {
     await blogStore.fetchPosts(3);
   } catch (err) {
     console.error('Error fetching recent posts:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load recent posts';
+    error.value = err instanceof Error ? err.message : 
+      'Failed to load recent posts. Please make sure the backend server is running.';
   } finally {
     loading.value = false;
   }
@@ -99,27 +101,28 @@ onMounted(() => {
         </div>
         
         <!-- Recent posts -->
-        <div v-else class="home-view__recent-posts-grid">
-          <BlogPostCard 
-            v-for="post in recentPosts" 
-            :key="post.id"
-            :title="post.title"
-            :date="formatDate(post.publishedAt)"
-            :author="post.author"
-            :content="post.excerpt"
-            :hero-image-filename="post.heroImage?.filename"
-            :hero-image-alt="post.heroImage?.altText"
-            :hero-image-url="post.heroImageUrl"
-            :slug="post.slug"
-            :tags="post.tags"
-            variant="compact"
-            class="home-view__post"
-          />
-        </div>
-        <div class="home-view__more-posts">
-          <RouterLink to="/blog" class="home-view__more-link">
-            View all posts &rarr;
-          </RouterLink>
+        <div v-else class="home-view__recent-posts">
+          <h2 class="home-view__section-title">Recent Blog Posts</h2>
+          <div class="home-view__posts-grid">
+            <BlogPostCard 
+              v-for="post in recentPosts" 
+              :key="post.id"
+              :title="post.title"
+              :date="formatDate(post.publishedAt)"
+              :author="post.author"
+              :content="post.excerpt"
+              :hero-image-filename="post.heroImage?.filename"
+              :hero-image-alt="post.heroImage?.altText"
+              :hero-image-url="post.heroImageUrl"
+              :slug="post.slug"
+              :tags="post.tags"
+              variant="compact"
+              class="home-view__post"
+            />
+          </div>
+          <div class="home-view__more-link">
+            <router-link to="/blog" class="btn btn--secondary">View All Blog Posts</router-link>
+          </div>
         </div>
       </div>
     </section>
@@ -202,7 +205,7 @@ onMounted(() => {
   color: var(--color-heading);
 }
 
-.home-view__recent-posts-grid {
+.home-view__posts-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--spacing-6);
@@ -210,13 +213,13 @@ onMounted(() => {
 }
 
 @media (min-width: 768px) {
-  .home-view__recent-posts-grid {
+  .home-view__posts-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .home-view__recent-posts-grid {
+  .home-view__posts-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -229,11 +232,6 @@ onMounted(() => {
   padding: var(--spacing-6);
   border-radius: var(--border-radius);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.home-view__more-posts {
-  text-align: center;
-  margin-top: var(--spacing-8);
 }
 
 .home-view__more-link {

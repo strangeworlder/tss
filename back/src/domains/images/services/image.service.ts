@@ -271,4 +271,15 @@ export const getHeroImageUrl = (filename: string): string => {
   return imageService.getImageUrl(filename, ImageSize.FULL, ImageFormat.WEBP, 90);
 };
 
+/**
+ * Get public URL for an image
+ */
+export function getImageUrl(filename: string, size: string = 'medium'): string {
+  // Base URL for images - make sure this matches your server configuration
+  const baseUrl = process.env.IMAGE_BASE_URL || 'http://localhost:4000/api/images';
+  
+  // Return full URL for the image
+  return `${baseUrl}/${filename}?size=${size}`;
+}
+
 export default imageService; 

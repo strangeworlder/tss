@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useBlogStore } from '@/stores/blogStore';
 import AppImage from '@/components/atoms/AppImage.vue';
@@ -83,43 +83,24 @@ const fetchPost = async () => {
   error.value = null;
   
   try {
-    // First check if the API is available
-    const isHealthy = await checkApiHealth();
-    
-    if (!isHealthy) {
-      error.value = 'API server is not available';
-      return;
-    }
-    
-    // Use the store action to fetch the post by slug
+    console.log(`Fetching post with slug: ${slug.value}`);
     await blogStore.fetchPostBySlug(slug.value);
     
-    // If post wasn't found in the store after fetching, show an error
     if (!blogStore.currentPost) {
-      error.value = 'Blog post not found';
+      error.value = 'Post not found';
     }
   } catch (err) {
-    console.error('Error fetching blog post:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load blog post';
+    console.error(`Error fetching post: ${err}`);
+    error.value = err instanceof Error ? err.message : 'Failed to load post';
   } finally {
     loading.value = false;
   }
 };
 
-// Go back to blog list
-const goBack = () => {
-  router.push('/blog');
-};
+// Watch for slug changes
+watch(slug, fetchPost, { immediate: true });
 
-// Parse content to HTML
-const parsedContent = computed(() => {
-  if (!post.value?.content) return '';
-  return parseMarkdown(post.value.content);
-});
-
-onMounted(() => {
-  fetchPost();
-});
+onMounted(fetchPost);
 </script>
 
 <template>
@@ -127,7 +108,7 @@ onMounted(() => {
     <!-- Loading state -->
     <div v-if="loading" class="blog-detail-view__loading">
       <div class="blog-detail-view__spinner"></div>
-      <p>Loading blog post...</p>
+      <p>Loading post...</p>
     </div>
     
     <!-- Error state -->
@@ -140,12 +121,9 @@ onMounted(() => {
         >
           Try Again
         </button>
-        <button 
-          @click="goBack"
-          class="blog-detail-view__button blog-detail-view__button--back"
-        >
+        <router-link to="/blog" class="blog-detail-view__button blog-detail-view__button--back">
           Back to Blog
-        </button>
+        </router-link>
       </div>
     </div>
     
@@ -153,24 +131,28 @@ onMounted(() => {
     <article v-else-if="post" class="blog-detail-view__article">
       <!-- Hero image -->
       <div 
-        v-if="post.heroImage" 
+        v-if="post.heroImage || post.heroImageUrl" 
         class="blog-detail-view__hero"
       >
         <AppImage
+          v-if="post.heroImage?.filename"
           :filename="post.heroImage.filename"
           :alt="post.heroImage.altText || post.title"
-          :size="ImageSize.FULL"
+          :size="ImageSize.LARGE"
+          class="blog-detail-view__hero-img"
+        />
+        <img 
+          v-else-if="post.heroImageUrl" 
+          :src="post.heroImageUrl" 
+          :alt="post.title" 
           class="blog-detail-view__hero-img"
         />
       </div>
       
       <div class="blog-detail-view__header">
-        <button 
-          @click="goBack"
-          class="blog-detail-view__back-button"
-        >
+        <router-link to="/blog" class="blog-detail-view__back-button">
           &larr; Back to Blog
-        </button>
+        </router-link>
         
         <h1 class="blog-detail-view__title">{{ post.title }}</h1>
         
@@ -202,19 +184,16 @@ onMounted(() => {
       
       <div 
         class="blog-detail-view__content" 
-        v-html="parsedContent"
+        v-html="parseMarkdown(post.content)"
       ></div>
     </article>
     
     <!-- Not found state -->
     <div v-else class="blog-detail-view__not-found">
-      <p>Blog post not found.</p>
-      <button 
-        @click="goBack"
-        class="blog-detail-view__button blog-detail-view__button--back"
-      >
+      <p>Post not found.</p>
+      <router-link to="/blog" class="blog-detail-view__button blog-detail-view__button--back">
         Back to Blog
-      </button>
+      </router-link>
     </div>
   </div>
 </template>

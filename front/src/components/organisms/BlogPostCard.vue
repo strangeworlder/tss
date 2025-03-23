@@ -25,70 +25,80 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'full',
-  tags: () => []
+  tags: () => [],
+  date: '',
+  author: () => ({ name: 'Anonymous' }),
+  slug: '',
+  content: ''
 });
 
 const imageSize = ImageSize.MEDIUM;
+
+// Temporary debugging
+console.log('BlogPostCard props:', props);
+console.log('Tags:', props.tags);
 </script>
 
 <template>
   <article class="blog-post-card" :class="`blog-post-card--${variant}`">
-    <!-- Use AppImage for hero image if available -->
-    <div v-if="heroImageFilename" class="blog-post-card__image">
+    <!-- Hero image section with fallbacks -->
+    <div v-if="heroImageFilename || heroImageUrl" class="blog-post-card__image">
       <AppImage 
+        v-if="heroImageFilename"
         :filename="heroImageFilename" 
         :size="imageSize" 
         :alt="heroImageAlt || title" 
         class="blog-post-card__img"
       />
-    </div>
-    <!-- Fallback to direct image URL if provided -->
-    <div v-else-if="heroImageUrl" class="blog-post-card__image">
-      <img :src="heroImageUrl" :alt="title" class="blog-post-card__img">
+      <img 
+        v-else-if="heroImageUrl" 
+        :src="heroImageUrl" 
+        :alt="heroImageAlt || title" 
+        class="blog-post-card__img"
+      />
     </div>
     
     <div class="blog-post-card__content">
       <h2 class="blog-post-card__title">{{ title }}</h2>
       
       <div class="blog-post-card__meta">
-        <span class="blog-post-card__date">{{ date }}</span>
-        <div class="blog-post-card__author">
-          <div v-if="author.avatar" class="blog-post-card__author-avatar">
-            <AppImage 
-              :filename="author.avatar.filename" 
-              :alt="author.avatar.altText" 
-              :size="ImageSize.THUMBNAIL" 
-              class="blog-post-card__author-img"
-            />
-          </div>
-          <span class="blog-post-card__author-name">by {{ author.name }}</span>
+        <span v-if="date" class="blog-post-card__date">{{ date }}</span>
+        <div v-if="author" class="blog-post-card__author">
+          <!-- Author avatar if available -->
+          <AppImage 
+            v-if="author.avatar?.filename" 
+            :filename="author.avatar.filename" 
+            :alt="author.avatar.altText" 
+            :size="ImageSize.THUMBNAIL"
+            class="blog-post-card__author-avatar"
+          />
+          <span class="blog-post-card__author-name">
+            by {{ author.name }}
+          </span>
         </div>
       </div>
       
-      <!-- Tags visible only in full variant, now using TagPill component -->
-      <div v-if="variant === 'full' && tags && tags.length" class="blog-post-card__tags">
-        <TagPill
-          v-for="tag in tags"
-          :key="tag"
-          :text="tag"
-          size="small"
+      <!-- Tags visible only in full variant -->
+      <div v-if="variant === 'full' && tags.length > 0" class="blog-post-card__tags">
+        <TagPill 
+          v-for="tag in tags" 
+          :key="tag" 
+          :tag="tag"
           class="blog-post-card__tag"
         />
       </div>
       
       <div class="blog-post-card__excerpt">
         <!-- Shorter excerpt for compact variant -->
-        <template v-if="variant === 'compact'">
-          {{ content.substring(0, 100) }}...
-        </template>
-        <template v-else>
-          {{ content.substring(0, 200) }}...
-        </template>
+        {{ content.substring(0, variant === 'compact' ? 100 : 150) }}{{ content.length > (variant === 'compact' ? 100 : 150) ? '...' : '' }}
       </div>
       
-      <RouterLink :to="`/blog/${slug}`" class="blog-post-card__read-more btn btn--primary">
+      <router-link 
+        :to="`/blog/${slug}`" 
+        class="blog-post-card__read-more btn btn--primary"
+      >
         Read More
-      </RouterLink>
+      </router-link>
     </div>
   </article>
 </template>

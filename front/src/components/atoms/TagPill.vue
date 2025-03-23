@@ -1,20 +1,38 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+
 interface Props {
-  text: string;
-  variant?: 'default' | 'primary' | 'secondary';
-  size?: 'small' | 'medium' | 'large';
+  tag: string;
+  clickable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'default',
-  size: 'medium'
+  clickable: true
+});
+
+const router = useRouter();
+
+const navigateToTag = () => {
+  if (props.clickable) {
+    router.push(`/blog/tag/${props.tag}`);
+  }
+};
+
+// Make sure tag is displayed properly
+const displayTag = computed(() => {
+  return props.tag ? props.tag.replace(/-/g, ' ') : '';
 });
 </script>
 
 <template>
-  <span class="tag-pill" :class="[`tag-pill--${variant}`, `tag-pill--${size}`]">
-    {{ text }}
-  </span>
+  <div 
+    class="tag-pill" 
+    :class="{ 'tag-pill--clickable': clickable }"
+    @click="navigateToTag"
+  >
+    {{ displayTag }}
+  </div>
 </template>
 
 <style scoped>

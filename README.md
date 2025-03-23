@@ -1,6 +1,114 @@
-# Vue Blog
+# TSS Project
 
-A modern blog application built with Vue 3 and TypeScript.
+Full-stack application with Vue.js frontend and Node.js backend using a hybrid database approach.
+
+## Docker Setup
+
+This project is fully containerized with Docker, making it easy to set up and run the entire stack with a single command.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Running the Application
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd tss
+   ```
+
+2. Start all services:
+   ```bash
+   docker-compose up
+   ```
+
+   Or run in detached mode:
+   ```bash
+   docker-compose up -d
+   ```
+
+3. Access the application:
+   - Frontend: http://localhost:8080
+   - Backend API: http://localhost:4000/api
+   - GraphQL Playground: http://localhost:4000/graphql
+
+### Services
+
+The Docker setup includes the following services:
+
+- **Frontend**: Vue.js application
+- **Backend**: Node.js/Express.js API
+- **MongoDB**: Document database for social content
+- **PostgreSQL**: Relational database for user accounts and relationships
+- **Redis**: Caching and session management
+
+### Development Workflow
+
+When developing, any changes to the front or back directories will be automatically reflected in the running containers thanks to volume mounting.
+
+### Database Management
+
+- MongoDB data is persisted in the `mongo_data` volume
+- PostgreSQL data is persisted in the `postgres_data` volume
+- Redis data is persisted in the `redis_data` volume
+
+You can connect to the databases using the following credentials:
+
+- **MongoDB**: mongodb://localhost:27017/tss
+- **PostgreSQL**: 
+  - Host: localhost
+  - Port: 5432
+  - User: postgres
+  - Password: postgres
+  - Database: tss
+- **Redis**: redis://localhost:6379
+
+### Stopping the Application
+
+To stop all services:
+```bash
+docker-compose down
+```
+
+To stop all services and remove volumes (this will delete all data):
+```bash
+docker-compose down -v
+```
+
+## Architecture
+
+### Database Strategy
+
+The project uses a hybrid database approach:
+
+1. **MongoDB**: Primary database for social content and blog posts
+   - Strengths: Schema flexibility, horizontal scaling
+   - Use cases: User-generated content, blogs, posts, comments
+
+2. **PostgreSQL**: Relational data 
+   - Strengths: ACID compliance, complex queries, transactions
+   - Use cases: User accounts, authentication data, relationships
+
+3. **Redis**: Caching and session management
+   - Strengths: In-memory data store, extremely fast operations
+   - Use cases: Session storage, caching, rate limiting, real-time features
+
+### Frontend
+
+- Vue.js with TypeScript
+- Atomic design principles
+- Global semantic variables for styling
+
+### Backend
+
+- Node.js with Express.js
+- TypeScript
+- GraphQL with Apollo Server
+- RESTful endpoints
+- JWT authentication
+- Domain-driven design principles
 
 ## Project Structure
 
