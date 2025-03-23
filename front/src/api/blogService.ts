@@ -34,15 +34,19 @@ export async function fetchBlogPosts(limit?: number): Promise<BlogPostPreview[]>
  */
 export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost> {
   try {
-    const response = await apiGet<BlogPost>(`/v1/blog/${slug}`);
+    console.log(`Frontend: Fetching blog post with slug "${slug}"`);
+    const response = await apiGet<ApiResponse<BlogPost>>(`/v1/blog/${slug}`);
+    
+    console.log('Frontend: API response:', response);
     
     if (response && response.success && response.data) {
+      // Return the post data from the API response
       return response.data;
     }
     
     throw new Error('Post not found');
   } catch (error) {
-    console.error(`Error fetching blog post with slug ${slug}:`, error);
+    console.error(`Frontend: Error fetching blog post with slug ${slug}:`, error);
     throw error;
   }
 }

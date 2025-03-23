@@ -228,7 +228,7 @@ const imageService = {
     format: ImageFormat = ImageFormat.WEBP,
     quality: number = 85
   ): string => {
-    const baseUrl = process.env.IMAGE_API_URL || 'http://localhost:3000/api/v1/images';
+    const baseUrl = process.env.IMAGE_API_URL || 'http://localhost:4000/api/v1/images';
     const params = new URLSearchParams();
     
     if (size !== ImageSize.FULL) {
@@ -252,33 +252,19 @@ const imageService = {
   }
 };
 
-// Function to get formatted image URL from the image API
+/**
+ * Get a URL for a hero image
+ */
 export const getHeroImageUrl = (filename: string): string => {
-  // For development, use a deterministic placeholder if the file doesn't exist
-  const doesFileExist = images.some(img => img.filename === filename);
-  
-  if (!doesFileExist) {
-    // Using Lorem Picsum to generate random images based on the filename
-    // This creates a deterministic hash from the filename so the same filename always gets the same image
-    const hash = filename
-      .split('')
-      .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000;
-    
-    return `https://picsum.photos/seed/${hash}/1200/600`;
-  }
-  
-  // For production or if the file exists, use the actual image service
-  return imageService.getImageUrl(filename, ImageSize.FULL, ImageFormat.WEBP, 90);
+  const baseUrl = process.env.IMAGE_API_URL || 'http://localhost:4000/api/v1/images';
+  return `${baseUrl}/${filename}`;
 };
 
 /**
- * Get public URL for an image
+ * Get an image URL
  */
 export function getImageUrl(filename: string, size: string = 'medium'): string {
-  // Base URL for images - make sure this matches your server configuration
-  const baseUrl = process.env.IMAGE_BASE_URL || 'http://localhost:4000/api/images';
-  
-  // Return full URL for the image
+  const baseUrl = process.env.IMAGE_API_URL || 'http://localhost:4000/api/v1/images';
   return `${baseUrl}/${filename}?size=${size}`;
 }
 

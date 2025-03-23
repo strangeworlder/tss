@@ -121,7 +121,9 @@ The project follows a modular architecture:
 - `models/` - Database models
 - `schemas/` - GraphQL schemas
 
-## Getting Started
+## Local Development Setup
+
+If you prefer to develop without Docker, you can set up the project locally:
 
 ### Prerequisites
 

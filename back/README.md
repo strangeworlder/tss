@@ -1,6 +1,6 @@
-# Vue Blog Backend
+# TSS Project Backend
 
-This is the backend service for the Vue Blog application, providing REST and GraphQL APIs for blog content, user management, and image processing.
+This is the backend service for the TSS Project, providing REST and GraphQL APIs for blog content, user management, and image processing.
 
 ## Architecture
 
@@ -35,6 +35,20 @@ Code is organized into modules by feature/domain in the `domains/` directory.
 
 ## Setup
 
+### Docker (Recommended)
+
+The easiest way to run the backend is using Docker:
+
+```bash
+# From the project root
+docker-compose up backend
+```
+
+The API will be available at http://localhost:4000/api
+The GraphQL playground will be available at http://localhost:4000/graphql
+
+### Local Setup
+
 1. Install dependencies:
    ```
    npm install
@@ -57,143 +71,3 @@ The project uses database migrations to manage schema changes:
 Run migrations with:
 
 ```
-npm run migrations:up
-```
-
-## API Reference
-
-### GraphQL API
-
-The GraphQL API is available at `/api/graphql`. It provides a flexible way to query and mutate data.
-
-#### Image API
-
-The image API provides ways to retrieve image metadata and generate URLs for image processing.
-
-##### Queries
-
-- `images`: Fetches all available images
-  ```graphql
-  query {
-    images {
-      id
-      filename
-      width
-      height
-      url
-      altText
-    }
-  }
-  ```
-
-- `image(id: ID!)`: Fetches an image by ID
-  ```graphql
-  query {
-    image(id: "1") {
-      id
-      filename
-      width
-      height
-      url
-      altText
-    }
-  }
-  ```
-
-- `imageByFilename(filename: String!)`: Fetches an image by filename
-  ```graphql
-  query {
-    imageByFilename(filename: "example-image.jpg") {
-      id
-      filename
-      width
-      height
-      url
-      altText
-    }
-  }
-  ```
-
-- `getImageUrl(filename: String!, size: ImageSize, format: ImageFormat, quality: Int)`: Generates a URL for an image with processing options
-  ```graphql
-  query {
-    getImageUrl(
-      filename: "example-image.jpg", 
-      size: MEDIUM, 
-      format: WEBP, 
-      quality: 85
-    ) {
-      url
-      size
-      format
-    }
-  }
-  ```
-
-##### Mutations
-
-- `updateImageMetadata(id: ID!, altText: String)`: Updates image metadata
-  ```graphql
-  mutation {
-    updateImageMetadata(
-      id: "1", 
-      altText: "Updated image description"
-    ) {
-      id
-      filename
-      altText
-      updatedAt
-    }
-  }
-  ```
-
-### REST API
-
-#### Image Endpoints
-
-- `GET /api/images/:filename`: Fetches and processes an image
-  - Query parameters:
-    - `size`: Resizes the image (`thumbnail`, `medium`, `full`)
-    - `format`: Converts the image format (`webp`, `jpeg`, `png`)
-    - `quality`: Adjusts image quality (1-100)
-    - `crop`: Specifies crop area
-  
-  Example:
-  ```
-  GET /api/images/example-image.jpg?size=medium&format=webp&quality=85
-  ```
-
-## Image Processing Details
-
-The image API uses Sharp for image processing, offering the following capabilities:
-
-- **Resizing**: Convert images to different sizes
-  - `thumbnail`: 150x150px
-  - `medium`: 400x300px
-  - `full`: Original size
-
-- **Format Conversion**: Convert images to different formats
-  - `webp`: Modern format with better compression
-  - `jpeg`: Standard format for photos
-  - `png`: Format with alpha channel support
-  - `original`: Keep the original format
-
-- **Quality Adjustment**: Compress images with quality settings (1-100)
-
-- **Caching**: Images are cached with appropriate headers for optimal performance
-
-## Development
-
-### Dependencies
-
-- Express.js: Web framework
-- Apollo Server: GraphQL server
-- Sharp: Image processing library
-- GraphQL: API query language
-
-### Environment Variables
-
-Key environment variables:
-- `PORT`: Server port
-- `NODE_ENV`: Environment mode
-- `API_PREFIX`: Prefix for API routes 

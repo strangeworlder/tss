@@ -13,13 +13,16 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 // import { userResolvers } from './domains/users/resolvers/user.resolver';
 import { SERVER } from './config/config';
 // import blogRoutes from './domains/blog/routes/blog.routes';
-// import imageRoutes from './domains/images/routes/image.routes';
+import imageRoutes from './domains/images/routes/image.routes';
 // import authRoutes from './domains/users/routes/auth.routes';
 // import { connectDatabases } from './db/index';
 // import { errorMiddleware, formatGraphQLError } from './utils/error.handler';
 // import { apiLimiter } from './middlewares/rateLimiter.middleware';
 // import { WebSocketService } from './services/websocket.service';
 import path from 'path';
+// Import blog routes
+import blogRoutes from './domains/blog/routes';
+import { connectMongoDB } from './db/mongodb/connection';
 
 // Temporary dummy exports to satisfy compiler
 const imageTypeDefs = `
@@ -76,69 +79,6 @@ const formatGraphQLError = (err: any) => {
   return new Error('Internal GraphQL Error');
 };
 
-// Simple route handlers
-const blogRoutes = express.Router();
-
-// Add a proper JSON response
-blogRoutes.get('/', (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    data: [
-      {
-        id: '1',
-        title: 'Getting Started with Vue 3',
-        slug: 'getting-started-with-vue-3',
-        excerpt: 'Learn the basics of Vue 3 and the Composition API.',
-        content: '# Getting Started with Vue 3\n\nVue 3 introduces the Composition API...',
-        author: {
-          name: 'Jane Smith',
-          avatar: {
-            filename: 'jane-smith.jpg',
-            altText: 'Jane Smith profile picture'
-          }
-        },
-        heroImage: {
-          filename: 'vue3-hero.jpg',
-          altText: 'Vue 3 logo and code'
-        },
-        heroImageUrl: 'https://picsum.photos/800/400',
-        tags: ['vue', 'javascript', 'frontend'],
-        createdAt: '2025-03-22T09:00:00Z',
-        updatedAt: '2025-03-22T09:00:00Z',
-        publishedAt: '2025-03-22T09:00:00Z',
-        isPublished: true
-      },
-      {
-        id: '2',
-        title: 'TypeScript and Vue: Perfect Combination',
-        excerpt: 'Why TypeScript and Vue work so well together.',
-        content: '# TypeScript and Vue\n\nUsing TypeScript with Vue provides type safety...',
-        author: 'John Doe',
-        createdAt: '2025-03-20T14:30:00Z',
-        imageUrl: 'https://picsum.photos/800/400?random=2'
-      }
-    ]
-  });
-});
-
-const imageRoutes = express.Router();
-imageRoutes.get('/', (req, res) => res.json({ message: 'Image API' }));
-// Add placeholder image endpoint
-imageRoutes.get('/placeholder:id.:ext', (req: Request, res: Response) => {
-  const { id, ext } = req.params;
-  const { size, format } = req.query;
-  
-  // In a real implementation, this would generate or serve an actual image
-  // For now, we'll just return a JSON response
-  res.json({
-    id,
-    ext,
-    size: size || 'medium',
-    format: format || ext,
-    url: `http://localhost:4000/api/images/placeholder${id}.${ext}?size=${size || 'medium'}&format=${format || ext}`
-  });
-});
-
 const authRoutes = express.Router();
 authRoutes.get('/', (req, res) => res.json({ message: 'Auth API' }));
 
@@ -153,8 +93,8 @@ const app = express();
 
 // Configure CORS - add this before any routes
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000'], // Add all potential frontend origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000', 'http://localhost:4000'], // Add all potential frontend origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
@@ -182,6 +122,43 @@ app.get('/api/health', (req, res) => {
 
 // Static files
 app.use('/static', express.static(path.join(__dirname, '../public')));
+
+// Serve images from uploads directory with proper CORS headers
+app.use('/uploads/images', express.static(path.join(__dirname, '../public/uploads/images'), {
+  setHeaders: (res, path) => {
+    // Set appropriate CORS headers for static files
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173', 
+      'http://localhost:8080'
+    ];
+    
+    // Get the origin from the request
+    const origin = res.req.headers.origin;
+    
+    // If the origin is in our allowed list, set it as the CORS origin
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      // Otherwise use the first allowed origin
+      res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
+    }
+    
+    // Set other necessary headers
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    
+    // Set the appropriate content type based on file extension
+    if (path.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (path.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    }
+  }
+}));
 
 // Routes
 app.use('/api/v1/blog', blogRoutes);
@@ -240,11 +217,21 @@ async function startServer() {
   // Add error handling middleware
   app.use(errorMiddleware);
   
-  // Start the server
-  httpServer.listen(SERVER.PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server ready at http://0.0.0.0:${SERVER.PORT}${apolloServer.graphqlPath}`);
-    console.log(`🔌 WebSocket server ready at ws://0.0.0.0:${SERVER.PORT}`);
-  });
+  // Connect to MongoDB
+  connectMongoDB()
+    .then(() => {
+      console.log('Connected to MongoDB successfully');
+      
+      // Start the server after successful database connection
+      httpServer.listen(SERVER.PORT, '0.0.0.0', () => {
+        console.log(`🚀 Server ready at http://0.0.0.0:${SERVER.PORT}${apolloServer.graphqlPath}`);
+        console.log(`🔌 WebSocket server ready at ws://0.0.0.0:${SERVER.PORT}`);
+      });
+    })
+    .catch(err => {
+      console.error('Failed to connect to MongoDB:', err);
+      process.exit(1);
+    });
 }
 
 startServer().catch(err => {
