@@ -7,7 +7,10 @@ export interface BlogPost {
   excerpt: string;
   author: {
     name: string;
-    avatar?: string;
+    avatar?: {
+      filename: string;
+      altText: string;
+    };
   };
   heroImage: {
     filename: string;
@@ -69,7 +72,10 @@ Start building your robust API today!`,
     excerpt: 'Learn how to set up a Node.js project with TypeScript and Express for better type safety and development experience.',
     author: {
       name: 'Jane Developer',
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
+      avatar: {
+        filename: 'placeholder1.webp',
+        altText: 'Jane Developer profile picture'
+      }
     },
     tags: ['typescript', 'express', 'nodejs', 'backend'],
     createdAt: new Date('2023-10-10T10:00:00Z'),
@@ -77,7 +83,7 @@ Start building your robust API today!`,
     publishedAt: new Date('2023-10-10T10:00:00Z'),
     isPublished: true,
     heroImage: {
-      filename: 'typescript-express-hero.jpg',
+      filename: 'placeholder2.webp',
       altText: 'TypeScript and Express code on a computer screen'
     }
   },
@@ -144,7 +150,10 @@ Following these practices will help you build a production-ready API!`,
     excerpt: 'A comprehensive guide to building robust REST APIs with Node.js, Express, and best practices for production.',
     author: {
       name: 'John Backend',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
+      avatar: {
+        filename: 'placeholder2.webp',
+        altText: 'John Backend profile picture'
+      }
     },
     tags: ['nodejs', 'express', 'rest', 'api', 'backend'],
     createdAt: new Date('2023-09-15T14:30:00Z'),
@@ -152,7 +161,7 @@ Following these practices will help you build a production-ready API!`,
     publishedAt: new Date('2023-09-16T10:00:00Z'),
     isPublished: true,
     heroImage: {
-      filename: 'rest-api-nodejs-hero.jpg',
+      filename: 'placeholder1.webp',
       altText: 'REST API concept diagram with Node.js logo'
     }
   },
@@ -244,7 +253,10 @@ Start leveraging the power of the Composition API in your Vue 3 projects today!`
     excerpt: 'Learn how to use Vue 3\'s Composition API to write more maintainable and reusable component logic.',
     author: {
       name: 'Sarah Frontend',
-      avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
+      avatar: {
+        filename: 'sarah-frontend.jpg',
+        altText: 'Sarah Frontend profile picture'
+      }
     },
     tags: ['vue', 'javascript', 'frontend', 'composition-api'],
     createdAt: new Date('2023-11-05T09:45:00Z'),
@@ -344,7 +356,10 @@ Choose the right tool for the specific requirements of your project!`,
     excerpt: 'An in-depth comparison of MongoDB and PostgreSQL to help you choose the right database for your next project.',
     author: {
       name: 'Alex DBAdmin',
-      avatar: 'https://randomuser.me/api/portraits/men/67.jpg'
+      avatar: {
+        filename: 'alex-dbadmin.jpg',
+        altText: 'Alex DBAdmin profile picture'
+      }
     },
     tags: ['database', 'mongodb', 'postgresql', 'nosql', 'sql'],
     createdAt: new Date('2023-08-20T16:15:00Z'),
@@ -509,7 +524,10 @@ By mastering these tools, you can create maintainable, responsive layouts that w
     excerpt: 'Master modern responsive web design using the power of CSS Grid and Flexbox for flexible, maintainable layouts.',
     author: {
       name: 'Olivia Designer',
-      avatar: 'https://randomuser.me/api/portraits/women/26.jpg'
+      avatar: {
+        filename: 'olivia-designer.jpg',
+        altText: 'Olivia Designer profile picture'
+      }
     },
     tags: ['css', 'responsive-design', 'frontend', 'flexbox', 'css-grid'],
     createdAt: new Date('2023-09-30T13:15:00Z'),

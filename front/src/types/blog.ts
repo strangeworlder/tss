@@ -5,7 +5,10 @@
 
 export interface Author {
   name: string;
-  avatar?: string;
+  avatar?: {
+    filename: string;
+    altText: string;
+  };
 }
 
 export interface HeroImage {

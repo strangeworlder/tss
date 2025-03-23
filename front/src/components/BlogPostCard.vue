@@ -6,7 +6,13 @@ import { ImageSize } from '@/types/image';
 interface Props {
   title: string;
   date: string;
-  author: string;
+  author: {
+    name: string;
+    avatar?: {
+      filename: string;
+      altText: string;
+    };
+  };
   content: string;
   heroImageFilename?: string;
   heroImageAlt?: string;
@@ -46,7 +52,17 @@ const imageSize = computed(() => props.variant === 'compact' ? ImageSize.THUMBNA
       
       <div class="blog-post-card__meta">
         <span class="blog-post-card__date">{{ date }}</span>
-        <span class="blog-post-card__author">by {{ author }}</span>
+        <div class="blog-post-card__author">
+          <div v-if="author.avatar" class="blog-post-card__author-avatar">
+            <AppImage 
+              :filename="author.avatar.filename" 
+              :alt="author.avatar.altText" 
+              :size="ImageSize.THUMBNAIL" 
+              class="blog-post-card__author-img"
+            />
+          </div>
+          <span class="blog-post-card__author-name">by {{ author.name }}</span>
+        </div>
       </div>
       
       <!-- Tags visible only in full variant -->
@@ -122,6 +138,22 @@ const imageSize = computed(() => props.variant === 'compact' ? ImageSize.THUMBNA
 
 .blog-post-card__author {
   margin-left: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.blog-post-card__author-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.blog-post-card__author-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .blog-post-card__tags {

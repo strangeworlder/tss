@@ -13,13 +13,14 @@ export const imageController = {
     try {
       const { filename } = req.params;
       const size = req.query.size as ImageSize || ImageSize.FULL;
+      const format = req.query.format as ImageFormat || ImageFormat.WEBP;
+      const quality = req.query.quality ? parseInt(req.query.quality as string) : 80;
       
-      // Process the image with server-side defaults for format and quality
+      // Process the image with requested parameters
       const result = await imageService.processImage(filename, {
         size,
-        // Server-side defaults, not exposed to frontend
-        format: ImageFormat.WEBP, // Modern format with good compression
-        quality: 80
+        format,
+        quality
       });
       
       if (!result.imageBuffer || !result.metadata) {

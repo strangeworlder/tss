@@ -175,7 +175,17 @@ onMounted(() => {
         
         <div class="blog-detail-view__meta">
           <span class="blog-detail-view__date">{{ formatDate(post.publishedAt) }}</span>
-          <span class="blog-detail-view__author">by {{ post.author.name }}</span>
+          <div class="blog-detail-view__author">
+            <div v-if="post.author.avatar" class="blog-detail-view__author-avatar">
+              <AppImage
+                :filename="post.author.avatar.filename"
+                :alt="post.author.avatar.altText"
+                :size="ImageSize.THUMBNAIL"
+                class="blog-detail-view__author-img"
+              />
+            </div>
+            <span class="blog-detail-view__author-name">by {{ post.author.name }}</span>
+          </div>
         </div>
         
         <div v-if="post.tags && post.tags.length" class="blog-detail-view__tags">
@@ -273,6 +283,30 @@ onMounted(() => {
 
 .blog-detail-view__button--back {
   background-color: var(--color-background-soft);
+  color: var(--color-text);
+}
+
+.blog-detail-view__author {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.blog-detail-view__author-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.blog-detail-view__author-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blog-detail-view__author-name {
+  font-size: 0.875rem;
   color: var(--color-text);
 }
 </style>
