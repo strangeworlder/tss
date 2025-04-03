@@ -11,10 +11,10 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 // import { imageResolvers } from './domains/images/resolvers/image.resolvers';
 // import { blogResolvers } from './domains/blog/resolvers/blog.resolvers';
 // import { userResolvers } from './domains/users/resolvers/user.resolver';
-import { SERVER } from './config/config';
+import { SERVER, MONGODB } from './config/config';
 // import blogRoutes from './domains/blog/routes/blog.routes';
 import imageRoutes from './domains/images/routes/image.routes';
-// import authRoutes from './domains/users/routes/auth.routes';
+import authRoutes from './domains/auth/routes/auth.routes';
 // import { connectDatabases } from './db/index';
 // import { errorMiddleware, formatGraphQLError } from './utils/error.handler';
 // import { apiLimiter } from './middlewares/rateLimiter.middleware';
@@ -23,6 +23,10 @@ import path from 'path';
 // Import blog routes
 import blogRoutes from './domains/blog/routes/blog.routes';
 import { connectMongoDB } from './db/mongodb/connection';
+import { connectRedis, redisClient } from './db/redis/connection';
+import userRoutes from './domains/users/routes/user.routes';
+import { errorHandler } from './middlewares/error.middleware';
+import mongoose from 'mongoose';
 
 // Temporary dummy exports to satisfy compiler
 const imageTypeDefs = `
@@ -79,64 +83,46 @@ const formatGraphQLError = (err: any) => {
   return new Error('Internal GraphQL Error');
 };
 
-const authRoutes = express.Router();
-authRoutes.get('/', (req, res) => res.json({ message: 'Auth API' }));
-
-// Skip database connection for now
-// connectDatabases().catch(err => {
-//  console.error('Failed to connect to databases:', err);
-//  process.exit(1);
-// });
-
-// Initialize Express
+// Create Express app
 const app = express();
 
-// Configure CORS - add this before any routes
+// Middleware
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000', 'http://localhost:4000'], // Add all potential frontend origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: SERVER.CORS_ORIGINS,
   credentials: true
 }));
+app.use(helmet());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Simple rate limiter
-const apiLimiter = (req: Request, res: Response, next: NextFunction) => next();
+// Connect to databases
+connectMongoDB();
 
-// Middleware
-app.use(helmet({ contentSecurityPolicy: false }));
-
-// Only parse JSON and URL-encoded bodies for non-multipart requests
-app.use((req, res, next) => {
-  if (!req.headers['content-type']?.includes('multipart/form-data')) {
-    express.json()(req, res, next);
-  } else {
-    next();
-  }
+// Initialize Redis connection
+connectRedis().catch(err => {
+  console.error('Failed to connect to Redis:', err);
+  // Don't exit process, just log the error
 });
 
-app.use((req, res, next) => {
-  if (!req.headers['content-type']?.includes('multipart/form-data')) {
-    express.urlencoded({ extended: true })(req, res, next);
-  } else {
-    next();
-  }
-});
-
-// Rate limiting
-app.use('/api', apiLimiter);
+// Routes
+app.use('/api/v1/images', imageRoutes);
+app.use('/api/v1/blog', blogRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
 
 // Add a basic health check endpoint
-app.get('/healthcheck', (req, res) => {
+app.get('/api/healthcheck', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
 // Add a health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'API server is running' });
+app.get('/api/health', (req: Request, res: Response) => {
+  res.json({ status: 'OK', message: 'Server is running' });
 });
 
 // Static files
 app.use('/static', express.static(path.join(__dirname, '../public')));
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Serve images from uploads directory with proper CORS headers
 app.use('/uploads/images', express.static(path.join(__dirname, '../public/uploads/images'), {
@@ -175,11 +161,6 @@ app.use('/uploads/images', express.static(path.join(__dirname, '../public/upload
   }
 }));
 
-// Routes
-app.use('/api/v1/blog', blogRoutes);
-app.use('/api/v1/images', imageRoutes);
-app.use('/api/v1/auth', authRoutes);
-
 // Add an API root endpoint
 app.get('/api', (req: Request, res: Response) => {
   res.json({
@@ -217,38 +198,55 @@ class WebSocketService {
 }
 
 async function startServer() {
-  // Start the Apollo server
-  await apolloServer.start();
-  
-  // Apply Apollo middleware to Express - cast to any to avoid type error
-  apolloServer.applyMiddleware({ app: app as any, path: '/graphql' });
-  
-  // Create HTTP server from Express app
-  const httpServer = createServer(app);
-  
-  // Initialize WebSocket service
-  const wsService = new WebSocketService(httpServer);
-  
-  // Add error handling middleware
-  app.use(errorMiddleware);
-  
-  // Connect to MongoDB
-  connectMongoDB()
-    .then(() => {
-      console.log('Connected to MongoDB successfully');
-      
-      // Start the server after successful database connection
-      httpServer.listen(SERVER.PORT, '0.0.0.0', () => {
-        console.log(`🚀 Server ready at http://0.0.0.0:${SERVER.PORT}${apolloServer.graphqlPath}`);
-        console.log(`🔌 WebSocket server ready at ws://0.0.0.0:${SERVER.PORT}`);
-      });
-    })
-    .catch(err => {
-      console.error('Failed to connect to MongoDB:', err);
-      process.exit(1);
+  try {
+    // Start the Apollo server
+    await apolloServer.start();
+    
+    // Apply Apollo middleware to Express - cast to any to avoid type error
+    apolloServer.applyMiddleware({ app: app as any, path: '/graphql' });
+    
+    // Create HTTP server from Express app
+    const httpServer = createServer(app);
+    
+    // Initialize WebSocket service
+    const wsService = new WebSocketService(httpServer);
+    
+    // Connect to MongoDB
+    await connectMongoDB();
+    
+    // Start the server after successful database connection
+    httpServer.listen(SERVER.PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server ready at http://0.0.0.0:${SERVER.PORT}${apolloServer.graphqlPath}`);
     });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
-startServer().catch(err => {
-  console.error('Failed to start server:', err);
-}); 
+// Handle process termination
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    await redisClient.disconnect();
+    console.log('Gracefully shutting down');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+    process.exit(1);
+  }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+startServer();

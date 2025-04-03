@@ -6,6 +6,8 @@ export interface BlogPost {
   content: string;
   excerpt: string;
   author: {
+    type: 'user' | 'text';
+    id?: string; // User ID if type is 'user'
     name: string;
     avatar?: {
       filename: string;

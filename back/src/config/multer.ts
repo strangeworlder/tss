@@ -1,15 +1,24 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, '../../public/uploads/images');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../public/uploads/images'));
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    // Use the same naming pattern as in the controller
+    const userId = req.user?.id || 'unknown';
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar-${userId}-${timestamp}${ext}`);
   }
 });
 

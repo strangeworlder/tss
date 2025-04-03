@@ -30,7 +30,7 @@ const fetchPosts = async () => {
   error.value = null;
   
   try {
-    await blogStore.fetchPosts();
+    await blogStore.fetchAdminPosts();
   } catch (err) {
     console.error('Error fetching blog posts:', err);
     error.value = err instanceof Error ? err.message : 'Failed to load blog posts';
@@ -86,6 +86,14 @@ onMounted(() => {
           <div class="blog-post-list__meta">
             <span class="blog-post-list__date">{{ formatDate(post.publishedAt) }}</span>
             <span class="blog-post-list__author">by {{ post.author.name }}</span>
+            <span 
+              :class="[
+                'blog-post-list__status',
+                post.isPublished ? 'blog-post-list__status--published' : 'blog-post-list__status--draft'
+              ]"
+            >
+              {{ post.isPublished ? 'Published' : 'Draft' }}
+            </span>
           </div>
           <div class="blog-post-list__actions">
             <button 
@@ -121,7 +129,7 @@ onMounted(() => {
   height: 2rem;
   border-radius: 50%;
   border: 0.25rem solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border-top-color: var(--color-highlight-1);
   animation: spin 1s linear infinite;
   margin-bottom: var(--spacing-2);
 }
@@ -133,7 +141,9 @@ onMounted(() => {
 .blog-post-list__error {
   text-align: center;
   padding: var(--spacing-4);
-  color: var(--color-error);
+  color: var(--color-highlight-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
 }
 
 .blog-post-list__grid {
@@ -147,7 +157,7 @@ onMounted(() => {
   border-radius: var(--border-radius);
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease-in-out;
+  transition: transform var(--transition-fast);
 }
 
 .blog-post-list__item:hover {
@@ -176,7 +186,7 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--color-background-hover);
+  background-color: var(--color-background-soft);
 }
 
 .blog-post-list__content {
@@ -184,17 +194,19 @@ onMounted(() => {
 }
 
 .blog-post-list__title {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-heading);
   margin-bottom: var(--spacing-2);
+  font-family: var(--font-family-base);
 }
 
 .blog-post-list__meta {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--color-text);
   opacity: 0.8;
   margin-bottom: var(--spacing-4);
+  font-family: var(--font-family-base);
 }
 
 .blog-post-list__date {
@@ -209,27 +221,47 @@ onMounted(() => {
 .blog-post-list__button {
   padding: var(--spacing-2) var(--spacing-4);
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-fast);
 }
 
 .blog-post-list__button--edit {
-  background-color: var(--color-primary);
-  color: white;
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
 }
 
 .blog-post-list__button--edit:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-highlight-2);
 }
 
 .blog-post-list__button--retry {
-  background-color: var(--color-background-hover);
+  background-color: var(--color-background-soft);
   color: var(--color-text);
 }
 
 .blog-post-list__button--retry:hover {
   background-color: var(--color-border);
+}
+
+.blog-post-list__status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.blog-post-list__status--published {
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
+}
+
+.blog-post-list__status--draft {
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
 }
 </style> 

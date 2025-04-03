@@ -36,6 +36,11 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
+
+const router = useRouter();
+const authStore = useAuthStore();
 
 // Form data
 const formData = reactive({
@@ -91,7 +96,8 @@ const handleSubmit = async () => {
   
   try {
     // Call API
-    const response = await fetch('http://localhost:3000/api/v1/auth/login', {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -105,13 +111,11 @@ const handleSubmit = async () => {
       throw new Error(data.message || 'Failed to login');
     }
     
-    // Store token in localStorage
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
+    // Store token and user data
+    authStore.setAuthData(data.user, data.token);
     
-    // Redirect to dashboard or home page
-    // In a real app, you might use Vue Router here
-    window.location.href = '/';
+    // Redirect to home
+    router.push('/');
   } catch (error) {
     // Show error message
     errorMessage.value = error instanceof Error ? error.message : 'An error occurred';
@@ -126,70 +130,83 @@ const handleSubmit = async () => {
 .login-form {
   max-width: 480px;
   margin: 0 auto;
-  padding: 2rem;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+  padding: var(--spacing-8);
+  border-radius: var(--border-radius);
+  background-color: var(--color-background-soft);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
+  margin-bottom: var(--spacing-6);
+  color: var(--color-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-4);
 }
 
 label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555;
+  margin-bottom: var(--spacing-2);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
 }
 
 input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
+  transition: border-color var(--transition-fast);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-border-hover);
 }
 
 .form-group.error input {
-  border-color: #e53935;
+  border-color: var(--color-highlight-1);
 }
 
 .error-message {
-  color: #e53935;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+  color: var(--color-highlight-1);
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-1);
 }
 
 .form-actions {
-  margin-top: 1.5rem;
+  margin-top: var(--spacing-6);
   text-align: center;
 }
 
 .btn-login {
-  background-color: #2196f3;
-  color: white;
-  padding: 0.75rem 1.5rem;
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
+  padding: var(--spacing-3) var(--spacing-6);
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color var(--transition-normal);
+  font-family: var(--font-family-base);
 }
 
 .btn-login:hover {
-  background-color: #1976d2;
+  background-color: var(--color-highlight-2);
 }
 
 .btn-login:disabled {
-  background-color: #9e9e9e;
+  background-color: var(--color-border);
   cursor: not-allowed;
 }
 </style> 

@@ -1,15 +1,19 @@
 import { Request, Response } from 'express';
 import imageService from '../../images/services/image.service';
 import BlogPostModel, { IBlogPost } from '../models/BlogPostModel';
+import User, { IUser, UserRole } from '../../users/models/user.model';
 
-// Get all blog posts (with optional limit)
+// Get all published blog posts
 export const getAllPosts = async (req: Request, res: Response) => {
   try {
     // Get the limit from query params (default to 10)
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
     
+    // Only get published posts
+    const query = { isPublished: true };
+    
     // Get posts with the specified limit
-    const posts = await BlogPostModel.find({ isPublished: true })
+    const posts = await BlogPostModel.find(query)
       .sort({ publishedAt: -1 })
       .limit(limit)
       .lean();
@@ -19,14 +23,13 @@ export const getAllPosts = async (req: Request, res: Response) => {
       const typedPost = post as unknown as IBlogPost & { _id: any };
       return {
         ...typedPost,
-        id: typedPost._id.toString(), // Convert MongoDB _id to id for client
+        id: typedPost._id.toString(),
         heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
-        // Make sure all tags are proper strings
         tags: Array.isArray(typedPost.tags) ? typedPost.tags.map(tag => String(tag)) : [],
-        // Convert dates to ISO strings for JSON serialization
         createdAt: new Date(typedPost.createdAt).toISOString(),
         updatedAt: new Date(typedPost.updatedAt).toISOString(),
-        publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null
+        publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null,
+        isPublished: typedPost.isPublished
       };
     });
     
@@ -35,11 +38,62 @@ export const getAllPosts = async (req: Request, res: Response) => {
       count: posts.length,
       data: enhancedPosts
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching posts:', error);
     return res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Get all blog posts for admin (including unpublished)
+export const getAllAdminPosts = async (req: Request, res: Response) => {
+  try {
+    // Verify admin role
+    if (req.user?.role !== UserRole.ADMIN) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Not authorized. Admin access required.' 
+      });
+    }
+
+    // Get the limit from query params (default to 50 for admin view)
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+    
+    // Get all posts without filtering by isPublished
+    const posts = await BlogPostModel.find()
+      .sort({ updatedAt: -1 }) // Sort by last updated for admin view
+      .limit(limit)
+      .lean();
+    
+    // Enhance posts with hero image URLs and convert dates to strings
+    const enhancedPosts = posts.map(post => {
+      const typedPost = post as unknown as IBlogPost & { _id: any };
+      return {
+        ...typedPost,
+        id: typedPost._id.toString(),
+        heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
+        tags: Array.isArray(typedPost.tags) ? typedPost.tags.map(tag => String(tag)) : [],
+        createdAt: new Date(typedPost.createdAt).toISOString(),
+        updatedAt: new Date(typedPost.updatedAt).toISOString(),
+        publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null,
+        isPublished: typedPost.isPublished
+      };
+    });
+    
+    return res.status(200).json({
+      success: true,
+      count: posts.length,
+      data: enhancedPosts
+    });
+  } catch (error: unknown) {
+    console.error('Error fetching admin posts:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
@@ -48,14 +102,12 @@ export const getAllPosts = async (req: Request, res: Response) => {
 export const getPost = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    console.log(`Backend: Fetching post with slug "${slug}" from params:`, req.params);
     
     // Get the post by slug
     const post = await BlogPostModel.findOne({ slug }).lean();
     
     // If post not found
     if (!post) {
-      console.log(`Backend: Post with slug "${slug}" not found.`);
       return res.status(404).json({ 
         success: false, 
         message: 'Post not found' 
@@ -63,7 +115,6 @@ export const getPost = async (req: Request, res: Response) => {
     }
     
     const typedPost = post as unknown as IBlogPost & { _id: any };
-    console.log(`Backend: Found post with title "${typedPost.title}"`);
     
     // Add hero image URL and convert dates
     const enhancedPost = {
@@ -80,11 +131,12 @@ export const getPost = async (req: Request, res: Response) => {
       success: true,
       data: enhancedPost,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching post:', error);
     return res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
@@ -123,11 +175,12 @@ export const getPostsByTag = async (req: Request, res: Response) => {
       count: enhancedPosts.length,
       data: enhancedPosts
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching posts by tag:', error);
     return res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
@@ -180,97 +233,171 @@ export const getPostById = async (req: Request, res: Response) => {
 // Update a blog post
 export const updatePost = async (req: Request, res: Response) => {
   try {
-    console.log('Backend: [3] Controller - updatePost started');
-    console.log('Backend: [3] Request params:', req.params);
-    console.log('Backend: [3] Request body:', req.body);
-    console.log('Backend: [3] Request files:', req.files);
-    console.log('Backend: [3] Request headers:', req.headers);
-    
-    const postId = req.params.id;
-    console.log('Backend: [3] Looking for post with ID:', postId);
-    
-    const existingPost = await BlogPostModel.findById(postId);
-    console.log('Backend: [3] Found post:', existingPost ? 'yes' : 'no');
-    
-    if (!existingPost) {
-      console.log('Backend: [3] Post not found, returning 404');
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const updateData: any = {};
+
+    console.log('Backend: [1] Raw request body:', req.body);
+
+    // Parse fields that might be sent as strings
+    const parsedBody = {
+      ...req.body,
+      isPublished: req.body.isPublished === 'true' || req.body.isPublished === true,
+      tags: typeof req.body.tags === 'string' ? JSON.parse(req.body.tags) : req.body.tags || [],
+      author: typeof req.body.author === 'string' ? JSON.parse(req.body.author) : req.body.author,
+      publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : null
+    };
+
+    console.log('Backend: [2] Parsed request body:', parsedBody);
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+
+    // Get user details
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get the post
+    const post = await BlogPostModel.findById(id);
+    if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    console.log('Backend: [3] Current post data:', {
-      title: existingPost.title,
-      content: existingPost.content,
-      excerpt: existingPost.excerpt,
-      tags: existingPost.tags,
-      publishedAt: existingPost.publishedAt,
-      isPublished: existingPost.isPublished
-    });
-
-    console.log('Backend: [3] Update data from request:', {
-      title: req.body.title,
-      content: req.body.content,
-      excerpt: req.body.excerpt,
-      tags: req.body.tags,
-      publishDate: req.body.publishDate,
-      publishedAt: req.body.publishedAt,
-      isPublished: req.body.isPublished
-    });
-
-    // Only update fields that are provided in the request
-    if (req.body.title) existingPost.title = req.body.title;
-    if (req.body.content) existingPost.content = req.body.content;
-    if (req.body.excerpt) existingPost.excerpt = req.body.excerpt;
-    if (req.body.tags) existingPost.tags = req.body.tags;
-    
-    // Handle date fields - support both publishDate and publishedAt
-    if (req.body.publishDate) {
-      existingPost.publishedAt = new Date(req.body.publishDate);
-    } else if (req.body.publishedAt) {
-      existingPost.publishedAt = new Date(req.body.publishedAt);
+    // Check if user is admin or post author
+    if (user.role !== UserRole.ADMIN && post.author.id?.toString() !== userId) {
+      return res.status(403).json({ message: 'Not authorized' });
     }
-    
-    if (req.body.isPublished !== undefined) existingPost.isPublished = req.body.isPublished;
-    
-    // Handle hero image update if a new file was uploaded
-    if (req.file) {
-      existingPost.heroImage = {
-        filename: req.file.filename,
-        altText: `Cover image for ${existingPost.title}`
-      };
+
+    // Handle author update
+    if (parsedBody.author) {
+      if (user.role === UserRole.ADMIN) {
+        // Admin can set any user as author or use free text
+        if (parsedBody.author.type === 'user' && parsedBody.author.id) {
+          const authorUser = await User.findById(parsedBody.author.id);
+          if (!authorUser) {
+            return res.status(404).json({ message: 'Author user not found' });
+          }
+          updateData.author = {
+            type: 'user',
+            id: authorUser._id.toString(),
+            name: `${authorUser.firstName} ${authorUser.lastName}`,
+            avatar: authorUser.avatar
+          };
+        } else {
+          // Free text author
+          updateData.author = {
+            type: 'text',
+            name: parsedBody.author.name
+          };
+        }
+      } else {
+        // Non-admin users can only set themselves as author
+        updateData.author = {
+          type: 'user',
+          id: user._id.toString(),
+          name: `${user.firstName} ${user.lastName}`,
+          avatar: user.avatar
+        };
+      }
     }
-    
-    console.log('Backend: Post after updates:', {
-      ...existingPost.toObject(),
-      publishedAt: existingPost.publishedAt
-    });
-    
-    await existingPost.save();
-    console.log('Backend: Post saved successfully');
-    
-    // Get the updated post
-    const updatedPost = await BlogPostModel.findById(postId).lean();
-    const typedPost = updatedPost as unknown as IBlogPost & { _id: any };
-    
-    // Add hero image URL and convert dates
+
+    // Handle other fields
+    if (parsedBody.title) {
+      updateData.title = parsedBody.title;
+      // Only generate a new slug if the title has changed
+      if (post.title !== parsedBody.title) {
+        const baseSlug = parsedBody.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+        
+        // Check if slug exists and append a number if it does
+        let slug = baseSlug;
+        let counter = 1;
+        while (await BlogPostModel.findOne({ slug, _id: { $ne: id } })) {
+          slug = `${baseSlug}-${counter}`;
+          counter++;
+        }
+        updateData.slug = slug;
+      }
+    }
+
+    if (parsedBody.content) {
+      updateData.content = parsedBody.content;
+      updateData.excerpt = parsedBody.excerpt || parsedBody.content.substring(0, 200);
+    }
+
+    if (parsedBody.tags) {
+      updateData.tags = parsedBody.tags;
+    }
+
+    if (parsedBody.publishedAt) {
+      updateData.publishedAt = parsedBody.publishedAt;
+    }
+
+    if (parsedBody.isPublished !== undefined) {
+      updateData.isPublished = parsedBody.isPublished;
+    } else {
+      // Preserve existing isPublished value if not provided in update
+      updateData.isPublished = post.isPublished;
+    }
+
+    console.log('Backend: [3] Update data:', updateData);
+
+    // Update the post
+    const updatedPost = await BlogPostModel.findOneAndUpdate(
+      { _id: id },
+      { $set: updateData },
+      { 
+        new: true,
+        runValidators: true,
+        context: 'query'
+      }
+    );
+
+    if (!updatedPost) {
+      console.error('Backend: Post not found after update attempt');
+      return res.status(404).json({ 
+        success: false,
+        message: 'Post not found after update' 
+      });
+    }
+
+    // Verify the update
+    const verifiedPost = await BlogPostModel.findById(id);
+    if (!verifiedPost) {
+      console.error('Backend: Post disappeared after update');
+      return res.status(500).json({ 
+        success: false,
+        message: 'Post disappeared after update' 
+      });
+    }
+
+    // Convert to plain object and enhance with additional fields
+    const postObject = verifiedPost.toObject();
     const enhancedPost = {
-      ...typedPost,
-      id: typedPost._id.toString(),
-      heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
-      createdAt: new Date(typedPost.createdAt).toISOString(),
-      updatedAt: new Date(typedPost.updatedAt).toISOString(),
-      publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null
+      ...postObject,
+      id: postObject._id.toString(),
+      _id: undefined,
+      createdAt: new Date(postObject.createdAt).toISOString(),
+      updatedAt: new Date(postObject.updatedAt).toISOString(),
+      publishedAt: postObject.publishedAt ? new Date(postObject.publishedAt).toISOString() : null,
+      heroImageUrl: postObject.heroImage ? imageService.getImageUrl(postObject.heroImage.filename) : null
     };
-    
+
     return res.status(200).json({
       success: true,
       data: enhancedPost
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error updating post:', error);
     return res.status(500).json({ 
       success: false, 
-      message: 'Error updating post',
-      error: error.message 
+      message: 'Server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
@@ -278,81 +405,92 @@ export const updatePost = async (req: Request, res: Response) => {
 // Create a new blog post
 export const createPost = async (req: Request, res: Response) => {
   try {
-    console.log('Backend: [3] Controller - createPost started');
-    console.log('Backend: [3] Request body:', req.body);
-    console.log('Backend: [3] Request file:', req.file);
-    
-    const { title, content, excerpt, tags, publishedAt, isPublished, authorName } = req.body;
-    
-    // Validate required fields
-    if (!title || !content) {
-      return res.status(400).json({
-        success: false,
-        message: 'Title and content are required'
-      });
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
     }
-    
-    // Create slug from title
-    const slug = title
+
+    // Get user details
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Handle author information
+    let author;
+    if (req.body.author) {
+      if (user.role === UserRole.ADMIN) {
+        // Admin can set any user as author or use free text
+        if (req.body.author.type === 'user' && req.body.author.id) {
+          const authorUser = await User.findById(req.body.author.id);
+          if (!authorUser) {
+            return res.status(404).json({ message: 'Author user not found' });
+          }
+          author = {
+            type: 'user',
+            id: authorUser._id.toString(),
+            name: `${authorUser.firstName} ${authorUser.lastName}`,
+            avatar: authorUser.avatar
+          };
+        } else {
+          // Free text author
+          author = {
+            type: 'text',
+            name: req.body.author.name
+          };
+        }
+      } else {
+        // Non-admin users can only set themselves as author
+        author = {
+          type: 'user',
+          id: user._id.toString(),
+          name: `${user.firstName} ${user.lastName}`,
+          avatar: user.avatar
+        };
+      }
+    } else {
+      // Default to current user as author
+      author = {
+        type: 'user',
+        id: user._id.toString(),
+        name: `${user.firstName} ${user.lastName}`,
+        avatar: user.avatar
+      };
+    }
+
+    // Create the post
+    const baseSlug = req.body.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
-    
-    // Check if slug already exists
-    const existingPost = await BlogPostModel.findOne({ slug });
-    if (existingPost) {
-      return res.status(400).json({
-        success: false,
-        message: 'A post with this title already exists'
-      });
+
+    // Check if slug exists and append a number if it does
+    let slug = baseSlug;
+    let counter = 1;
+    while (await BlogPostModel.findOne({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
     }
-    
-    // Create new post
-    const newPost = new BlogPostModel({
-      title,
+
+    const post = await BlogPostModel.create({
+      ...req.body,
+      author,
       slug,
-      content,
-      excerpt: excerpt || content.substring(0, 200) + '...',
-      tags: tags || [],
-      publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
-      isPublished: isPublished !== undefined ? isPublished : true,
-      author: {
-        name: authorName || 'Admin',
-        avatar: null
-      },
-      heroImage: req.file ? {
-        filename: req.file.filename,
-        altText: title
-      } : {
-        filename: 'default-hero.jpg',
-        altText: 'Default hero image'
-      }
+      excerpt: req.body.excerpt || req.body.content.substring(0, 200),
+      tags: req.body.tags || [],
+      publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : null,
+      isPublished: req.body.isPublished || false
     });
-    
-    console.log('Backend: [3] Saving new post:', newPost);
-    const savedPost = await newPost.save();
-    console.log('Backend: [3] Post saved successfully');
-    
-    // Enhance the post with hero image URL and convert dates
-    const enhancedPost = {
-      ...savedPost.toObject(),
-      id: savedPost._id.toString(),
-      heroImageUrl: savedPost.heroImage ? imageService.getImageUrl(savedPost.heroImage.filename) : null,
-      createdAt: new Date(savedPost.createdAt).toISOString(),
-      updatedAt: new Date(savedPost.updatedAt).toISOString(),
-      publishedAt: savedPost.publishedAt ? new Date(savedPost.publishedAt).toISOString() : null
-    };
-    
+
     return res.status(201).json({
       success: true,
-      data: enhancedPost
+      data: post
     });
   } catch (error) {
-    console.error('Backend: [3] Error creating post:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error creating post',
-      error: error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error creating post:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
     });
   }
 };
@@ -361,33 +499,40 @@ export const createPost = async (req: Request, res: Response) => {
 export const deletePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
-    console.log('Backend: [3] Controller - deletePost started');
-    console.log('Backend: [3] Deleting post with ID:', id);
-    
-    // Find and delete the post
-    const deletedPost = await BlogPostModel.findByIdAndDelete(id);
-    
-    if (!deletedPost) {
-      return res.status(404).json({
-        success: false,
-        message: 'Post not found'
-      });
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
     }
-    
-    console.log('Backend: [3] Post deleted successfully');
-    
-    return res.status(200).json({
+
+    // Get user details
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get the post
+    const post = await BlogPostModel.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Check if user is admin or post author
+    if (user.role !== UserRole.ADMIN && post.author.id.toString() !== userId) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    // Delete the post
+    await BlogPostModel.findByIdAndDelete(id);
+
+    return res.json({
       success: true,
-      message: 'Post deleted successfully',
-      data: {
-        id: deletedPost._id.toString()
-      }
+      message: 'Post deleted successfully'
     });
-  } catch (error) {
-    console.error('Backend: [3] Error deleting post:', error);
-    return res.status(500).json({
-      success: false,
+  } catch (error: unknown) {
+    console.error('Delete post error:', error);
+    return res.status(500).json({ 
+      success: false, 
       message: 'Error deleting post',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -396,6 +541,7 @@ export const deletePost = async (req: Request, res: Response) => {
 
 export default {
   getAllPosts,
+  getAllAdminPosts,
   getPost,
   getPostsByTag,
   getPostById,

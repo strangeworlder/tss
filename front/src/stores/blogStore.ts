@@ -36,6 +36,20 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
   
+  async function fetchAdminPosts(limit?: number) {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      posts.value = await blogService.fetchAdminPosts(limit);
+    } catch (err) {
+      console.error('Error fetching admin blog posts:', err);
+      error.value = err instanceof Error ? err.message : 'Failed to load blog posts';
+    } finally {
+      loading.value = false;
+    }
+  }
+  
   async function fetchPostBySlug(slug: string) {
     loading.value = true;
     error.value = null;
@@ -147,6 +161,7 @@ export const useBlogStore = defineStore('blog', () => {
     postsByTag,
     // Actions
     fetchPosts,
+    fetchAdminPosts,
     fetchPostBySlug,
     fetchPostById,
     fetchPostsByTag,

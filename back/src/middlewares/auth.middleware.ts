@@ -25,12 +25,20 @@ export const authenticate = async (
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
+    console.log('Auth header:', authHeader); // Debug log
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'No token, authorization denied' });
+      console.log('No valid auth header found'); // Debug log
+      return res.status(401).json({ 
+        success: false,
+        message: 'No token, authorization denied',
+        details: 'Authorization header is missing or invalid'
+      });
     }
 
     // Verify token
     const token = authHeader.split(' ')[1];
+    console.log('Token found:', token ? 'yes' : 'no'); // Debug log
     
     try {
       const decoded = jwt.verify(token, JWT.SECRET) as {
@@ -38,22 +46,38 @@ export const authenticate = async (
         email: string;
         role: string;
       };
+      console.log('Token decoded successfully:', decoded); // Debug log
 
       // Check if token is in Redis (valid session)
       const redisToken = await redisClient.get(`token:${decoded.id}`);
+      console.log('Redis token check:', redisToken ? 'found' : 'not found'); // Debug log
+      
       if (!redisToken || redisToken !== token) {
-        return res.status(401).json({ message: 'Token is not valid' });
+        return res.status(401).json({ 
+          success: false,
+          message: 'Token is not valid',
+          details: 'Token not found in Redis or does not match'
+        });
       }
 
       // Set user in request
       req.user = decoded;
       next();
     } catch (error) {
-      return res.status(401).json({ message: 'Token is not valid' });
+      console.error('Token verification error:', error); // Debug log
+      return res.status(401).json({ 
+        success: false,
+        message: 'Token is not valid',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   } catch (error) {
     console.error('Authentication error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ 
+      success: false,
+      message: 'Server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 

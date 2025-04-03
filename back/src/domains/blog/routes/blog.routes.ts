@@ -2,6 +2,7 @@ import { Router } from 'express';
 import blogController from '../controllers/blog.controller';
 import upload from '../../../config/multer';
 import bodyParser from 'body-parser';
+import { authenticate } from '../../../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -9,16 +10,49 @@ const router = Router();
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
+// Error handling middleware
+router.use((err: any, req: any, res: any, next: any) => {
+  console.error('Unhandled error in blog routes:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: err.message
+  });
+});
+
 // Common middleware for handling file uploads and data parsing
 const handleFormData = (req: any, res: any, next: any) => {
   if (req.headers['content-type']?.includes('multipart/form-data')) {
-    upload.single('heroImage')(req, res, next);
+    try {
+      // Use multer to handle the form data
+      upload.single('heroImage')(req, res, (err) => {
+        if (err) {
+          console.error('Error handling form data:', err);
+          return res.status(400).json({
+            success: false,
+            message: 'Error processing form data',
+            error: err.message
+          });
+        }
+        next();
+      });
+    } catch (error) {
+      console.error('Unexpected error in handleFormData:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   } else {
     next();
   }
 };
 
 const parseRequestData = (req: any, res: any, next: any) => {
+  console.log('Backend: [2] Parsing request data');
+  console.log('Backend: [2] Raw request body:', req.body);
+  
   // Parse the tags string into an array if it exists
   if (req.body.tags) {
     try {
@@ -43,7 +77,35 @@ const parseRequestData = (req: any, res: any, next: any) => {
   if (!req.body.excerpt && req.body.content) {
     req.body.excerpt = req.body.content.substring(0, 200) + '...';
   }
+
+  // Map authorName to author.name and preserve existing author data
+  if (req.body.authorName) {
+    req.body.author = {
+      ...req.body.author,
+      name: req.body.authorName
+    };
+    delete req.body.authorName;
+  }
+
+  // Parse author field if it's a string
+  if (typeof req.body.author === 'string') {
+    try {
+      req.body.author = JSON.parse(req.body.author);
+    } catch (error) {
+      console.error('Error parsing author:', error);
+      req.body.author = {
+        type: 'text',
+        name: req.body.author
+      };
+    }
+  }
+
+  // Only remove author if it's invalid
+  if (req.body.author && !req.body.author.type) {
+    delete req.body.author;
+  }
   
+  console.log('Backend: [2] Parsed request body:', req.body);
   next();
 };
 
@@ -61,10 +123,17 @@ const logRequest = (req: any, res: any, next: any) => {
 
 /**
  * @route   GET /api/v1/blog
- * @desc    Get all blog posts
+ * @desc    Get all published blog posts
  * @access  Public
  */
 router.get('/', blogController.getAllPosts);
+
+/**
+ * @route   GET /api/v1/blog/admin/all
+ * @desc    Get all blog posts (including unpublished) for admin
+ * @access  Private (Admin only)
+ */
+router.get('/admin/all', authenticate, blogController.getAllAdminPosts);
 
 /**
  * @route   POST /api/v1/blog
@@ -72,6 +141,7 @@ router.get('/', blogController.getAllPosts);
  * @access  Private
  */
 router.post('/', 
+  authenticate,
   logRequest,
   handleFormData,
   parseRequestData,
@@ -97,10 +167,12 @@ router.get('/id/:id', blogController.getPostById);
  * @desc    Update a blog post
  * @access  Private
  */
-router.put('/id/:id', 
-  logRequest,
+router.put(
+  '/id/:id',
   handleFormData,
   parseRequestData,
+  authenticate,
+  logRequest,
   blogController.updatePost
 );
 
@@ -117,6 +189,7 @@ router.get('/:slug', blogController.getPost);
  * @access  Private
  */
 router.delete('/id/:id', 
+  authenticate,
   logRequest,
   blogController.deletePost
 );

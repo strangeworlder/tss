@@ -1,12 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import BlogPostList from '@/components/organisms/admin/BlogPostList.vue';
 import BlogPostEditor from '@/components/organisms/admin/BlogPostEditor.vue';
 import { useBlogStore } from '@/stores/blogStore';
+import { useAuthStore } from '@/stores/authStore';
 
+const router = useRouter();
 const blogStore = useBlogStore();
+const authStore = useAuthStore();
 const activeTab = ref<'list' | 'editor'>('list');
 const editingPostId = ref<string | null>(null);
+const isAuthorized = ref(false);
+
+onMounted(() => {
+  if (!authStore.isAdmin) {
+    router.push('/');
+    return;
+  }
+  isAuthorized.value = true;
+});
 
 const handleEditPost = (postId: string) => {
   editingPostId.value = postId;
@@ -25,7 +38,7 @@ const handleBackToList = () => {
 </script>
 
 <template>
-  <div class="admin-view">
+  <div v-if="isAuthorized" class="admin-view">
     <!-- Notification -->
     <div v-if="blogStore.notification" 
          :class="['admin-view__notification', `admin-view__notification--${blogStore.notification.type}`]">
