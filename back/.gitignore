@@ -1,7 +1,7 @@
 # dependencies
 /node_modules
 /dist
-/back/public/uploads/images/
+/public/uploads/images/
 
 # environment variables
 .env
