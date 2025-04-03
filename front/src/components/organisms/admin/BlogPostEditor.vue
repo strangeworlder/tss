@@ -73,7 +73,7 @@ const resetForm = () => {
   title.value = '';
   content.value = '';
   excerpt.value = '';
-  publishedAt.value = '';
+  publishedAt.value = new Date().toISOString().split('T')[0];
   isPublished.value = true;
   authorName.value = '';
   tags.value = [];
@@ -165,6 +165,7 @@ onMounted(() => {
     loadPost(props.postId);
   } else {
     loading.value = false;
+    resetForm();
   }
 });
 </script>
