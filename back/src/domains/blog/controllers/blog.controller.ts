@@ -180,18 +180,98 @@ export const getPostById = async (req: Request, res: Response) => {
 // Update a blog post
 export const updatePost = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const existingPost = await BlogPostModel.findById(id);
+    console.log('Backend: [3] Controller - updatePost started');
+    console.log('Backend: [3] Request params:', req.params);
+    console.log('Backend: [3] Request body:', req.body);
+    console.log('Backend: [3] Request files:', req.files);
+    console.log('Backend: [3] Request headers:', req.headers);
+    
+    const postId = req.params.id;
+    console.log('Backend: [3] Looking for post with ID:', postId);
+    
+    const existingPost = await BlogPostModel.findById(postId);
+    console.log('Backend: [3] Found post:', existingPost ? 'yes' : 'no');
     
     if (!existingPost) {
-      return res.status(404).json({ error: 'Post not found' });
+      console.log('Backend: [3] Post not found, returning 404');
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    console.log('Backend: [3] Current post data:', {
+      title: existingPost.title,
+      content: existingPost.content,
+      excerpt: existingPost.excerpt,
+      tags: existingPost.tags,
+      publishedAt: existingPost.publishedAt,
+      isPublished: existingPost.isPublished
+    });
+
+    console.log('Backend: [3] Update data from request:', {
+      title: req.body.title,
+      content: req.body.content,
+      excerpt: req.body.excerpt,
+      tags: req.body.tags,
+      publishDate: req.body.publishDate,
+      publishedAt: req.body.publishedAt,
+      isPublished: req.body.isPublished
+    });
+
+    // Only update fields that are provided in the request
+    if (req.body.title) existingPost.title = req.body.title;
+    if (req.body.content) existingPost.content = req.body.content;
+    if (req.body.excerpt) existingPost.excerpt = req.body.excerpt;
+    if (req.body.tags) existingPost.tags = req.body.tags;
+    
+    // Handle date fields - support both publishDate and publishedAt
+    if (req.body.publishDate) {
+      existingPost.publishedAt = new Date(req.body.publishDate);
+    } else if (req.body.publishedAt) {
+      existingPost.publishedAt = new Date(req.body.publishedAt);
     }
     
-    const updatedPost = await BlogPostModel.findByIdAndUpdate(id, req.body, { new: true });
-    return res.json(updatedPost);
-  } catch (error) {
+    if (req.body.isPublished !== undefined) existingPost.isPublished = req.body.isPublished;
+    
+    // Handle hero image update if a new file was uploaded
+    if (req.file) {
+      existingPost.heroImage = {
+        filename: req.file.filename,
+        altText: `Cover image for ${existingPost.title}`
+      };
+    }
+    
+    console.log('Backend: Post after updates:', {
+      ...existingPost.toObject(),
+      publishedAt: existingPost.publishedAt
+    });
+    
+    await existingPost.save();
+    console.log('Backend: Post saved successfully');
+    
+    // Get the updated post
+    const updatedPost = await BlogPostModel.findById(postId).lean();
+    const typedPost = updatedPost as unknown as IBlogPost & { _id: any };
+    
+    // Add hero image URL and convert dates
+    const enhancedPost = {
+      ...typedPost,
+      id: typedPost._id.toString(),
+      heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
+      createdAt: new Date(typedPost.createdAt).toISOString(),
+      updatedAt: new Date(typedPost.updatedAt).toISOString(),
+      publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null
+    };
+    
+    return res.status(200).json({
+      success: true,
+      data: enhancedPost
+    });
+  } catch (error: any) {
     console.error('Error updating post:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Error updating post',
+      error: error.message 
+    });
   }
 };
 

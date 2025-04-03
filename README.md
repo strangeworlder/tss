@@ -2,6 +2,39 @@
 
 Full-stack application with Vue.js frontend and Node.js backend using a hybrid database approach.
 
+## Project Structure
+
+The project follows a modular architecture with clear separation of concerns:
+
+```
+tss/
+├── front/            # Frontend Vue.js application
+│   ├── src/
+│   │   ├── api/     # API client and services
+│   │   ├── assets/  # Static assets and global styles
+│   │   ├── components/ # Reusable UI components
+│   │   ├── composables/ # Vue composition functions
+│   │   ├── router/  # Vue Router configuration
+│   │   ├── stores/  # Pinia state management
+│   │   ├── types/   # TypeScript type definitions
+│   │   ├── utils/   # Utility functions
+│   │   └── views/   # Route components
+│   └── public/      # Static files
+├── back/            # Backend Node.js/Express API
+│   ├── src/
+│   │   ├── api/    # API routes and controllers
+│   │   ├── config/ # Configuration files
+│   │   ├── models/ # Database models
+│   │   ├── schemas/ # GraphQL schemas
+│   │   ├── services/ # Business logic
+│   │   └── utils/  # Utility functions
+│   └── public/     # Static files
+├── utils/          # Shared utility functions
+├── middleware/     # Custom middleware
+├── models/        # Shared database models
+└── schemas/       # Shared GraphQL schemas
+```
+
 ## Docker Setup
 
 This project is fully containerized with Docker, making it easy to set up and run the entire stack with a single command.
@@ -33,20 +66,46 @@ This project is fully containerized with Docker, making it easy to set up and ru
    - Frontend: http://localhost:8080
    - Backend API: http://localhost:4000/api
    - GraphQL Playground: http://localhost:4000/graphql
+   - MongoDB: mongodb://localhost:27017
+   - PostgreSQL: postgresql://postgres:postgres@localhost:5432/tss
+   - Redis: redis://localhost:6379
 
 ### Services
 
-The Docker setup includes the following services:
+The Docker setup includes the following services with health checks:
 
-- **Frontend**: Vue.js application
+- **Frontend**: Vue.js application (Vite)
+  - Development mode with hot reloading
+  - Mounted volumes for live code updates
+  - Environment variables for API configuration
+
 - **Backend**: Node.js/Express.js API
+  - Development mode with hot reloading
+  - Mounted volumes for live code updates
+  - Environment variables for database connections
+
 - **MongoDB**: Document database for social content
+  - Version 6.0
+  - Health checks for service availability
+  - Persistent volume for data storage
+
 - **PostgreSQL**: Relational database for user accounts and relationships
+  - Version 15
+  - Health checks for service availability
+  - Persistent volume for data storage
+
 - **Redis**: Caching and session management
+  - Version 7.0 (Alpine)
+  - Health checks for service availability
+  - Persistent volume for data storage
 
 ### Development Workflow
 
-When developing, any changes to the front or back directories will be automatically reflected in the running containers thanks to volume mounting.
+When developing with Docker:
+- All services are automatically started in the correct order
+- Frontend and backend code changes are automatically reflected thanks to volume mounting
+- Database services wait for health checks before the backend starts
+- Services automatically restart unless explicitly stopped
 
 ### Database Management
 
@@ -97,9 +156,21 @@ The project uses a hybrid database approach:
 
 ### Frontend
 
-- Vue.js with TypeScript
-- Atomic design principles
-- Global semantic variables for styling
+- Vue 3 with Composition API and TypeScript
+- Vite 6.x as build tool
+- Atomic design principles with the following structure:
+  - `components/` - Reusable UI components
+  - `composables/` - Vue composition functions
+  - `views/` - Route components
+  - `stores/` - Pinia state management
+  - `router/` - Vue Router configuration
+  - `types/` - TypeScript type definitions
+  - `utils/` - Utility functions
+  - `api/` - API client and services
+  - `assets/` - Static assets and global styles
+- Global semantic variables for styling in `assets/vars.css`
+- BEM syntax for CSS classes
+- Vue DevTools integration
 
 ### Backend
 
@@ -109,17 +180,6 @@ The project uses a hybrid database approach:
 - RESTful endpoints
 - JWT authentication
 - Domain-driven design principles
-
-## Project Structure
-
-The project follows a modular architecture:
-
-- `front/` - Frontend Vue.js application
-- `back/` - Backend Node.js/Express API with GraphQL
-- `utils/` - Shared utility functions
-- `middleware/` - Custom middleware for the backend
-- `models/` - Database models
-- `schemas/` - GraphQL schemas
 
 ## Local Development Setup
 
@@ -149,7 +209,7 @@ If you prefer to develop without Docker, you can set up the project locally:
    npm run dev
    ```
 
-4. Open your browser and visit http://localhost:5173
+4. Open your browser and visit http://localhost:5173 (Vite's default port)
 
 ### Backend Setup
 
@@ -172,25 +232,40 @@ If you prefer to develop without Docker, you can set up the project locally:
 
 ## Features
 
-- Responsive blog layout using BEM CSS methodology
-- Blog post listing
-- Individual blog post pages with Markdown rendering
-- Newsletter signup form
-- TypeScript for type safety
-- CSS custom properties (variables) for styling
-- Image API with resizing and format conversion
-- Real-time features using WebSockets (notifications, chat)
+- **Blog System**:
+  - Blog post listing with pagination and filtering
+  - Individual blog post pages with Markdown rendering
+  - Admin interface for post management
+  - Responsive image handling
+
+- **User Features**:
+  - Authentication with JWT
+  - User profiles
+  - Newsletter signup
+  - Real-time notifications
+
+- **Development Tools**:
+  - TypeScript for type safety
+  - ESLint and Prettier for code formatting
+  - Vitest for unit testing
+  - Cypress for E2E testing
+  - Docker for containerization
 
 ## Technologies Used
 
 ### Frontend
 - Vue 3 with Composition API
-- TypeScript
+- TypeScript 5.8
+- Vite 6.x as build tool
 - CSS custom properties (variables in front/src/assets/vars.css)
 - BEM syntax for CSS classes
-- Vue Router for routing
-- Pinia for state management
+- Vue Router 4.x for routing
+- Pinia 3.x for state management
 - Marked for Markdown parsing
+- Vitest 3.x for unit testing
+- Cypress 14.x for E2E testing
+- ESLint 9.x and Prettier for code formatting
+- Vue DevTools for debugging
 
 ### Backend
 - Node.js with Express.js

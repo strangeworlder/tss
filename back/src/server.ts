@@ -23,12 +23,24 @@ console.log('Attempting to connect to MongoDB at:', mongoUri);
 mongoose.connect(mongoUri)
   .then(() => {
     console.log('Connected to MongoDB successfully');
+    const db = mongoose.connection.db;
+    if (db) {
+      // Log the current database
+      console.log('Current database:', db.databaseName);
+      // Log all collections
+      db.listCollections().toArray((err: Error | null, collections: { name: string }[]) => {
+        if (err) {
+          console.error('Error listing collections:', err);
+          return;
+        }
+        console.log('Available collections:', collections.map(c => c.name));
+      });
+    }
+    
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
   })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  });
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-}); 
+  .catch((error) => {
+    console.error('MongoDB connection error:', error);
+  }); 

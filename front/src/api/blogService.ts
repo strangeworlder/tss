@@ -5,7 +5,6 @@
 
 import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
 import type { BlogPost, BlogPostPreview, ApiResponse } from '@/types/blog';
-import { apiClient } from './apiClient';
 
 /**
  * Fetch all blog posts
@@ -33,18 +32,24 @@ export async function fetchBlogPosts(limit?: number): Promise<BlogPostPreview[]>
  * Fetch a single blog post by slug
  * @param slug The blog post slug
  */
-export const getPostBySlug = async (slug: string): Promise<BlogPost> => {
+export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost> {
   try {
-    const response: ApiResponse<BlogPost> = await apiGet<BlogPost>(`/v1/blog/${slug}`);
-    if (!response.success || !response.data) {
-      throw new Error('Post not found');
+    console.log(`Frontend: Fetching blog post with slug "${slug}"`);
+    const response = await apiGet<ApiResponse<BlogPost>>(`/v1/blog/${slug}`);
+    
+    console.log('Frontend: API response:', response);
+    
+    if (response && response.success && response.data) {
+      // Return the post data from the API response
+      return response.data;
     }
-    return response.data;
+    
+    throw new Error('Post not found');
   } catch (error) {
-    console.error('Error fetching blog post:', error);
+    console.error(`Frontend: Error fetching blog post with slug ${slug}:`, error);
     throw error;
   }
-};
+}
 
 /**
  * Fetch blog posts by tag
@@ -66,36 +71,56 @@ export async function fetchBlogPostsByTag(tag: string, limit?: number): Promise<
  * Create a new blog post
  * @param formData FormData containing the post data and image
  */
-export const createPost = async (postData: FormData): Promise<BlogPost> => {
+export async function createBlogPost(formData: FormData): Promise<BlogPost> {
   try {
-    const response: ApiResponse<BlogPost> = await apiPost<BlogPost>('/v1/blog', postData);
-    if (!response.success || !response.data) {
-      throw new Error('Failed to create post');
+    console.log('Service: Creating new blog post');
+    console.log('Service: FormData entries:', Array.from(formData.entries()));
+    
+    const response = await apiPost<ApiResponse<BlogPost>>('/v1/blog', formData, {
+      headers: {
+        // Don't set Content-Type header, let the browser set it with the boundary for multipart/form-data
+      }
+    });
+    
+    console.log('Service: Create post response:', response);
+    
+    if (response && response.success && response.data) {
+      return response.data;
     }
-    return response.data;
+    
+    throw new Error('Failed to create blog post');
   } catch (error) {
-    console.error('Error creating blog post:', error);
+    console.error('Service: Error creating blog post:', error);
     throw error;
   }
-};
+}
 
 /**
  * Update an existing blog post
  * @param id The blog post ID
  * @param formData FormData containing the updated post data and image
  */
-export const updatePost = async (id: string, postData: FormData): Promise<BlogPost> => {
+export async function updateBlogPost(id: string, formData: FormData): Promise<BlogPost> {
   try {
-    const response: ApiResponse<BlogPost> = await apiPut<BlogPost>(`/v1/blog/id/${id}`, postData);
-    if (!response.success || !response.data) {
-      throw new Error('Failed to update post');
+    console.log('Service: Updating blog post with ID:', id);
+    const response = await apiPut<ApiResponse<BlogPost>>(`/v1/blog/id/${id}`, formData, {
+      headers: {
+        // Don't set Content-Type header, let the browser set it with the boundary for multipart/form-data
+      }
+    });
+    
+    console.log('Service: Received response:', response);
+    
+    if (response && response.success && response.data) {
+      return response.data;
     }
-    return response.data;
+    
+    throw new Error('Failed to update blog post');
   } catch (error) {
-    console.error('Error updating blog post:', error);
+    console.error('Service: Error updating blog post:', error);
     throw error;
   }
-};
+}
 
 /**
  * Fetch a single blog post by ID

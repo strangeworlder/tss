@@ -6,6 +6,8 @@ import AppImage from '@/components/atoms/AppImage.vue';
 import TagPill from '@/components/atoms/TagPill.vue';
 import { ImageSize } from '@/types/image';
 import { checkApiHealth } from '@/api/apiClient';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 const route = useRoute();
 const router = useRouter();
@@ -31,6 +33,22 @@ const formatDate = (dateString: string | null) => {
   });
 };
 
+// Configure marked options
+marked.setOptions({
+  gfm: true, // GitHub Flavored Markdown
+  breaks: true, // Convert line breaks to <br>
+  headerIds: true, // Add IDs to headers
+  mangle: false, // Don't mangle header IDs
+  sanitize: false, // We'll use DOMPurify instead
+});
+
+// Parse content to HTML using marked
+const parsedContent = computed(() => {
+  if (!post.value?.content) return '';
+  const html = marked(post.value.content);
+  return DOMPurify.sanitize(html);
+});
+
 // Fetch the blog post when the component mounts or when the slug changes
 const fetchBlogPost = async () => {
   if (!slug.value) {
@@ -43,18 +61,21 @@ const fetchBlogPost = async () => {
   error.value = null;
   
   try {
-    console.log('BlogDetailView: Fetching post with slug:', slug.value);
+    // First check if the API is available
+    const isHealthy = await checkApiHealth();
+    
+    if (!isHealthy) {
+      error.value = 'API server is not available';
+      return;
+    }
+
     await blogStore.fetchPostBySlug(slug.value);
     
-    // Check if post was found
     if (!blogStore.currentPost) {
-      console.log('BlogDetailView: Post not found in store after fetch');
       error.value = 'Blog post not found';
-    } else {
-      console.log('BlogDetailView: Post found:', blogStore.currentPost.title);
     }
   } catch (err) {
-    console.error('BlogDetailView: Error fetching blog post:', err);
+    console.error('Error fetching blog post:', err);
     error.value = err instanceof Error ? err.message : 'Failed to load blog post';
   } finally {
     loading.value = false;
@@ -84,23 +105,32 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-detail-view__error">
       <p>{{ error }}</p>
-      <button 
-        @click="fetchBlogPost"
-        class="blog-detail-view__button blog-detail-view__button--retry"
-      >
-        Try Again
-      </button>
-      <button
-        @click="() => router.push('/blog')"
-        class="blog-detail-view__button blog-detail-view__button--back"
-      >
-        Back to Blog Listing
-      </button>
+      <div class="blog-detail-view__actions">
+        <button 
+          @click="fetchBlogPost"
+          class="blog-detail-view__button blog-detail-view__button--retry"
+        >
+          Try Again
+        </button>
+        <button
+          @click="() => router.push('/blog')"
+          class="blog-detail-view__button blog-detail-view__button--back"
+        >
+          Back to Blog Listing
+        </button>
+      </div>
     </div>
     
     <!-- Blog post content -->
     <article v-else-if="post" class="blog-detail-view__article">
       <header class="blog-detail-view__header">
+        <button 
+          @click="() => router.push('/blog')"
+          class="blog-detail-view__back-button"
+        >
+          &larr; Back to Blog Listing
+        </button>
+
         <h1 class="blog-detail-view__title">{{ post.title }}</h1>
         
         <div class="blog-detail-view__meta">
@@ -109,12 +139,14 @@ onMounted(() => {
           </span>
           
           <div v-if="post.author" class="blog-detail-view__author">
-            <img 
-              v-if="post.author.avatar?.filename" 
-              :src="`/api/images/${post.author.avatar.filename}?size=small`" 
-              :alt="post.author.avatar.altText" 
-              class="blog-detail-view__author-avatar"
-            />
+            <div v-if="post.author.avatar" class="blog-detail-view__author-avatar">
+              <AppImage
+                :filename="post.author.avatar.filename"
+                :alt="post.author.avatar.altText"
+                :size="ImageSize.THUMBNAIL"
+                class="blog-detail-view__author-img"
+              />
+            </div>
             <span class="blog-detail-view__author-name">
               by {{ post.author.name }}
             </span>
@@ -133,33 +165,334 @@ onMounted(() => {
       </header>
       
       <!-- Hero image -->
-      <div v-if="post.heroImage || post.heroImageUrl" class="blog-detail-view__hero">
+      <div v-if="post.heroImage" class="blog-detail-view__hero">
         <AppImage 
-          v-if="post.heroImage?.filename"
           :filename="post.heroImage.filename" 
-          :size="ImageSize.LARGE" 
+          :size="ImageSize.FULL" 
           :alt="post.heroImage.altText || post.title" 
-          class="blog-detail-view__hero-img"
-        />
-        <img 
-          v-else-if="post.heroImageUrl" 
-          :src="post.heroImageUrl" 
-          :alt="post.title" 
           class="blog-detail-view__hero-img"
         />
       </div>
       
       <!-- Content -->
-      <div class="blog-detail-view__content">
-        {{ post.content }}
-      </div>
-      
-      <!-- Back to blog listing -->
-      <div class="blog-detail-view__footer">
-        <router-link to="/blog" class="blog-detail-view__back-link">
-          ← Back to Blog Listing
-        </router-link>
-      </div>
+      <div 
+        class="blog-detail-view__content markdown-body" 
+        v-html="parsedContent"
+      ></div>
     </article>
+    
+    <!-- Not found state -->
+    <div v-else class="blog-detail-view__not-found">
+      <p>Blog post not found.</p>
+      <button
+        @click="() => router.push('/blog')"
+        class="blog-detail-view__button blog-detail-view__button--back"
+      >
+        Back to Blog Listing
+      </button>
+    </div>
   </div>
-</template> 
+</template>
+
+<style scoped>
+.blog-detail-view {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* Loading state styles */
+.blog-detail-view__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+}
+
+.blog-detail-view__spinner {
+  display: inline-block;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 0.25rem solid var(--color-border);
+  border-top-color: var(--vt-c-indigo);
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--spacing-4);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error state styles */
+.blog-detail-view__error {
+  text-align: center;
+  padding: var(--spacing-8) 0;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.blog-detail-view__actions {
+  display: flex;
+  gap: var(--spacing-4);
+  justify-content: center;
+  margin-top: var(--spacing-4);
+}
+
+/* Article styles */
+.blog-detail-view__article {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--spacing-8) var(--spacing-4);
+}
+
+.blog-detail-view__header {
+  margin-bottom: var(--spacing-8);
+}
+
+.blog-detail-view__back-button {
+  display: inline-block;
+  margin-bottom: var(--spacing-4);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  transition: color var(--transition-fast);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.blog-detail-view__back-button:hover {
+  color: var(--color-text-primary);
+}
+
+.blog-detail-view__title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.blog-detail-view__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.blog-detail-view__author {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.blog-detail-view__author-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.blog-detail-view__author-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blog-detail-view__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.blog-detail-view__hero {
+  margin-bottom: var(--spacing-8);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.blog-detail-view__hero-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  max-height: 60vh;
+}
+
+/* Markdown content styles */
+.blog-detail-view__content {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.blog-detail-view__content :deep(h1) {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: var(--spacing-8) 0 var(--spacing-4);
+  color: var(--color-text-primary);
+}
+
+.blog-detail-view__content :deep(h2) {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin: var(--spacing-6) 0 var(--spacing-4);
+  color: var(--color-text-primary);
+}
+
+.blog-detail-view__content :deep(h3) {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin: var(--spacing-4) 0 var(--spacing-2);
+  color: var(--color-text-primary);
+}
+
+.blog-detail-view__content :deep(p) {
+  margin-bottom: var(--spacing-4);
+}
+
+.blog-detail-view__content :deep(ul),
+.blog-detail-view__content :deep(ol) {
+  margin: var(--spacing-4) 0;
+  padding-left: var(--spacing-4);
+}
+
+.blog-detail-view__content :deep(li) {
+  margin-bottom: var(--spacing-2);
+}
+
+.blog-detail-view__content :deep(pre) {
+  background-color: var(--color-background-alt);
+  padding: var(--spacing-4);
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+  margin: var(--spacing-4) 0;
+}
+
+.blog-detail-view__content :deep(code) {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-background-alt);
+  padding: 0.2em 0.4em;
+  border-radius: var(--border-radius-sm);
+}
+
+.blog-detail-view__content :deep(a) {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.blog-detail-view__content :deep(a:hover) {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+.blog-detail-view__content :deep(strong) {
+  font-weight: var(--font-weight-bold);
+}
+
+.blog-detail-view__content :deep(em) {
+  font-style: italic;
+}
+
+.blog-detail-view__content :deep(blockquote) {
+  border-left: 4px solid var(--color-primary);
+  margin: var(--spacing-4) 0;
+  padding: var(--spacing-2) var(--spacing-4);
+  background-color: var(--color-background-alt);
+  color: var(--color-text-secondary);
+}
+
+.blog-detail-view__content :deep(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius);
+  margin: var(--spacing-4) 0;
+}
+
+.blog-detail-view__content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--spacing-4) 0;
+}
+
+.blog-detail-view__content :deep(th),
+.blog-detail-view__content :deep(td) {
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-2) var(--spacing-4);
+  text-align: left;
+}
+
+.blog-detail-view__content :deep(th) {
+  background-color: var(--color-background-alt);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Not found state */
+.blog-detail-view__not-found {
+  text-align: center;
+  padding: var(--spacing-8) 0;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Button styles */
+.blog-detail-view__button {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  border: none;
+  transition: background-color var(--transition-fast);
+}
+
+.blog-detail-view__button--retry {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.blog-detail-view__button--retry:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.blog-detail-view__button--back {
+  background-color: var(--color-background-alt);
+  color: var(--color-text);
+}
+
+.blog-detail-view__button--back:hover {
+  background-color: var(--color-border);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .blog-detail-view__article {
+    padding: var(--spacing-4) var(--spacing-2);
+  }
+
+  .blog-detail-view__title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .blog-detail-view__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+  }
+}
+</style> 

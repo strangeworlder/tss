@@ -25,26 +25,26 @@ const handleBackToList = () => {
 </script>
 
 <template>
-  <div class="admin-page">
+  <div class="admin-view">
     <!-- Notification -->
     <div v-if="blogStore.notification" 
-         :class="['admin-page__notification', `admin-page__notification--${blogStore.notification.type}`]">
+         :class="['admin-view__notification', `admin-view__notification--${blogStore.notification.type}`]">
       {{ blogStore.notification.message }}
     </div>
 
-    <header class="admin-page__header">
-      <h1 class="admin-page__title">Blog Admin</h1>
-      <div class="admin-page__tabs">
+    <header class="admin-view__header">
+      <h1 class="admin-view__title">Blog Admin</h1>
+      <div class="admin-view__tabs">
         <button 
-          class="admin-page__tab"
-          :class="{ 'admin-page__tab--active': activeTab === 'list' }"
+          class="admin-view__tab"
+          :class="{ 'admin-view__tab--active': activeTab === 'list' }"
           @click="activeTab = 'list'"
         >
           Posts
         </button>
         <button 
-          class="admin-page__tab"
-          :class="{ 'admin-page__tab--active': activeTab === 'editor' }"
+          class="admin-view__tab"
+          :class="{ 'admin-view__tab--active': activeTab === 'editor' }"
           @click="handleCreatePost"
         >
           New Post
@@ -52,7 +52,7 @@ const handleBackToList = () => {
       </div>
     </header>
 
-    <main class="admin-page__content">
+    <main class="admin-view__content">
       <BlogPostList 
         v-if="activeTab === 'list'"
         @edit-post="handleEditPost"
@@ -67,30 +67,30 @@ const handleBackToList = () => {
 </template>
 
 <style scoped>
-.admin-page {
+.admin-view {
   padding: var(--spacing-4);
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.admin-page__header {
+.admin-view__header {
   margin-bottom: var(--spacing-6);
 }
 
-.admin-page__title {
+.admin-view__title {
   font-size: 2rem;
   color: var(--color-heading);
   margin-bottom: var(--spacing-4);
 }
 
-.admin-page__tabs {
+.admin-view__tabs {
   display: flex;
   gap: var(--spacing-2);
   border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--spacing-2);
 }
 
-.admin-page__tab {
+.admin-view__tab {
   padding: var(--spacing-2) var(--spacing-4);
   border: none;
   background: none;
@@ -100,12 +100,12 @@ const handleBackToList = () => {
   transition: color 0.2s;
 }
 
-.admin-page__tab--active {
+.admin-view__tab--active {
   color: var(--color-primary);
   border-bottom: 2px solid var(--color-primary);
 }
 
-.admin-page__notification {
+.admin-view__notification {
   position: fixed;
   top: 1rem;
   right: 1rem;
@@ -117,15 +117,15 @@ const handleBackToList = () => {
   animation: slideIn 0.3s ease-out;
 }
 
-.admin-page__notification--success {
+.admin-view__notification--success {
   background-color: var(--color-success);
 }
 
-.admin-page__notification--error {
+.admin-view__notification--error {
   background-color: var(--color-error);
 }
 
-.admin-page__notification--info {
+.admin-view__notification--info {
   background-color: var(--color-info);
 }
 

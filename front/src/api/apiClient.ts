@@ -129,7 +129,7 @@ export async function checkApiHealth(): Promise<boolean> {
     console.log('Fetch response received:', response.status, response.statusText);
     return response.ok;
   } catch (error) {
-    console.error('API health check failed:', error);
+    console.error('API health check failed details:', error);
     return false;
   }
 }

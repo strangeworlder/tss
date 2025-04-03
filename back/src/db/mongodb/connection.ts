@@ -30,15 +30,15 @@ export const disconnectMongoDB = async (): Promise<void> => {
 
 // Connection events
 mongoose.connection.on('connected', () => {
-  console.log('MongoDB connected successfully');
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected successfully');
+  console.log('Mongoose connected to MongoDB');
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('MongoDB connection error:', err);
+  console.error(`Mongoose connection error: ${err}`);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('Mongoose disconnected from MongoDB');
 });
 
 // Close connection on process termination
