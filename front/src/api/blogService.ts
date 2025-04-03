@@ -156,4 +156,25 @@ export async function deleteBlogPost(id: string): Promise<void> {
     console.error(`Error deleting blog post with ID ${id}:`, error);
     throw error;
   }
+}
+
+/**
+ * Fetch all blog posts for admin (including unpublished)
+ * @param limit Optional number of posts to fetch
+ */
+export async function fetchAdminPosts(limit?: number): Promise<BlogPostPreview[]> {
+  try {
+    const endpoint = `/v1/blog/admin/all`;
+    const params = limit ? `?limit=${limit}` : '';
+    const response = await apiGet<BlogPostPreview[]>(endpoint + params);
+    
+    if (response && response.success && Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Error fetching admin blog posts:", error);
+    throw error;
+  }
 } 

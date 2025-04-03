@@ -6,9 +6,14 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 // Server configuration
 export const SERVER = {
-  PORT: Number(process.env.PORT) || 3000,
+  PORT: Number(process.env.PORT) || 4000,
   NODE_ENV: process.env.NODE_ENV || 'development',
-  API_PREFIX: process.env.API_PREFIX || '/api/v1',
+  API_PREFIX: '/api/v1',
+  CORS_ORIGINS: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://localhost:8080'
+  ]
 };
 
 // MongoDB configuration

@@ -1,6 +1,15 @@
 import { ObjectType, Field, ID, InputType } from 'type-graphql';
 import { UserRole } from '../models/user.model';
 
+@ObjectType()
+class Avatar {
+  @Field({ nullable: true })
+  filename?: string;
+
+  @Field({ nullable: true })
+  altText?: string;
+}
+
 // User Response
 @ObjectType()
 export class UserResponse {
@@ -18,6 +27,15 @@ export class UserResponse {
 
   @Field()
   role: string;
+
+  @Field(() => Avatar, { nullable: true })
+  avatar?: {
+    filename?: string;
+    altText?: string;
+  };
+
+  @Field({ nullable: true })
+  bio?: string;
 
   @Field({ nullable: true })
   token?: string;
@@ -37,6 +55,9 @@ export class UserInput {
 
   @Field()
   lastName: string;
+
+  @Field({ nullable: true })
+  bio?: string;
 }
 
 // Login Input

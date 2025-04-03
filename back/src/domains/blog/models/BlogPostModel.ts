@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
+import { IUser } from '../../users/models/user.model';
 
 // Blog post interface
 export interface IBlogPost extends Document {
@@ -7,13 +8,15 @@ export interface IBlogPost extends Document {
   content: string;
   excerpt: string;
   author: {
+    type: 'user' | 'text';
+    id?: Types.ObjectId;
     name: string;
     avatar?: {
       filename: string;
       altText: string;
     };
   };
-  heroImage: {
+  heroImage?: {
     filename: string;
     altText: string;
   };
@@ -32,6 +35,8 @@ const blogPostSchema = new Schema<IBlogPost>({
   content: { type: String, required: true },
   excerpt: { type: String, required: true },
   author: {
+    type: { type: String, enum: ['user', 'text'], required: true },
+    id: { type: Schema.Types.ObjectId, ref: 'User' },
     name: { type: String, required: true },
     avatar: {
       filename: { type: String },
@@ -39,8 +44,8 @@ const blogPostSchema = new Schema<IBlogPost>({
     }
   },
   heroImage: {
-    filename: { type: String, required: true },
-    altText: { type: String, required: true }
+    filename: { type: String },
+    altText: { type: String }
   },
   heroImageUrl: { type: String },
   tags: [{ type: String }],

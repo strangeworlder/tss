@@ -7,7 +7,6 @@ import TagPill from '@/components/atoms/TagPill.vue';
 import { ImageSize } from '@/types/image';
 import { checkApiHealth } from '@/api/apiClient';
 import { marked } from 'marked';
-import DOMPurify from 'dompurify';
 
 const route = useRoute();
 const router = useRouter();
@@ -39,7 +38,7 @@ marked.setOptions({
   breaks: true, // Convert line breaks to <br>
   headerIds: true, // Add IDs to headers
   mangle: false, // Don't mangle header IDs
-  sanitize: false, // We'll use DOMPurify instead
+  sanitize: true, // We'll use DOMPurify instead
 });
 
 // Parse content to HTML using marked
@@ -55,7 +54,7 @@ const parsedContent = computed(() => {
   // Debug the parsed HTML
   console.log('Parsed HTML:', html);
   
-  return DOMPurify.sanitize(html);
+  return html;
 });
 
 // Fetch the blog post when the component mounts or when the slug changes
@@ -101,6 +100,33 @@ watchEffect(() => {
 onMounted(() => {
   fetchBlogPost();
 });
+
+const updatePost = async (id: string, data: any) => {
+  const token = localStorage.getItem('token'); // or however you store the token
+  console.log('Token being sent:', token); // Debug log
+
+  const formData = new FormData();
+  Object.keys(data).forEach(key => {
+    formData.append(key, data[key]);
+  });
+
+  const response = await fetch(`http://localhost:4000/api/v1/blog/id/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      // Don't set Content-Type header for FormData
+    },
+    body: formData
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    console.error('Update error:', error); // Debug log
+    throw new Error(error.message || 'Failed to update post');
+  }
+
+  return response.json();
+};
 </script>
 
 <template>

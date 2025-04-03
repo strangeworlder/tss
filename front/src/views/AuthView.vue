@@ -1,24 +1,24 @@
 <template>
   <div class="auth-view">
-    <div class="auth-container">
-      <div class="auth-tabs">
+    <div class="auth-view__container">
+      <div class="auth-view__tabs">
         <button 
-          class="tab-btn" 
-          :class="{ 'active': activeTab === 'login' }"
+          class="auth-view__tab-btn" 
+          :class="{ 'auth-view__tab-btn--active': activeTab === 'login' }"
           @click="activeTab = 'login'"
         >
           Login
         </button>
         <button 
-          class="tab-btn" 
-          :class="{ 'active': activeTab === 'register' }"
+          class="auth-view__tab-btn" 
+          :class="{ 'auth-view__tab-btn--active': activeTab === 'register' }"
           @click="activeTab = 'register'"
         >
           Register
         </button>
       </div>
       
-      <div class="auth-content">
+      <div class="auth-view__content">
         <LoginForm v-if="activeTab === 'login'" />
         <RegisterForm v-if="activeTab === 'register'" />
       </div>
@@ -40,42 +40,44 @@ const activeTab = ref('login');
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 2rem 1rem;
+  background-color: var(--color-background-mute);
+  padding: var(--spacing-8) var(--spacing-4);
 }
 
-.auth-container {
+.auth-view__container {
   width: 100%;
   max-width: 520px;
-  background-color: white;
-  border-radius: 10px;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
-.auth-tabs {
+.auth-view__tabs {
   display: flex;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.tab-btn {
+.auth-view__tab-btn {
   flex: 1;
-  padding: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: var(--spacing-4);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   background-color: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all var(--transition-normal);
+  color: var(--color-text);
+  font-family: var(--font-family-base);
 }
 
-.tab-btn.active {
-  background-color: #f9f9f9;
-  color: #2196f3;
-  border-bottom: 2px solid #2196f3;
+.auth-view__tab-btn--active {
+  background-color: var(--color-background-soft);
+  color: var(--color-highlight-1);
+  border-bottom: 2px solid var(--color-highlight-1);
 }
 
-.auth-content {
-  padding: 1rem;
+.auth-view__content {
+  padding: var(--spacing-4);
 }
 </style> 

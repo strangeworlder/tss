@@ -46,10 +46,16 @@ export async function apiRequest<T>(
   
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
   
+  // Get token from localStorage
+  const token = localStorage.getItem('token');
+  console.log('Retrieved token:', token ? 'yes' : 'no'); // Debug log
+  
   const requestOptions: RequestInit = {
     method,
     headers: {
-      ...headers
+      ...headers,
+      // Add authorization header if token exists
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     },
     signal: AbortSignal.timeout(timeout)
   };
@@ -71,7 +77,7 @@ export async function apiRequest<T>(
     console.log('API Request:', {
       url,
       method,
-      headers,
+      headers: requestOptions.headers,
       body: body instanceof FormData 
         ? Object.fromEntries(body.entries())
         : body
@@ -136,23 +142,7 @@ export async function checkApiHealth(): Promise<boolean> {
 
 // Generic GET method
 export async function apiGet<T>(endpoint: string): Promise<ApiResponse<T>> {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(`API request failed for ${endpoint}:`, error);
-    throw error;
-  }
+  return apiRequest<ApiResponse<T>>(endpoint, { method: 'GET' });
 }
 
 export async function apiPost<T>(endpoint: string, data: any, options: Omit<RequestOptions, 'method' | 'body'> = {}): Promise<ApiResponse<T>> {

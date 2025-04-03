@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useBlogStore } from '@/stores/blogStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useUserStore } from '@/stores/userStore';
 import AppImage from '@/components/atoms/AppImage.vue';
 import { ImageSize } from '@/types/image';
 import { deleteBlogPost } from '@/api/blogService';
 import { useRouter } from 'vue-router';
+import type { BlogPost } from '@/types/blog';
+import type { IUser } from '@/types/user';
 
 const props = defineProps<{
   postId: string | null;
@@ -15,6 +19,8 @@ const emit = defineEmits<{
 }>();
 
 const blogStore = useBlogStore();
+const authStore = useAuthStore();
+const userStore = useUserStore();
 const loading = ref(true);
 const error = ref<string | null>(null);
 const saving = ref(false);
@@ -25,6 +31,8 @@ const content = ref('');
 const excerpt = ref('');
 const publishedAt = ref('');
 const isPublished = ref(true);
+const authorType = ref<'user' | 'text'>('user');
+const selectedUserId = ref<string>('');
 const authorName = ref('');
 const tags = ref<string[]>([]);
 const newTag = ref('');
@@ -33,6 +41,30 @@ const heroImagePreview = ref<string | null>(null);
 
 const router = useRouter();
 const showDeleteConfirm = ref(false);
+
+const isAdmin = computed(() => authStore.isAdmin);
+const currentUser = computed(() => authStore.user);
+const users = ref<IUser[]>([]);
+
+// Load users for admin selection
+onMounted(async () => {
+  if (isAdmin.value) {
+    try {
+      console.log('Fetching users...');
+      const fetchedUsers = await userStore.fetchUsers();
+      // Map the users to ensure we have the correct ID field
+      users.value = fetchedUsers.map(user => ({
+        ...user,
+        id: user._id || user.id // Use _id if available, fallback to id
+      }));
+      console.log('Fetched users:', users.value);
+      console.log('First user ID:', users.value[0]?.id);
+      console.log('First user data:', users.value[0]);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    }
+  }
+});
 
 // Watch for postId changes to load post data
 watch(() => props.postId, async (newId) => {
@@ -58,7 +90,17 @@ const loadPost = async (postId: string) => {
       excerpt.value = post.excerpt;
       publishedAt.value = post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : '';
       isPublished.value = post.isPublished;
-      authorName.value = post.author.name;
+      
+      // Set author data based on type
+      if (post.author.type === 'user') {
+        authorType.value = 'user';
+        selectedUserId.value = post.author.id || '';
+        authorName.value = post.author.name;
+      } else {
+        authorType.value = 'text';
+        authorName.value = post.author.name;
+      }
+      
       tags.value = [...(post.tags || [])];
     }
   } catch (err) {
@@ -73,7 +115,7 @@ const resetForm = () => {
   title.value = '';
   content.value = '';
   excerpt.value = '';
-  publishedAt.value = '';
+  publishedAt.value = new Date().toISOString().split('T')[0];
   isPublished.value = true;
   authorName.value = '';
   tags.value = [];
@@ -101,41 +143,119 @@ const removeTag = (tagToRemove: string) => {
 };
 
 const handleSubmit = async () => {
+  saving.value = true;
+  error.value = null;
+  
   try {
+    console.log('Starting form submission...');
+    console.log('Current authorType:', authorType.value);
+    console.log('Current selectedUserId:', selectedUserId.value);
+    console.log('Current selectedUserId type:', typeof selectedUserId.value);
+    console.log('Available users:', users.value);
+    console.log('Users array length:', users.value.length);
+    console.log('First user ID:', users.value[0]?.id);
+    console.log('First user ID type:', typeof users.value[0]?.id);
+    console.log('Selected user:', users.value.find(u => u.id === selectedUserId.value));
+    
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('content', content.value);
-    formData.append('publishedAt', publishedAt.value);
-    formData.append('tags', JSON.stringify(tags.value));
     formData.append('excerpt', excerpt.value);
-    formData.append('authorName', authorName.value);
+    formData.append('publishedAt', publishedAt.value ? new Date(publishedAt.value).toISOString() : '');
     formData.append('isPublished', isPublished.value.toString());
+    formData.append('tags', JSON.stringify(tags.value));
+
+    // Set author based on type and user role
+    if (isAdmin.value) {
+      console.log('Processing admin author selection...');
+      console.log('Selected author type:', authorType.value);
+      
+      if (authorType.value === 'user') {
+        console.log('User author selected, userId:', selectedUserId.value);
+        console.log('UserId type:', typeof selectedUserId.value);
+        console.log('Users array:', users.value);
+        console.log('Users array length:', users.value.length);
+        
+        if (!selectedUserId.value) {
+          console.error('No user selected');
+          throw new Error('Please select a user');
+        }
+        
+        const selectedUser = users.value.find((user: IUser) => {
+          console.log('Comparing user ID:', user.id, 'with selected ID:', selectedUserId.value);
+          console.log('User ID type:', typeof user.id, 'Selected ID type:', typeof selectedUserId.value);
+          return user.id === selectedUserId.value;
+        });
+        
+        console.log('Found selected user:', selectedUser);
+        
+        if (!selectedUser) {
+          console.error('Selected user not found');
+          throw new Error('Selected user not found');
+        }
+        
+        const authorData = {
+          type: 'user',
+          id: selectedUser.id,
+          name: `${selectedUser.firstName} ${selectedUser.lastName}`,
+          avatar: selectedUser.avatar ? {
+            filename: selectedUser.avatar.filename,
+            altText: selectedUser.avatar.altText
+          } : undefined
+        };
+        console.log('Setting author data:', authorData);
+        formData.append('author', JSON.stringify(authorData));
+      } else if (authorType.value === 'text') {
+        console.log('Text author selected, name:', authorName.value);
+        if (!authorName.value.trim()) {
+          throw new Error('Author name is required');
+        }
+        const authorData = {
+          type: 'text',
+          name: authorName.value.trim()
+        };
+        console.log('Setting author data:', authorData);
+        formData.append('author', JSON.stringify(authorData));
+      } else {
+        console.error('Invalid author type:', authorType.value);
+        throw new Error('Invalid author type selected');
+      }
+    } else if (currentUser.value) {
+      console.log('Processing non-admin author selection...');
+      const authorData = {
+        type: 'user',
+        id: currentUser.value.id,
+        name: `${currentUser.value.firstName} ${currentUser.value.lastName}`,
+        avatar: currentUser.value.avatar ? {
+          filename: currentUser.value.avatar.filename,
+          altText: currentUser.value.avatar.altText
+        } : undefined
+      };
+      console.log('Setting author data:', authorData);
+      formData.append('author', JSON.stringify(authorData));
+    } else {
+      console.error('No current user found');
+      throw new Error('No user found for author');
+    }
 
     if (heroImage.value) {
       formData.append('heroImage', heroImage.value);
     }
 
+    console.log('Submitting form data:', Object.fromEntries(formData.entries()));
+
     if (props.postId) {
       await blogStore.updatePost(props.postId, formData);
-      blogStore.setNotification({
-        type: 'success',
-        message: 'Post updated successfully'
-      });
     } else {
       await blogStore.createPost(formData);
-      blogStore.setNotification({
-        type: 'success',
-        message: 'Post created successfully'
-      });
     }
-
+    
     emit('back');
-  } catch (error) {
-    console.error('Error saving post:', error);
-    blogStore.setNotification({
-      type: 'error',
-      message: 'Failed to save post. Please try again.'
-    });
+  } catch (err) {
+    console.error('Error saving post:', err);
+    error.value = err instanceof Error ? err.message : 'Failed to save post';
+  } finally {
+    saving.value = false;
   }
 };
 
@@ -165,6 +285,7 @@ onMounted(() => {
     loadPost(props.postId);
   } else {
     loading.value = false;
+    resetForm();
   }
 });
 </script>
@@ -254,17 +375,6 @@ onMounted(() => {
       </div>
 
       <div class="blog-post-editor__field">
-        <label for="authorName" class="blog-post-editor__label">Author Name</label>
-        <input 
-          id="authorName"
-          v-model="authorName"
-          type="text"
-          required
-          class="blog-post-editor__input"
-        />
-      </div>
-
-      <div class="blog-post-editor__field">
         <label class="blog-post-editor__label">Publication Status</label>
         <div class="blog-post-editor__checkbox">
           <input 
@@ -342,6 +452,63 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- Author Selection -->
+      <div class="blog-post-editor__field">
+        <label class="blog-post-editor__label">Author</label>
+        <div v-if="isAdmin" class="blog-post-editor__author-options">
+          <div class="blog-post-editor__radio-group">
+            <input
+              type="radio"
+              id="author-type-user"
+              v-model="authorType"
+              value="user"
+              class="blog-post-editor__radio"
+            />
+            <label for="author-type-user" class="blog-post-editor__radio-label">Select User</label>
+          </div>
+          <div class="blog-post-editor__radio-group">
+            <input
+              type="radio"
+              id="author-type-text"
+              v-model="authorType"
+              value="text"
+              class="blog-post-editor__radio"
+            />
+            <label for="author-type-text" class="blog-post-editor__radio-label">Free Text</label>
+          </div>
+        </div>
+
+        <!-- User Selection (for admins) -->
+        <select
+          v-if="isAdmin && authorType === 'user'"
+          v-model="selectedUserId"
+          class="blog-post-editor__select"
+        >
+          <option value="">Select a user</option>
+          <option
+            v-for="user in users"
+            :key="user.id"
+            :value="user.id"
+          >
+            {{ user.firstName }} {{ user.lastName }}
+          </option>
+        </select>
+
+        <!-- Free Text Input (for admins) -->
+        <input
+          v-if="isAdmin && authorType === 'text'"
+          v-model="authorName"
+          type="text"
+          placeholder="Enter author name"
+          class="blog-post-editor__input"
+        />
+
+        <!-- Non-admin users see their own name -->
+        <div v-if="!isAdmin" class="blog-post-editor__current-user">
+          {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+        </div>
+      </div>
+
       <div class="blog-post-editor__actions">
         <button 
           type="submit"
@@ -390,6 +557,30 @@ onMounted(() => {
 <style scoped>
 .blog-post-editor {
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-4);
+  background-color: var(--color-background);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.blog-post-editor__notification {
+  padding: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+}
+
+.blog-post-editor__notification--success {
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
+}
+
+.blog-post-editor__notification--error {
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
 }
 
 .blog-post-editor__loading {
@@ -407,7 +598,7 @@ onMounted(() => {
   height: 2rem;
   border-radius: 50%;
   border: 0.25rem solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border-top-color: var(--color-highlight-1);
   animation: spin 1s linear infinite;
   margin-bottom: var(--spacing-2);
 }
@@ -419,7 +610,9 @@ onMounted(() => {
 .blog-post-editor__error {
   text-align: center;
   padding: var(--spacing-4);
-  color: var(--color-error);
+  color: var(--color-highlight-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
 }
 
 .blog-post-editor__form {
@@ -436,9 +629,10 @@ onMounted(() => {
 }
 
 .blog-post-editor__title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: var(--color-heading);
+  font-family: var(--font-family-base);
 }
 
 .blog-post-editor__field {
@@ -448,56 +642,105 @@ onMounted(() => {
 }
 
 .blog-post-editor__label {
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text);
+  font-family: var(--font-family-base);
 }
 
 .blog-post-editor__input,
 .blog-post-editor__textarea {
-  padding: var(--spacing-2);
+  padding: var(--spacing-3);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  color: var(--color-text);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
   background-color: var(--color-background);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast);
+}
+
+.blog-post-editor__input:focus,
+.blog-post-editor__textarea:focus {
+  outline: none;
+  border-color: var(--color-border-hover);
 }
 
 .blog-post-editor__textarea {
   resize: vertical;
-  min-height: 200px;
+  min-height: 100px;
+}
+
+.blog-post-editor__button {
+  padding: var(--spacing-2) var(--spacing-4);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-fast);
+}
+
+.blog-post-editor__button--back {
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+}
+
+.blog-post-editor__button--back:hover {
+  background-color: var(--color-border);
+}
+
+.blog-post-editor__button--retry {
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+}
+
+.blog-post-editor__button--retry:hover {
+  background-color: var(--color-border);
+}
+
+.blog-post-editor__button--submit {
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
+}
+
+.blog-post-editor__button--submit:hover {
+  background-color: var(--color-highlight-2);
+}
+
+.blog-post-editor__button--delete {
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
+}
+
+.blog-post-editor__button--delete:hover {
+  background-color: var(--color-highlight-2);
 }
 
 .blog-post-editor__tags {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.blog-post-editor__tag-list {
-  display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
 }
 
 .blog-post-editor__tag {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--spacing-1);
+  gap: var(--spacing-2);
   padding: var(--spacing-1) var(--spacing-2);
-  background-color: var(--color-background-hover);
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
+  background-color: var(--color-background-soft);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-base);
 }
 
 .blog-post-editor__tag-remove {
-  border: none;
-  background: none;
-  color: var(--color-text);
-  opacity: 0.6;
   cursor: pointer;
-  padding: 0;
-  font-size: 1.25rem;
-  line-height: 1;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
 }
 
 .blog-post-editor__tag-remove:hover {
@@ -516,12 +759,10 @@ onMounted(() => {
 }
 
 .blog-post-editor__image-preview {
-  width: 100%;
-  max-width: 400px;
-  aspect-ratio: 16/9;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  background-color: var(--color-background-hover);
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-sm);
+  margin-top: var(--spacing-2);
 }
 
 .blog-post-editor__preview-img {
@@ -543,60 +784,13 @@ onMounted(() => {
   margin-top: 2rem;
 }
 
-.blog-post-editor__button {
-  padding: var(--spacing-2) var(--spacing-4);
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
-
-.blog-post-editor__button--save {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.blog-post-editor__button--save:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-}
-
-.blog-post-editor__button--save:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.blog-post-editor__button--back {
-  background-color: var(--color-background-hover);
-  color: var(--color-text);
-}
-
-.blog-post-editor__button--back:hover {
-  background-color: var(--color-border);
-}
-
-.blog-post-editor__button--retry {
-  background-color: var(--color-background-hover);
-  color: var(--color-text);
-}
-
-.blog-post-editor__button--retry:hover {
-  background-color: var(--color-border);
-}
-
-.blog-post-editor__button--add {
-  background-color: var(--color-background-hover);
-  color: var(--color-text);
-}
-
-.blog-post-editor__button--add:hover {
-  background-color: var(--color-border);
-}
-
 .blog-post-editor__checkbox {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-base);
+  color: var(--color-text);
 }
 
 .blog-post-editor__checkbox-input {
@@ -605,13 +799,13 @@ onMounted(() => {
 }
 
 .blog-post-editor__checkbox-label {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--color-text);
 }
 
 .blog-post-editor__delete-button {
-  background-color: var(--color-error);
-  color: var(--color-white);
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.5rem;
@@ -621,7 +815,7 @@ onMounted(() => {
 }
 
 .blog-post-editor__delete-button:hover {
-  background-color: var(--color-error-dark);
+  background-color: var(--color-highlight-2);
 }
 
 .blog-post-editor__delete-confirm {
@@ -647,7 +841,7 @@ onMounted(() => {
 
 .blog-post-editor__delete-confirm h3 {
   margin: 0 0 1rem;
-  color: var(--color-error);
+  color: var(--color-highlight-1);
 }
 
 .blog-post-editor__delete-confirm p {
@@ -662,7 +856,7 @@ onMounted(() => {
 }
 
 .blog-post-editor__delete-confirm-cancel {
-  background-color: var(--color-gray-light);
+  background-color: var(--color-background-soft);
   color: var(--color-text);
   padding: 0.75rem 1.5rem;
   border: none;
@@ -673,8 +867,8 @@ onMounted(() => {
 }
 
 .blog-post-editor__delete-confirm-delete {
-  background-color: var(--color-error);
-  color: var(--color-white);
+  background-color: var(--color-highlight-1);
+  color: var(--color-background);
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.5rem;
@@ -684,44 +878,19 @@ onMounted(() => {
 }
 
 .blog-post-editor__delete-confirm-cancel:hover {
-  background-color: var(--color-gray);
+  background-color: var(--color-border);
 }
 
 .blog-post-editor__delete-confirm-delete:hover {
-  background-color: var(--color-error-dark);
+  background-color: var(--color-highlight-2);
 }
 
-.blog-post-editor__notification {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  padding: var(--spacing-4);
-  border-radius: var(--border-radius);
-  color: var(--color-white);
-  z-index: 1000;
-  animation: slideIn 0.3s ease-out;
-}
-
-.blog-post-editor__notification--success {
-  background-color: var(--color-success);
-}
-
-.blog-post-editor__notification--error {
-  background-color: var(--color-error);
-}
-
-.blog-post-editor__notification--info {
-  background-color: var(--color-info);
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+.blog-post-editor__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--color-border);
 }
 </style> 

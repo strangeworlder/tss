@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import AppImage from '@/components/atoms/AppImage.vue';
-import TagPill from '@/components/atoms/TagPill.vue';
-import { ImageSize } from '@/types/image';
+import BlogPostTitle from '@/components/atoms/BlogPostTitle.vue';
+import BlogPostImage from '@/components/atoms/BlogPostImage.vue';
+import BlogPostMeta from '@/components/molecules/BlogPostMeta.vue';
+import BlogPostTags from '@/components/molecules/BlogPostTags.vue';
+import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue';
+import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue';
 
 interface Props {
   title: string;
@@ -32,8 +34,6 @@ const props = withDefaults(defineProps<Props>(), {
   content: ''
 });
 
-const imageSize = ImageSize.MEDIUM;
-
 // Temporary debugging
 console.log('BlogPostCard props:', props);
 console.log('Tags:', props.tags);
@@ -41,64 +41,38 @@ console.log('Tags:', props.tags);
 
 <template>
   <article class="blog-post-card" :class="`blog-post-card--${variant}`">
-    <!-- Hero image section with fallbacks -->
-    <div v-if="heroImageFilename || heroImageUrl" class="blog-post-card__image">
-      <AppImage 
-        v-if="heroImageFilename"
-        :filename="heroImageFilename" 
-        :size="imageSize" 
-        :alt="heroImageAlt || title" 
-        class="blog-post-card__img"
-      />
-      <img 
-        v-else-if="heroImageUrl" 
-        :src="heroImageUrl" 
-        :alt="heroImageAlt || title" 
-        class="blog-post-card__img"
-      />
-    </div>
+    <BlogPostImage
+      v-if="heroImageFilename || heroImageUrl"
+      :filename="heroImageFilename"
+      :url="heroImageUrl"
+      :alt="heroImageAlt || title"
+      :variant="variant"
+    />
     
     <div class="blog-post-card__content">
-      <h2 class="blog-post-card__title">{{ title }}</h2>
+      <BlogPostTitle
+        :title="title"
+        :variant="variant"
+      />
       
-      <div class="blog-post-card__meta">
-        <span v-if="date" class="blog-post-card__date">{{ date }}</span>
-        <div v-if="author" class="blog-post-card__author">
-          <!-- Author avatar if available -->
-          <AppImage 
-            v-if="author.avatar?.filename" 
-            :filename="author.avatar.filename" 
-            :alt="author.avatar.altText" 
-            :size="ImageSize.THUMBNAIL"
-            class="blog-post-card__author-avatar"
-          />
-          <span class="blog-post-card__author-name">
-            by {{ author.name }}
-          </span>
-        </div>
-      </div>
+      <BlogPostMeta
+        :date="date"
+        :author="author"
+      />
       
-      <!-- Tags visible only in full variant -->
-      <div v-if="variant === 'full' && tags.length > 0" class="blog-post-card__tags">
-        <TagPill 
-          v-for="tag in tags" 
-          :key="tag" 
-          :tag="tag"
-          class="blog-post-card__tag"
-        />
-      </div>
+      <BlogPostTags
+        v-if="variant === 'full' && tags.length > 0"
+        :tags="tags"
+      />
       
-      <div class="blog-post-card__excerpt">
-        <!-- Shorter excerpt for compact variant -->
-        {{ content.substring(0, variant === 'compact' ? 100 : 150) }}{{ content.length > (variant === 'compact' ? 100 : 150) ? '...' : '' }}
-      </div>
+      <BlogPostExcerpt
+        :content="content"
+        :variant="variant"
+      />
       
-      <router-link 
-        :to="`/blog/${slug}`" 
-        class="blog-post-card__read-more btn btn--primary"
-      >
-        Read More
-      </router-link>
+      <ReadMoreButton
+        :to="`/blog/${slug}`"
+      />
     </div>
   </article>
 </template>
@@ -110,7 +84,7 @@ console.log('Tags:', props.tags);
   overflow: hidden;
   background-color: var(--color-background);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .blog-post-card:hover {
@@ -118,82 +92,14 @@ console.log('Tags:', props.tags);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.blog-post-card__image {
-  margin-bottom: var(--spacing-3);
-}
-
-.blog-post-card__img {
-  width: 100%;
-  height: 16rem;
-  object-fit: cover;
-}
-
 .blog-post-card__content {
   padding: var(--spacing-4);
-}
-
-.blog-post-card__title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: var(--spacing-2);
-  color: var(--color-heading);
-}
-
-.blog-post-card__meta {
-  color: var(--color-text);
-  opacity: 0.8;
-  margin-bottom: var(--spacing-3);
-  font-size: 0.9rem;
-}
-
-.blog-post-card__author {
-  margin-left: var(--spacing-2);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.blog-post-card__author-avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.blog-post-card__author-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.blog-post-card__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2);
-  margin-bottom: var(--spacing-3);
-}
-
-.blog-post-card__excerpt {
-  margin-bottom: var(--spacing-4);
-  color: var(--color-text);
-}
-
-.blog-post-card__read-more {
-  display: inline-block;
 }
 
 /* Compact variant specific styles */
 .blog-post-card--compact {
   display: flex;
   flex-direction: column;
-}
-
-.blog-post-card--compact .blog-post-card__img {
-  height: 12rem;
-}
-
-.blog-post-card--compact .blog-post-card__title {
-  font-size: 1.25rem;
 }
 
 /* Full variant specific styles */
@@ -205,15 +111,6 @@ console.log('Tags:', props.tags);
 @media (min-width: 768px) {
   .blog-post-card--full {
     flex-direction: row;
-  }
-  
-  .blog-post-card--full .blog-post-card__image {
-    flex: 0 0 40%;
-    margin-bottom: 0;
-  }
-  
-  .blog-post-card--full .blog-post-card__img {
-    height: 100%;
   }
 }
 </style> 

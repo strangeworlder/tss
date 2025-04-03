@@ -50,6 +50,7 @@ export default defineComponent({
   width: 100%;
   height: 400px;
   overflow: hidden;
+  border-radius: var(--border-radius);
 }
 
 .blog-hero__image {
@@ -67,8 +68,11 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 2rem;
-  color: var(--color-white);
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
+  padding: var(--spacing-8);
+  color: var(--color-background);
+  background: linear-gradient(
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.6)
+  );
 }
 </style> 
