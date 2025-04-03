@@ -3,7 +3,7 @@
  * Handles all blog-related API calls
  */
 
-import { apiGet } from './apiClient';
+import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
 import type { BlogPost, BlogPostPreview, ApiResponse } from '@/types/blog';
 
 /**
@@ -65,4 +65,95 @@ export async function fetchBlogPostsByTag(tag: string, limit?: number): Promise<
   }
   
   return [];
+}
+
+/**
+ * Create a new blog post
+ * @param formData FormData containing the post data and image
+ */
+export async function createBlogPost(formData: FormData): Promise<BlogPost> {
+  try {
+    console.log('Service: Creating new blog post');
+    console.log('Service: FormData entries:', Array.from(formData.entries()));
+    
+    const response = await apiPost<ApiResponse<BlogPost>>('/v1/blog', formData, {
+      headers: {
+        // Don't set Content-Type header, let the browser set it with the boundary for multipart/form-data
+      }
+    });
+    
+    console.log('Service: Create post response:', response);
+    
+    if (response && response.success && response.data) {
+      return response.data;
+    }
+    
+    throw new Error('Failed to create blog post');
+  } catch (error) {
+    console.error('Service: Error creating blog post:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update an existing blog post
+ * @param id The blog post ID
+ * @param formData FormData containing the updated post data and image
+ */
+export async function updateBlogPost(id: string, formData: FormData): Promise<BlogPost> {
+  try {
+    console.log('Service: Updating blog post with ID:', id);
+    const response = await apiPut<ApiResponse<BlogPost>>(`/v1/blog/id/${id}`, formData, {
+      headers: {
+        // Don't set Content-Type header, let the browser set it with the boundary for multipart/form-data
+      }
+    });
+    
+    console.log('Service: Received response:', response);
+    
+    if (response && response.success && response.data) {
+      return response.data;
+    }
+    
+    throw new Error('Failed to update blog post');
+  } catch (error) {
+    console.error('Service: Error updating blog post:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch a single blog post by ID
+ * @param id The blog post ID
+ */
+export async function fetchBlogPostById(id: string): Promise<BlogPost> {
+  try {
+    const response = await apiGet<ApiResponse<BlogPost>>(`/v1/blog/id/${id}`);
+    
+    if (response && response.success && response.data) {
+      return response.data;
+    }
+    
+    throw new Error('Post not found');
+  } catch (error) {
+    console.error(`Error fetching blog post with ID ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a blog post
+ * @param id The blog post ID
+ */
+export async function deleteBlogPost(id: string): Promise<void> {
+  try {
+    const response = await apiDelete<ApiResponse<{ id: string }>>(`/v1/blog/id/${id}`);
+    
+    if (!response || !response.success) {
+      throw new Error(response?.message || 'Failed to delete post');
+    }
+  } catch (error) {
+    console.error(`Error deleting blog post with ID ${id}:`, error);
+    throw error;
+  }
 } 

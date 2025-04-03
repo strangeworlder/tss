@@ -25,12 +25,17 @@ const router = createRouter({
     {
       path: '/blog/:slug',
       name: 'blog-detail',
-      component: () => import('../pages/BlogPostPage.vue'),
+      component: () => import('../views/BlogDetailView.vue'),
     },
     {
       path: '/auth',
       name: 'auth',
       component: () => import('../views/AuthView.vue'),
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminView.vue'),
     },
   ],
 })

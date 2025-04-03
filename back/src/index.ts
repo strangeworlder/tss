@@ -21,7 +21,7 @@ import imageRoutes from './domains/images/routes/image.routes';
 // import { WebSocketService } from './services/websocket.service';
 import path from 'path';
 // Import blog routes
-import blogRoutes from './domains/blog/routes';
+import blogRoutes from './domains/blog/routes/blog.routes';
 import { connectMongoDB } from './db/mongodb/connection';
 
 // Temporary dummy exports to satisfy compiler
@@ -103,9 +103,24 @@ app.use(cors({
 const apiLimiter = (req: Request, res: Response, next: NextFunction) => next();
 
 // Middleware
-app.use(helmet({ contentSecurityPolicy: false })); // Disable CSP for GraphQL Playground
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// Only parse JSON and URL-encoded bodies for non-multipart requests
+app.use((req, res, next) => {
+  if (!req.headers['content-type']?.includes('multipart/form-data')) {
+    express.json()(req, res, next);
+  } else {
+    next();
+  }
+});
+
+app.use((req, res, next) => {
+  if (!req.headers['content-type']?.includes('multipart/form-data')) {
+    express.urlencoded({ extended: true })(req, res, next);
+  } else {
+    next();
+  }
+});
 
 // Rate limiting
 app.use('/api', apiLimiter);

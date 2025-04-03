@@ -23,7 +23,6 @@ export function getImageUrl(
   // Build the URL with the filename
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
   let url = `${baseUrl}/v1/images/${filename}`;
-  console.log('url', url);
   // Add size and format parameters
   const params = new URLSearchParams();
   
