@@ -14,7 +14,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 // Request options
 interface RequestOptions {
   method?: HttpMethod;
-  headers?: Record<string, string>;
+  headers?: HeadersInit;
   body?: any;
   timeout?: number;
 }
@@ -49,17 +49,34 @@ export async function apiRequest<T>(
   const requestOptions: RequestInit = {
     method,
     headers: {
-      'Content-Type': 'application/json',
       ...headers
     },
     signal: AbortSignal.timeout(timeout)
   };
   
-  if (body) {
+  // Handle FormData differently from JSON
+  if (body instanceof FormData) {
+    // Don't set Content-Type header for FormData, let the browser set it with the boundary
+    requestOptions.body = body;
+  } else if (body) {
+    // For JSON data
+    requestOptions.headers = {
+      ...requestOptions.headers,
+      'Content-Type': 'application/json'
+    };
     requestOptions.body = JSON.stringify(body);
   }
   
   try {
+    console.log('API Request:', {
+      url,
+      method,
+      headers,
+      body: body instanceof FormData 
+        ? Object.fromEntries(body.entries())
+        : body
+    });
+    
     const response = await fetch(url, requestOptions);
     
     // Parse the JSON response
@@ -112,17 +129,9 @@ export async function checkApiHealth(): Promise<boolean> {
     console.log('Fetch response received:', response.status, response.statusText);
     return response.ok;
   } catch (error) {
-    console.error('API health check failed details:', error);
+    console.error('API health check failed:', error);
     return false;
   }
-}
-
-// Define the API response structure
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  count?: number;
-  message?: string;
 }
 
 // Generic GET method

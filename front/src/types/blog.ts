@@ -14,6 +14,7 @@ export interface Author {
 export interface HeroImage {
   filename: string;
   altText: string;
+  url?: string; // Optional URL for direct image access
 }
 
 export interface BlogPost {

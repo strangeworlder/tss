@@ -43,10 +43,8 @@ export default defineComponent({
   
   setup(props) {
     const hasError = ref(false);
-    console.log('props', props);
     const imageUrl = computed(() => {
       if (hasError.value) {
-        console.log('fallback', props.fallback);
         return props.fallback;
       }
       return getImageUrl(props.filename, props.size as ImageSize);

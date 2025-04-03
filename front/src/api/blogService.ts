@@ -3,8 +3,9 @@
  * Handles all blog-related API calls
  */
 
-import { apiGet } from './apiClient';
+import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
 import type { BlogPost, BlogPostPreview, ApiResponse } from '@/types/blog';
+import { apiClient } from './apiClient';
 
 /**
  * Fetch all blog posts
@@ -32,24 +33,18 @@ export async function fetchBlogPosts(limit?: number): Promise<BlogPostPreview[]>
  * Fetch a single blog post by slug
  * @param slug The blog post slug
  */
-export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost> {
+export const getPostBySlug = async (slug: string): Promise<BlogPost> => {
   try {
-    console.log(`Frontend: Fetching blog post with slug "${slug}"`);
-    const response = await apiGet<ApiResponse<BlogPost>>(`/v1/blog/${slug}`);
-    
-    console.log('Frontend: API response:', response);
-    
-    if (response && response.success && response.data) {
-      // Return the post data from the API response
-      return response.data;
+    const response: ApiResponse<BlogPost> = await apiGet<BlogPost>(`/v1/blog/${slug}`);
+    if (!response.success || !response.data) {
+      throw new Error('Post not found');
     }
-    
-    throw new Error('Post not found');
+    return response.data;
   } catch (error) {
-    console.error(`Frontend: Error fetching blog post with slug ${slug}:`, error);
+    console.error('Error fetching blog post:', error);
     throw error;
   }
-}
+};
 
 /**
  * Fetch blog posts by tag
@@ -65,4 +60,75 @@ export async function fetchBlogPostsByTag(tag: string, limit?: number): Promise<
   }
   
   return [];
+}
+
+/**
+ * Create a new blog post
+ * @param formData FormData containing the post data and image
+ */
+export const createPost = async (postData: FormData): Promise<BlogPost> => {
+  try {
+    const response: ApiResponse<BlogPost> = await apiPost<BlogPost>('/v1/blog', postData);
+    if (!response.success || !response.data) {
+      throw new Error('Failed to create post');
+    }
+    return response.data;
+  } catch (error) {
+    console.error('Error creating blog post:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update an existing blog post
+ * @param id The blog post ID
+ * @param formData FormData containing the updated post data and image
+ */
+export const updatePost = async (id: string, postData: FormData): Promise<BlogPost> => {
+  try {
+    const response: ApiResponse<BlogPost> = await apiPut<BlogPost>(`/v1/blog/id/${id}`, postData);
+    if (!response.success || !response.data) {
+      throw new Error('Failed to update post');
+    }
+    return response.data;
+  } catch (error) {
+    console.error('Error updating blog post:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch a single blog post by ID
+ * @param id The blog post ID
+ */
+export async function fetchBlogPostById(id: string): Promise<BlogPost> {
+  try {
+    const response = await apiGet<ApiResponse<BlogPost>>(`/v1/blog/id/${id}`);
+    
+    if (response && response.success && response.data) {
+      return response.data;
+    }
+    
+    throw new Error('Post not found');
+  } catch (error) {
+    console.error(`Error fetching blog post with ID ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a blog post
+ * @param id The blog post ID
+ */
+export async function deleteBlogPost(id: string): Promise<void> {
+  try {
+    const response = await apiDelete<ApiResponse<{ id: string }>>(`/v1/blog/id/${id}`);
+    
+    if (!response || !response.success) {
+      throw new Error(response?.message || 'Failed to delete post');
+    }
+  } catch (error) {
+    console.error(`Error deleting blog post with ID ${id}:`, error);
+    throw error;
+  }
 } 
