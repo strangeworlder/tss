@@ -1,123 +1,162 @@
 import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import CommentModel, { CommentStatus } from '../models/CommentModel';
-import BlogPostModel from '../models/BlogPostModel';
-import User from '../../users/models/user.model';
+import { CommentModel, CommentStatus } from '../models/CommentModel';
+import { BlogPostModel } from '../models/BlogPostModel';
+import { User, IUser } from '../../users/models/user.model';
+import mongoose from 'mongoose';
+import { validateObjectId } from '../../../utils/validation';
 
 // Validation rules
-export const createCommentValidation = [
-  body('content')
-    .trim()
-    .notEmpty()
-    .withMessage('Comment content is required')
-    .isLength({ min: 1, max: 1000 })
-    .withMessage('Comment must be between 1 and 1000 characters'),
-];
+export const createCommentValidation = (req: Request, res: Response, next: Function) => {
+  const { title, content, parentId, parentType } = req.body;
+
+  if (!title || !content || !parentId || !parentType) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields',
+      errors: {
+        title: !title ? 'Title is required' : undefined,
+        content: !content ? 'Content is required' : undefined,
+        parentId: !parentId ? 'Parent ID is required' : undefined,
+        parentType: !parentType ? 'Parent type is required' : undefined
+      }
+    });
+  }
+
+  if (!validateObjectId(parentId)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid parent ID format'
+    });
+  }
+
+  if (!['post', 'comment'].includes(parentType)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid parent type. Must be either "post" or "comment"'
+    });
+  }
+
+  next();
+};
 
 // Create a new comment
 export const createComment = async (req: Request, res: Response) => {
   try {
-    // Check for validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { content } = req.body;
-    const postId = req.params.postId;
+    const { title, content, parentId, parentType } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Not authenticated' });
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
     }
 
-    // Check if post exists
-    const post = await BlogPostModel.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: 'Blog post not found' });
+    // Validate parentId format
+    if (!validateObjectId(parentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid parent ID format'
+      });
     }
 
-    // Get user details
+    // Check if parent exists
+    const parent = parentType === 'post' 
+      ? await BlogPostModel.findById(parentId)
+      : await CommentModel.findById(parentId);
+
+    if (!parent) {
+      return res.status(404).json({
+        success: false,
+        message: `${parentType === 'post' ? 'Post' : 'Comment'} not found`
+      });
+    }
+
+    // Get user information
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
 
-    // Create new comment
-    const comment = new CommentModel({
+    // Create the comment
+    const comment = await CommentModel.create({
+      title,
       content,
-      postId,
-      userId,
-      status: user.role === 'admin' ? CommentStatus.APPROVED : CommentStatus.PENDING
+      parentId,
+      parentType,
+      author: {
+        type: 'user',
+        id: user._id,
+        name: `${user.firstName} ${user.lastName}`,
+        avatar: {
+          filename: user.avatar?.filename || '',
+          altText: `${user.firstName} ${user.lastName}'s avatar`
+        }
+      },
+      status: CommentStatus.PENDING
     });
 
-    await comment.save();
+    // Populate author information
+    const populatedComment = await CommentModel.findById(comment._id);
 
     return res.status(201).json({
-      message: 'Comment created successfully',
-      comment: {
-        id: comment._id,
-        content: comment.content,
-        status: comment.status,
-        createdAt: comment.createdAt,
-        user: {
-          id: user._id,
-          name: `${user.firstName} ${user.lastName}`,
-          avatar: user.avatar
-        }
+      success: true,
+      data: {
+        comment: populatedComment
       }
     });
   } catch (error) {
-    console.error('Create comment error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error('Error creating comment:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to create comment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
 // Get comments for a post
 export const getComments = async (req: Request, res: Response) => {
   try {
-    const postId = req.params.postId;
-    const userId = req.user?.id;
+    const { postId } = req.params;
+    const { parentType } = req.query;
 
-    // Check if post exists
-    const post = await BlogPostModel.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: 'Blog post not found' });
+    if (!validateObjectId(postId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid post ID format'
+      });
     }
 
-    // Get comments with user details
-    const comments = await CommentModel.find({ postId })
-      .populate('userId', 'firstName lastName avatar')
+    const query: any = { parentId: postId };
+    if (parentType) {
+      query.parentType = parentType;
+    }
+
+    const comments = await CommentModel.find(query)
       .sort({ createdAt: -1 });
 
-    // Filter comments based on user role
-    const filteredComments = comments.filter(comment => {
-      if (userId && comment.userId._id.toString() === userId) {
-        return true; // User can see their own comments
+    return res.status(200).json({
+      success: true,
+      data: {
+        comments
       }
-      return comment.status === CommentStatus.APPROVED; // Only show approved comments to others
-    });
-
-    return res.json({
-      comments: filteredComments.map(comment => ({
-        id: comment._id,
-        content: comment.content,
-        status: comment.status,
-        createdAt: comment.createdAt,
-        user: {
-          id: comment.userId._id,
-          name: `${comment.userId.firstName} ${comment.userId.lastName}`,
-          avatar: comment.userId.avatar
-        }
-      }))
     });
   } catch (error) {
-    console.error('Get comments error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching comments:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch comments',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Update comment status (admin only)
+// Update comment status
 export const updateCommentStatus = async (req: Request, res: Response) => {
   try {
     const { commentId } = req.params;
@@ -125,65 +164,135 @@ export const updateCommentStatus = async (req: Request, res: Response) => {
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Not authenticated' });
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
     }
 
-    // Check if user is admin
-    const user = await User.findById(userId);
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Not authorized' });
+    if (!validateObjectId(commentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid comment ID format'
+      });
     }
 
-    // Check if comment exists
     const comment = await CommentModel.findById(commentId);
     if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Comment not found'
+      });
     }
 
-    // Update comment status
+    // Only allow admins to update status
+    const user = await User.findById(userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update comment status'
+      });
+    }
+
     comment.status = status;
     await comment.save();
 
-    return res.json({
-      message: 'Comment status updated successfully',
-      comment: {
-        id: comment._id,
-        status: comment.status
+    return res.status(200).json({
+      success: true,
+      data: {
+        comment
       }
     });
   } catch (error) {
-    console.error('Update comment status error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error('Error updating comment status:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update comment status',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Delete comment
+// Delete a comment
 export const deleteComment = async (req: Request, res: Response) => {
   try {
+    console.log('Delete comment request received:', {
+      commentId: req.params.commentId,
+      user: req.user ? {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.role
+      } : 'No user in request'
+    });
+
+    if (!req.user) {
+      console.log('Authentication failed: No user in request');
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+
     const { commentId } = req.params;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ message: 'Not authenticated' });
+    if (!commentId || !validateObjectId(commentId)) {
+      console.log('Invalid comment ID:', commentId);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid comment ID'
+      });
     }
 
-    // Check if comment exists
     const comment = await CommentModel.findById(commentId);
+    console.log('Comment lookup result:', {
+      commentId,
+      found: !!comment,
+      commentAuthor: comment?.author?.id,
+      requestUser: req.user.id
+    });
+
     if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
+      console.log('Comment not found:', commentId);
+      return res.status(404).json({
+        success: false,
+        message: 'Comment not found'
+      });
     }
 
-    // Check if user is admin or comment owner
-    const user = await User.findById(userId);
-    if (!user || (user.role !== 'admin' && comment.userId.toString() !== userId)) {
-      return res.status(403).json({ message: 'Not authorized' });
+    // Check if user is admin or comment author
+    const isAdmin = req.user.role === 'admin';
+    const isAuthor = comment.author.id === req.user.id;
+    console.log('Authorization check:', {
+      isAdmin,
+      isAuthor,
+      commentAuthorId: comment.author.id,
+      requestUserId: req.user.id
+    });
+
+    if (!isAdmin && !isAuthor) {
+      console.log('Authorization failed:', {
+        userRole: req.user.role,
+        commentAuthorId: comment.author.id,
+        requestUserId: req.user.id
+      });
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to delete this comment'
+      });
     }
 
-    await comment.deleteOne();
+    await CommentModel.findByIdAndDelete(commentId);
+    console.log('Comment deleted successfully:', commentId);
 
-    return res.json({ message: 'Comment deleted successfully' });
+    return res.status(200).json({
+      success: true,
+      message: 'Comment deleted successfully'
+    });
   } catch (error) {
-    console.error('Delete comment error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error('Error deleting comment:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete comment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }; 

@@ -1,19 +1,35 @@
-import { Router } from 'express';
-import { authenticate, authorizeAdmin } from '../../../middlewares/auth.middleware';
-import {
-  createComment,
-  getComments,
-  updateCommentStatus,
-  deleteComment,
-  createCommentValidation
-} from '../controllers/comment.controller';
+import express from 'express';
+import { createComment, getComments, updateCommentStatus, deleteComment, createCommentValidation } from '../controllers/comment.controller';
+import { authenticateToken } from '../../../middleware/auth';
 
-const router = Router();
+const router = express.Router();
 
-// Comment routes
-router.post('/posts/:postId/comments', authenticate, createCommentValidation, createComment);
+// Logging middleware for comment routes
+router.use((req, res, next) => {
+  console.log('Comment route hit:', {
+    method: req.method,
+    path: req.path,
+    params: req.params,
+    query: req.query,
+    body: req.body,
+    headers: {
+      authorization: req.headers.authorization ? 'Present' : 'Missing',
+      'content-type': req.headers['content-type']
+    }
+  });
+  next();
+});
+
+// Create a new comment (requires authentication)
+router.post('/posts/comments', authenticateToken, createCommentValidation, createComment);
+
+// Get comments for a post (public)
 router.get('/posts/:postId/comments', getComments);
-router.put('/comments/:commentId/status', authenticate, authorizeAdmin, updateCommentStatus);
-router.delete('/comments/:commentId', authenticate, deleteComment);
+
+// Update comment status (admin only)
+router.patch('/comments/:commentId/status', authenticateToken, updateCommentStatus);
+
+// Delete a comment (admin or comment author)
+router.delete('/comments/:commentId', authenticateToken, deleteComment);
 
 export default router; 

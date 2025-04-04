@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useBlogStore } from '@/stores/blogStore';
 import AppImage from '@/components/atoms/AppImage.vue';
 import TagPill from '@/components/atoms/TagPill.vue';
+import CommentList from '@/components/blog/CommentList.vue';
 import { ImageSize } from '@/types/image';
 import { checkApiHealth } from '@/api/apiClient';
 import { marked } from 'marked';
@@ -214,6 +215,14 @@ const updatePost = async (id: string, data: any) => {
         class="blog-detail-view__content markdown-body" 
         v-html="parsedContent"
       ></div>
+
+      <!-- Comments section -->
+      <div class="blog-detail-view__comments">
+        <CommentList
+          :parent-id="post.id"
+          parent-type="post"
+        />
+      </div>
     </article>
     
     <!-- Not found state -->
@@ -529,5 +538,11 @@ const updatePost = async (id: string, data: any) => {
     align-items: flex-start;
     gap: var(--spacing-2);
   }
+}
+
+.blog-detail-view__comments {
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-8);
+  border-top: 1px solid var(--color-border);
 }
 </style> 

@@ -3,12 +3,16 @@ import blogController from '../controllers/blog.controller';
 import upload from '../../../config/multer';
 import bodyParser from 'body-parser';
 import { authenticate } from '../../../middlewares/auth.middleware';
+import commentRoutes from './comment.routes';
 
 const router = Router();
 
 // Middleware
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+
+// Mount comment routes
+router.use('/', commentRoutes);
 
 // Error handling middleware
 router.use((err: any, req: any, res: any, next: any) => {
