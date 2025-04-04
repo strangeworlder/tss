@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
-import { IUser } from '../../users/models/user.model';
 import { IBlogPost } from './BlogPostModel';
+import { IUser } from '../../users/models/user.model';
 
 export enum CommentStatus {
   PENDING = 'pending',
@@ -8,11 +8,20 @@ export enum CommentStatus {
   REJECTED = 'rejected'
 }
 
-// Comment interface
 export interface IComment extends Document {
+  title: string;
   content: string;
-  postId: Types.ObjectId;
-  userId: Types.ObjectId;
+  author: {
+    type: 'user' | 'text';
+    id?: Types.ObjectId;
+    name: string;
+    avatar?: {
+      filename: string;
+      altText: string;
+    };
+  };
+  parentId: Types.ObjectId | null; // ID of the parent post or comment
+  parentType: 'post' | 'comment'; // Type of the parent (post or comment)
   status: CommentStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -20,21 +29,37 @@ export interface IComment extends Document {
 
 // Define the Comment Schema for MongoDB
 const commentSchema = new Schema<IComment>({
-  content: {
-    type: String,
+  title: { 
+    type: String, 
+    required: true,
+    trim: true,
+    minlength: 1,
+    maxlength: 200
+  },
+  content: { 
+    type: String, 
     required: true,
     trim: true,
     minlength: 1,
     maxlength: 1000
   },
-  postId: {
-    type: Schema.Types.ObjectId,
-    ref: 'BlogPost',
-    required: true
+  author: {
+    type: { type: String, enum: ['user', 'text'], required: true },
+    id: { type: Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String, required: true },
+    avatar: {
+      filename: { type: String },
+      altText: { type: String }
+    }
   },
-  userId: {
+  parentId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    required: true,
+    refPath: 'parentType'
+  },
+  parentType: {
+    type: String,
+    enum: ['post', 'comment'],
     required: true
   },
   status: {
@@ -42,9 +67,12 @@ const commentSchema = new Schema<IComment>({
     enum: Object.values(CommentStatus),
     default: CommentStatus.PENDING
   }
-}, {
-  timestamps: true
-});
+}, { timestamps: true });
+
+// Create indexes for better query performance
+commentSchema.index({ parentId: 1, parentType: 1 });
+commentSchema.index({ createdAt: -1 });
+commentSchema.index({ status: 1 });
 
 // Create the model if it doesn't exist already
 export const CommentModel = mongoose.models.Comment || mongoose.model<IComment>('Comment', commentSchema);

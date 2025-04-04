@@ -23,4 +23,17 @@ export interface IUser {
 export interface IAuthResponse {
   user: IUser;
   token: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: {
+    filename: string;
+    altText: string;
+  };
+  role: 'user' | 'admin';
+  createdAt: string;
+  updatedAt: string;
 } 

@@ -8,6 +8,17 @@
     "moduleResolution": "Node",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "target": "ESNext",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["vite/client", "node"]
   }
 }

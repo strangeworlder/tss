@@ -2,6 +2,7 @@
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { computed } from 'vue'
+import NotificationList from '@/components/common/NotificationList.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -18,43 +19,52 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <header class="app-header">
-    <div class="container app-header__container">
-      <h1 class="app-header__title">Vue Blog</h1>
-      <nav class="app-header__nav">
-        <ul class="app-header__nav-list">
-          <li><RouterLink to="/" class="app-header__nav-link">Home</RouterLink></li>
-          <li><RouterLink to="/blog" class="app-header__nav-link">Blog</RouterLink></li>
-          <li><RouterLink to="/about" class="app-header__nav-link">About</RouterLink></li>
-          <li v-if="authStore.isAdmin">
-            <RouterLink to="/admin" class="app-header__nav-link">Admin</RouterLink>
-          </li>
-          <li v-if="!authStore.isAuthenticated">
-            <RouterLink to="/auth" class="app-header__nav-link">Login / Register</RouterLink>
-          </li>
-          <li v-else class="app-header__user-menu">
-            <RouterLink to="/profile" class="app-header__nav-link">
-              <span class="app-header__user-name">{{ userFullName }}</span>
-            </RouterLink>
-            <button @click="handleLogout" class="app-header__logout-button">Logout</button>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <div class="app">
+    <NotificationList />
+    <header class="app-header">
+      <div class="container app-header__container">
+        <h1 class="app-header__title">Vue Blog</h1>
+        <nav class="app-header__nav">
+          <ul class="app-header__nav-list">
+            <li><RouterLink to="/" class="app-header__nav-link">Home</RouterLink></li>
+            <li><RouterLink to="/blog" class="app-header__nav-link">Blog</RouterLink></li>
+            <li><RouterLink to="/about" class="app-header__nav-link">About</RouterLink></li>
+            <li v-if="authStore.isAdmin">
+              <RouterLink to="/admin" class="app-header__nav-link">Admin</RouterLink>
+            </li>
+            <li v-if="!authStore.isAuthenticated">
+              <RouterLink to="/auth" class="app-header__nav-link">Login / Register</RouterLink>
+            </li>
+            <li v-else class="app-header__user-menu">
+              <RouterLink to="/profile" class="app-header__nav-link">
+                <span class="app-header__user-name">{{ userFullName }}</span>
+              </RouterLink>
+              <button @click="handleLogout" class="app-header__logout-button">Logout</button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
 
-  <main class="container app-main">
-    <RouterView />
-  </main>
+    <main class="container app-main">
+      <RouterView />
+    </main>
 
-  <footer class="app-footer">
-    <div class="container app-footer__container">
-      <p>&copy; {{ new Date().getFullYear() }} Vue Blog. All rights reserved.</p>
-    </div>
-  </footer>
+    <footer class="app-footer">
+      <div class="container app-footer__container">
+        <p>&copy; {{ new Date().getFullYear() }} Vue Blog. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
 </template>
 
 <style scoped>
+.app {
+  min-height: 100vh;
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+
 .app-header {
   background-color: var(--color-gray-800);
   color: var(--color-white);
