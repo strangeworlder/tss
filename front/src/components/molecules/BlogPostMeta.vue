@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSize } from '@/types/image';
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
 
 interface Props {
   date: string;
@@ -23,16 +22,11 @@ withDefaults(defineProps<Props>(), {
   <div class="blog-post-meta">
     <span v-if="date" class="blog-post-meta__date">{{ date }}</span>
     <div v-if="author" class="blog-post-meta__author">
-      <AppImage 
-        v-if="author.avatar?.filename" 
-        :filename="author.avatar.filename" 
-        :alt="author.avatar.altText" 
-        :size="ImageSize.THUMBNAIL"
-        class="blog-post-meta__author-avatar"
+      <AuthorInfo
+        :author="author"
+        :date="date"
+        size="sm"
       />
-      <span class="blog-post-meta__author-name">
-        by {{ author.name }}
-      </span>
     </div>
   </div>
 </template>
@@ -48,21 +42,5 @@ withDefaults(defineProps<Props>(), {
 
 .blog-post-meta__author {
   margin-left: var(--spacing-2);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.blog-post-meta__author-avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.blog-post-meta__author-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 </style> 

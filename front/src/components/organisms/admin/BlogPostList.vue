@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue';
 import { useBlogStore } from '@/stores/blogStore';
 import AppImage from '@/components/atoms/AppImage.vue';
 import { ImageSize } from '@/types/image';
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
+import Button from '@/components/atoms/Button.vue';
 
 const emit = defineEmits<{
   (e: 'edit-post', postId: string): void;
@@ -55,12 +57,12 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-list__error">
       <p>{{ error }}</p>
-      <button 
+      <Button 
         @click="fetchPosts"
-        class="blog-post-list__button blog-post-list__button--retry"
+        variant="danger"
       >
         Try Again
-      </button>
+      </Button>
     </div>
 
     <!-- Posts list -->
@@ -84,8 +86,11 @@ onMounted(() => {
         <div class="blog-post-list__content">
           <h2 class="blog-post-list__title">{{ post.title }}</h2>
           <div class="blog-post-list__meta">
-            <span class="blog-post-list__date">{{ formatDate(post.publishedAt) }}</span>
-            <span class="blog-post-list__author">by {{ post.author.name }}</span>
+            <AuthorInfo
+              :author="post.author"
+              :date="post.publishedAt"
+              size="sm"
+            />
             <span 
               :class="[
                 'blog-post-list__status',
@@ -96,12 +101,12 @@ onMounted(() => {
             </span>
           </div>
           <div class="blog-post-list__actions">
-            <button 
+            <Button 
               @click="handleEditPost(post.id)"
-              class="blog-post-list__button blog-post-list__button--edit"
+              variant="primary"
             >
               Edit
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -214,37 +219,9 @@ onMounted(() => {
 }
 
 .blog-post-list__actions {
+  margin-top: var(--spacing-4);
   display: flex;
   justify-content: flex-end;
-}
-
-.blog-post-list__button {
-  padding: var(--spacing-2) var(--spacing-4);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  font-family: var(--font-family-base);
-  font-weight: var(--font-weight-semibold);
-  transition: all var(--transition-fast);
-}
-
-.blog-post-list__button--edit {
-  background-color: var(--color-highlight-1);
-  color: var(--color-background);
-}
-
-.blog-post-list__button--edit:hover {
-  background-color: var(--color-highlight-2);
-}
-
-.blog-post-list__button--retry {
-  background-color: var(--color-background-soft);
-  color: var(--color-text);
-}
-
-.blog-post-list__button--retry:hover {
-  background-color: var(--color-border);
 }
 
 .blog-post-list__status {

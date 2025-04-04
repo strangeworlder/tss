@@ -31,21 +31,21 @@
     </div>
 
     <div class="comment-form__actions">
-      <button
+      <Button
         type="submit"
-        class="button button--primary"
+        variant="primary"
         :disabled="loading"
       >
         {{ loading ? 'Saving...' : (isReply ? 'Reply' : 'Comment') }}
-      </button>
-      <button
+      </Button>
+      <Button
         v-if="isReply"
         type="button"
-        class="button button--secondary"
+        variant="secondary"
         @click="$emit('cancel')"
       >
         Cancel
-      </button>
+      </Button>
     </div>
   </form>
 </template>
@@ -54,6 +54,7 @@
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { createComment } from '@/api/commentService';
+import Button from '@/components/atoms/Button.vue';
 
 const props = defineProps<{
   parentId: string;
@@ -186,38 +187,5 @@ const handleSubmit = async () => {
   display: flex;
   gap: var(--spacing-2);
   justify-content: flex-end;
-}
-
-.button {
-  padding: var(--spacing-2) var(--spacing-4);
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.button--primary {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-.button--primary:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-}
-
-.button--secondary {
-  background-color: var(--color-background-secondary);
-  color: var(--color-text-primary);
-}
-
-.button--secondary:hover:not(:disabled) {
-  background-color: var(--color-background-hover);
 }
 </style> 

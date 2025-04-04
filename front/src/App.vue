@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import NotificationList from '@/components/common/NotificationList.vue'
+import Button from '@/components/atoms/Button.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -39,7 +40,15 @@ const handleLogout = () => {
               <RouterLink to="/profile" class="app-header__nav-link">
                 <span class="app-header__user-name">{{ userFullName }}</span>
               </RouterLink>
-              <button @click="handleLogout" class="app-header__logout-button">Logout</button>
+              <div class="app-header__actions">
+                <Button 
+                  @click="handleLogout" 
+                  variant="text"
+                  class="app-header__logout-button"
+                >
+                  Logout
+                </Button>
+              </div>
             </li>
           </ul>
         </nav>
@@ -117,18 +126,7 @@ const handleLogout = () => {
 }
 
 .app-header__logout-button {
-  background: none;
-  border: 1px solid var(--color-white);
-  color: var(--color-white);
-  padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
-.app-header__logout-button:hover {
-  background-color: var(--color-white);
-  color: var(--color-gray-800);
+  margin-left: var(--spacing-4);
 }
 
 .app-main {

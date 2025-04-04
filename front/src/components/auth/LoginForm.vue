@@ -25,9 +25,13 @@
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn-login" :disabled="isLoading">
+        <Button 
+          type="submit" 
+          variant="primary" 
+          :disabled="isLoading"
+        >
           {{ isLoading ? 'Logging in...' : 'Login' }}
-        </button>
+        </Button>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
     </form>
@@ -38,6 +42,7 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import Button from '@/components/atoms/Button.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -188,25 +193,5 @@ input:focus {
   text-align: center;
 }
 
-.btn-login {
-  background-color: var(--color-highlight-1);
-  color: var(--color-background);
-  padding: var(--spacing-3) var(--spacing-6);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: background-color var(--transition-normal);
-  font-family: var(--font-family-base);
-}
-
-.btn-login:hover {
-  background-color: var(--color-highlight-2);
-}
-
-.btn-login:disabled {
-  background-color: var(--color-border);
-  cursor: not-allowed;
-}
+/* Remove the old button styles since we're using the Button atom */
 </style> 

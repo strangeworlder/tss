@@ -1,5 +1,7 @@
 <template>
-  <button
+  <component
+    :is="to ? 'router-link' : 'button'"
+    :to="to"
     class="button"
     :class="[
       `button--${variant}`,
@@ -9,13 +11,14 @@
     @click="$emit('click', $event)"
   >
     <slot></slot>
-  </button>
+  </component>
 </template>
 
 <script setup lang="ts">
 defineProps<{
   variant?: 'primary' | 'secondary' | 'danger' | 'text';
   disabled?: boolean;
+  to?: string;
 }>();
 
 defineEmits<{
@@ -31,6 +34,8 @@ defineEmits<{
   cursor: pointer;
   transition: all var(--transition-fast);
   border: 1px solid transparent;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .button--primary {

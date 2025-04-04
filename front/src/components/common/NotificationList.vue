@@ -10,12 +10,13 @@
         <div class="notification-list__content">
           {{ notification.message }}
         </div>
-        <button
+        <Button
+          variant="text"
           class="notification-list__close"
           @click="removeNotification(notification.id)"
         >
           ×
-        </button>
+        </Button>
       </div>
     </TransitionGroup>
   </div>
@@ -25,6 +26,7 @@
 import { computed } from 'vue';
 import { useNotificationStore } from '@/stores/notification';
 import type { Notification } from '@/stores/notification';
+import Button from '@/components/atoms/Button.vue';
 
 const notificationStore = useNotificationStore();
 const notifications = computed(() => notificationStore.getNotifications);
@@ -76,11 +78,6 @@ const removeNotification = (id: string) => {
 }
 
 .notification-list__close {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xl);
-  cursor: pointer;
   padding: 0;
   width: var(--spacing-6);
   height: var(--spacing-6);
@@ -88,10 +85,7 @@ const removeNotification = (id: string) => {
   align-items: center;
   justify-content: center;
   border-radius: var(--border-radius-full);
-}
-
-.notification-list__close:hover {
-  background-color: var(--color-background-hover);
+  font-size: var(--font-size-xl);
 }
 
 .notification-enter-active,

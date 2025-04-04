@@ -42,7 +42,6 @@ console.log('Tags:', props.tags);
 <template>
   <article class="blog-post-card" :class="`blog-post-card--${variant}`">
     <BlogPostImage
-      v-if="heroImageFilename || heroImageUrl"
       :filename="heroImageFilename"
       :url="heroImageUrl"
       :alt="heroImageAlt || title"

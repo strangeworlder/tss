@@ -9,6 +9,7 @@ import { deleteBlogPost } from '@/api/blogService';
 import { useRouter } from 'vue-router';
 import type { BlogPost } from '@/types/blog';
 import type { IUser } from '@/types/user';
+import Button from '@/components/atoms/Button.vue';
 
 const props = defineProps<{
   postId: string | null;
@@ -307,12 +308,12 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-editor__error">
       <p>{{ error }}</p>
-      <button 
+      <Button 
         @click="props.postId ? loadPost(props.postId) : resetForm()"
-        class="blog-post-editor__button blog-post-editor__button--retry"
+        variant="danger"
       >
         Try Again
-      </button>
+      </Button>
     </div>
 
     <!-- Editor form -->
@@ -321,13 +322,13 @@ onMounted(() => {
         <h2 class="blog-post-editor__title">
           {{ props.postId ? 'Edit Post' : 'New Post' }}
         </h2>
-        <button 
+        <Button 
           type="button"
           @click="emit('back')"
-          class="blog-post-editor__button blog-post-editor__button--back"
+          variant="secondary"
         >
           Back to List
-        </button>
+        </Button>
       </div>
 
       <div class="blog-post-editor__field">
@@ -397,13 +398,14 @@ onMounted(() => {
               class="blog-post-editor__tag"
             >
               {{ tag }}
-              <button 
+              <Button 
                 type="button"
                 @click="removeTag(tag)"
+                variant="text"
                 class="blog-post-editor__tag-remove"
               >
                 ×
-              </button>
+              </Button>
             </span>
           </div>
           <div class="blog-post-editor__tag-input">
@@ -414,13 +416,13 @@ onMounted(() => {
               @keyup.enter.prevent="addTag"
               class="blog-post-editor__input"
             />
-            <button 
+            <Button 
               type="button"
               @click="addTag"
-              class="blog-post-editor__button blog-post-editor__button--add"
+              variant="secondary"
             >
               Add
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -510,23 +512,23 @@ onMounted(() => {
       </div>
 
       <div class="blog-post-editor__actions">
-        <button 
+        <Button 
           type="submit"
           :disabled="saving"
-          class="blog-post-editor__button blog-post-editor__button--save"
+          variant="primary"
         >
           {{ saving ? 'Saving...' : (props.postId ? 'Update Post' : 'Create Post') }}
-        </button>
+        </Button>
         
-        <button 
+        <Button 
           v-if="props.postId"
           type="button"
-          class="blog-post-editor__delete-button"
+          variant="danger"
           @click="showDeleteConfirm = true"
           :disabled="loading"
         >
           Delete Post
-        </button>
+        </Button>
       </div>
     </form>
 
@@ -536,18 +538,18 @@ onMounted(() => {
         <h3>Delete Post</h3>
         <p>Are you sure you want to delete this post? This action cannot be undone.</p>
         <div class="blog-post-editor__delete-confirm-actions">
-          <button 
-            class="blog-post-editor__delete-confirm-cancel"
+          <Button 
+            variant="secondary"
             @click="showDeleteConfirm = false"
           >
             Cancel
-          </button>
-          <button 
-            class="blog-post-editor__delete-confirm-delete"
+          </Button>
+          <Button 
+            variant="danger"
             @click="handleDelete"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -737,14 +739,9 @@ onMounted(() => {
 }
 
 .blog-post-editor__tag-remove {
-  cursor: pointer;
-  color: var(--color-text);
-  opacity: 0.7;
-  transition: opacity var(--transition-fast);
-}
-
-.blog-post-editor__tag-remove:hover {
-  opacity: 1;
+  padding: 0 var(--spacing-1);
+  line-height: 1;
+  font-size: var(--font-size-lg);
 }
 
 .blog-post-editor__tag-input {
