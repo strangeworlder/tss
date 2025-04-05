@@ -106,20 +106,20 @@
           class="blog-form__input"
           @keydown.enter.prevent="addTag"
         />
-        <button type="button" @click="addTag" class="blog-form__tag-button">Add</button>
+        <Button type="button" @click="addTag" :variant="ButtonVariantEnum.SECONDARY" class="blog-form__tag-button">Add</Button>
       </div>
       <div class="blog-form__tag-list">
         <span v-for="tag in formData.tags" :key="tag" class="blog-form__tag">
           {{ tag }}
-          <button type="button" @click="removeTag(tag)" class="blog-form__tag-remove">×</button>
+          <Button type="button" @click="removeTag(tag)" :variant="ButtonVariantEnum.TEXT" class="blog-form__tag-remove">×</Button>
         </span>
       </div>
     </div>
 
     <!-- Submit Button -->
-    <button type="submit" class="blog-form__submit" :disabled="loading">
+    <Button type="submit" :variant="ButtonVariantEnum.PRIMARY" class="blog-form__submit" :disabled="loading">
       {{ loading ? 'Saving...' : 'Submit' }}
-    </button>
+    </Button>
 
     <!-- Error Message -->
     <div v-if="error" class="blog-form__error">
@@ -133,6 +133,8 @@ import { ref, computed, onMounted, reactive } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBlogStore } from '@/stores/blogStore'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 import type { BlogPost, Author } from '@/types/blog'
 import type { IUser } from '@/types/user'
 

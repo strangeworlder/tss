@@ -31,10 +31,10 @@
     </div>
 
     <div class="comment-form__actions">
-      <Button type="submit" variant="primary" :disabled="loading">
+      <Button type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="loading">
         {{ loading ? 'Saving...' : isReply ? 'Reply' : 'Comment' }}
       </Button>
-      <Button v-if="isReply" type="button" variant="secondary" @click="$emit('cancel')">
+      <Button v-if="isReply" type="button" :variant="ButtonVariantEnum.SECONDARY" @click="$emit('cancel')">
         Cancel
       </Button>
     </div>
@@ -46,6 +46,7 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { createComment } from '@/api/commentService'
 import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const props = defineProps<{
   parentId: string

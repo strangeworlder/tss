@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router'
 import type { BlogPost } from '@/types/blog'
 import type { IUser } from '@/types/user'
 import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const props = defineProps<{
   postId: string | null
@@ -333,7 +334,7 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-editor__error">
       <p>{{ error }}</p>
-      <Button @click="props.postId ? loadPost(props.postId) : resetForm()" variant="danger">
+      <Button @click="props.postId ? loadPost(props.postId) : resetForm()" :variant="ButtonVariantEnum.DANGER">
         Try Again
       </Button>
     </div>
@@ -344,7 +345,7 @@ onMounted(() => {
         <h2 class="blog-post-editor__title">
           {{ props.postId ? 'Edit Post' : 'New Post' }}
         </h2>
-        <Button type="button" @click="emit('back')" variant="secondary"> Back to List </Button>
+        <Button type="button" @click="emit('back')" :variant="ButtonVariantEnum.SECONDARY"> Back to List </Button>
       </div>
 
       <div class="blog-post-editor__field">
@@ -407,7 +408,7 @@ onMounted(() => {
               <Button
                 type="button"
                 @click="removeTag(tag)"
-                variant="text"
+                :variant="ButtonVariantEnum.TEXT"
                 class="blog-post-editor__tag-remove"
               >
                 ×
@@ -422,7 +423,7 @@ onMounted(() => {
               @keyup.enter.prevent="addTag"
               class="blog-post-editor__input"
             />
-            <Button type="button" @click="addTag" variant="secondary"> Add </Button>
+            <Button type="button" @click="addTag" :variant="ButtonVariantEnum.SECONDARY"> Add </Button>
           </div>
         </div>
       </div>
@@ -511,14 +512,14 @@ onMounted(() => {
       </div>
 
       <div class="blog-post-editor__actions">
-        <Button type="submit" :disabled="saving" variant="primary">
+        <Button type="submit" :disabled="saving" :variant="ButtonVariantEnum.PRIMARY">
           {{ saving ? 'Saving...' : props.postId ? 'Update Post' : 'Create Post' }}
         </Button>
 
         <Button
           v-if="props.postId"
           type="button"
-          variant="danger"
+          :variant="ButtonVariantEnum.DANGER"
           @click="showDeleteConfirm = true"
           :disabled="loading"
         >
@@ -533,8 +534,8 @@ onMounted(() => {
         <h3>Delete Post</h3>
         <p>Are you sure you want to delete this post? This action cannot be undone.</p>
         <div class="blog-post-editor__delete-confirm-actions">
-          <Button variant="secondary" @click="showDeleteConfirm = false"> Cancel </Button>
-          <Button variant="danger" @click="handleDelete"> Delete </Button>
+          <Button :variant="ButtonVariantEnum.SECONDARY" @click="showDeleteConfirm = false"> Cancel </Button>
+          <Button :variant="ButtonVariantEnum.DANGER" @click="handleDelete"> Delete </Button>
         </div>
       </div>
     </div>

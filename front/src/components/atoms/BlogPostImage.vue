@@ -79,21 +79,28 @@ const props = withDefaults(defineProps<IProps>(), {
   variant: BlogPostTitleVariantEnum.FULL,
 })
 
+// Debug log to see what we're receiving
+console.log('BlogPostImage props:', {
+  filename: props.filename,
+  url: props.url,
+  isDirectUrl: props.url && (props.url.startsWith('http') || props.url.startsWith('/')),
+  variant: props.variant
+})
+
 /**
  * Error state for the image
  */
 const hasError = ref(false)
 
 /**
- * Computed property to determine the image source
- * Prioritizes URL over filename if both are provided
+ * Determines if we should use direct URL mode
  */
-const imageSource = computed(() => {
-  if (props.url) {
-    return props.url
-  }
-  return props.filename ? getImageUrl(props.filename, props.size) : getImageUrl('placeholder1.webp', props.size)
-})
+const isDirectUrl = computed(() => !!props.url && (props.url.startsWith('http') || props.url.startsWith('/')))
+
+/**
+ * The filename to use when not using direct URL
+ */
+const filenameToUse = computed(() => props.filename || 'placeholder1.webp')
 
 /**
  * Handle image loading error
@@ -113,25 +120,32 @@ const handleImageError = () => {
     role="img"
     :aria-label="alt"
   >
-    <AppImage
-      v-if="url"
-      :filename="url"
-      :alt="alt"
-      :size="ImageSizeEnum.FULL"
-      class="blog-post-image__img"
-      @error="handleImageError"
-    />
-    <AppImage
-      v-else
-      :filename="filename || 'placeholder1.webp'"
-      :size="size"
-      :alt="alt"
-      class="blog-post-image__img"
-      @error="handleImageError"
-    />
+    <!-- Show error message when an error occurs -->
     <div v-if="hasError" class="blog-post-image__error">
       <span class="blog-post-image__error-text">Image not available</span>
     </div>
+    
+    <!-- Only show the image when there's no error -->
+    <template v-else>
+      <!-- Direct URL mode - use an img tag directly -->
+      <img
+        v-if="isDirectUrl"
+        :src="url"
+        :alt="alt"
+        class="blog-post-image__img"
+        @error="handleImageError"
+        loading="lazy"
+      />
+      <!-- Filename mode - use AppImage component -->
+      <AppImage
+        v-else
+        :filename="filenameToUse"
+        :size="size"
+        :alt="alt"
+        class="blog-post-image__img"
+        @error="handleImageError"
+      />
+    </template>
   </div>
 </template>
 

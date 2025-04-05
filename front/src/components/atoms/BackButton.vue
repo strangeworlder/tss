@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 /**
  * BackButton Component
@@ -47,16 +49,13 @@ const handleNavigation = () => {
 </script>
 
 <template>
-  <button 
+  <Button 
     @click="handleNavigation"
-    @keydown.enter="handleNavigation"
     class="back-button"
-    :aria-label="`${text} button`"
-    role="button"
-    tabindex="0"
+    :variant="ButtonVariantEnum.TEXT"
   >
     &larr; {{ text }}
-  </button>
+  </Button>
 </template>
 
 <style scoped>
@@ -64,13 +63,8 @@ const handleNavigation = () => {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: none;
-  border: none;
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
-  cursor: pointer;
-  transition: color var(--transition-fast);
 }
 
 .back-button:hover {

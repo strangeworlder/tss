@@ -11,7 +11,7 @@
           {{ notification.message }}
         </div>
         <Button
-          variant="text"
+          :variant="ButtonVariantEnum.TEXT"
           class="notification-list__close"
           @click="removeNotification(notification.id)"
         >
@@ -27,6 +27,7 @@ import { computed } from 'vue'
 import { useNotificationStore } from '@/stores/notification'
 import type { Notification } from '@/stores/notification'
 import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const notificationStore = useNotificationStore()
 const notifications = computed(() => notificationStore.getNotifications)

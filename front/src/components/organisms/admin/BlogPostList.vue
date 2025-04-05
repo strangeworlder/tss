@@ -5,6 +5,7 @@ import AppImage from '@/components/atoms/AppImage.vue'
 import { ImageSizeEnum } from '@/types/image'
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
 import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const emit = defineEmits<{
   (e: 'edit-post', postId: string): void
@@ -57,7 +58,7 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-list__error">
       <p>{{ error }}</p>
-      <Button @click="fetchPosts" variant="danger"> Try Again </Button>
+      <Button @click="fetchPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </Button>
     </div>
 
     <!-- Posts list -->
@@ -90,7 +91,7 @@ onMounted(() => {
             </span>
           </div>
           <div class="blog-post-list__actions">
-            <Button @click="handleEditPost(post.id)" variant="primary"> Edit </Button>
+            <Button @click="handleEditPost(post.id)" :variant="ButtonVariantEnum.PRIMARY"> Edit </Button>
           </div>
         </div>
       </div>

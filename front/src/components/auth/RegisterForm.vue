@@ -27,7 +27,7 @@
       </div>
 
       <div class="form-actions">
-        <Button type="submit" variant="primary" :disabled="isLoading">
+        <Button type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="isLoading">
           {{ isLoading ? 'Creating Account...' : 'Create Account' }}
         </Button>
         <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 // Form data
 const formData = reactive({

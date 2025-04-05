@@ -5,6 +5,7 @@ import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
 import Button from '@/components/atoms/Button.vue'
 import { checkApiHealth } from '@/api/apiClient'
 import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import { ButtonVariantEnum } from '@/types/button'
 
 // Get the blog store
 const blogStore = useBlogStore()
@@ -94,12 +95,12 @@ onMounted(() => {
       <Button
         v-if="!serverStarting && error.includes('API server is not available')"
         @click="startBackendServer"
-        variant="primary"
+        :variant="ButtonVariantEnum.PRIMARY"
         :disabled="serverStarting"
       >
         Start Backend Server
       </Button>
-      <Button @click="fetchBlogPosts" variant="danger" :disabled="serverStarting">
+      <Button @click="fetchBlogPosts" :variant="ButtonVariantEnum.DANGER" :disabled="serverStarting">
         Try Again
       </Button>
     </div>
@@ -118,8 +119,9 @@ onMounted(() => {
         :date="formatDate(post.publishedAt)"
         :author="post.author"
         :content="post.excerpt"
-        :hero-image-filename="post.heroImage?.filename"
-        :hero-image-alt="post.heroImage?.altText"
+        :heroImageFilename="post.heroImage?.filename"
+        :heroImageAlt="post.heroImage?.altText"
+        :heroImageUrl="post.heroImageUrl"
         :slug="post.slug"
         :tags="post.tags"
         :variant="BlogPostTitleVariantEnum.FULL"

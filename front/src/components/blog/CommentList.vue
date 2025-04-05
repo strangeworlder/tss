@@ -31,8 +31,8 @@
         </div>
         <div class="comment-list__content" v-html="formatContent(comment.content)"></div>
         <div class="comment-list__actions">
-          <Button variant="text" @click="showReplyForm(comment._id)"> Reply </Button>
-          <Button v-if="canDelete(comment)" variant="text" @click="deleteComment(comment._id)">
+          <Button :variant="ButtonVariantEnum.TEXT" @click="showReplyForm(comment._id)"> Reply </Button>
+          <Button v-if="canDelete(comment)" :variant="ButtonVariantEnum.TEXT" @click="deleteComment(comment._id)">
             Delete
           </Button>
         </div>
@@ -58,6 +58,7 @@ import CommentForm from './CommentForm.vue'
 import { useNotificationStore } from '@/stores/notification'
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
 import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const props = defineProps<{
   parentId: string

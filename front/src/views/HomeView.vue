@@ -5,6 +5,7 @@ import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
 import { checkApiHealth } from '@/api/apiClient'
 import Button from '@/components/atoms/Button.vue'
 import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import { ButtonVariantEnum } from '@/types/button'
 
 // Get the blog store
 const blogStore = useBlogStore()
@@ -72,7 +73,7 @@ onMounted(() => {
       <div class="container home-view__hero-container">
         <h1 class="home-view__hero-title">Welcome to Vue Blog</h1>
         <p class="home-view__hero-text">A modern blog built with Vue 3 and TypeScript.</p>
-        <Button to="/blog" variant="primary" class="home-view__cta"> Read All Blog Posts </Button>
+        <Button to="/blog" :variant="ButtonVariantEnum.PRIMARY" class="home-view__cta"> Read All Blog Posts </Button>
       </div>
     </section>
 
@@ -89,13 +90,13 @@ onMounted(() => {
         <!-- Error state -->
         <div v-else-if="error" class="text-center py-8">
           <p class="text-red-600 mb-4">{{ error }}</p>
-          <Button @click="fetchRecentPosts" variant="danger"> Try Again </Button>
+          <Button @click="fetchRecentPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </Button>
         </div>
 
         <!-- Empty state -->
         <div v-else-if="recentPosts.length === 0" class="text-center py-8">
           <p class="text-gray-600 mb-4">No recent posts found.</p>
-          <Button to="/blog" variant="secondary"> Check our blog &rarr; </Button>
+          <Button to="/blog" :variant="ButtonVariantEnum.SECONDARY"> Check our blog &rarr; </Button>
         </div>
 
         <!-- Recent posts -->
@@ -109,9 +110,9 @@ onMounted(() => {
               :date="formatDate(post.publishedAt)"
               :author="post.author"
               :content="post.excerpt"
-              :hero-image-filename="post.heroImage?.filename"
-              :hero-image-alt="post.heroImage?.altText"
-              :hero-image-url="post.heroImageUrl"
+              :heroImageFilename="post.heroImage?.filename"
+              :heroImageAlt="post.heroImage?.altText"
+              :heroImageUrl="post.heroImageUrl"
               :slug="post.slug"
               :tags="post.tags"
               :variant="BlogPostTitleVariantEnum.COMPACT"
@@ -119,7 +120,7 @@ onMounted(() => {
             />
           </div>
           <div class="home-view__more-link">
-            <Button to="/blog" variant="secondary"> View All Blog Posts </Button>
+            <Button to="/blog" :variant="ButtonVariantEnum.SECONDARY"> View All Blog Posts </Button>
           </div>
         </div>
       </div>
@@ -138,7 +139,7 @@ onMounted(() => {
             class="home-view__newsletter-input"
             required
           />
-          <Button type="submit" variant="primary"> Subscribe </Button>
+          <Button type="submit" :variant="ButtonVariantEnum.PRIMARY"> Subscribe </Button>
         </form>
       </div>
     </section>

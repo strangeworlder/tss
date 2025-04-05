@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
+import { useUserStore } from '@/stores/userStore'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 import AppImage from '@/components/atoms/AppImage.vue'
 import { ImageSizeEnum } from '@/types/image'
 
@@ -107,9 +110,14 @@ const triggerFileInput = () => {
             @change="handleAvatarChange"
           />
 
-          <button @click="triggerFileInput" class="profile-view__avatar-button" :disabled="loading">
+          <Button 
+            @click="triggerFileInput" 
+            :disabled="loading" 
+            :variant="ButtonVariantEnum.SECONDARY"
+            class="profile-view__avatar-button"
+          >
             {{ loading ? 'Uploading...' : 'Change Profile Picture' }}
-          </button>
+          </Button>
         </div>
 
         <!-- Success/Error messages -->

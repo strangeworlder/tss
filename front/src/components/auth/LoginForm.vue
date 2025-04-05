@@ -15,7 +15,7 @@
       </div>
 
       <div class="form-actions">
-        <Button type="submit" variant="primary" :disabled="isLoading">
+        <Button type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="isLoading">
           {{ isLoading ? 'Logging in...' : 'Login' }}
         </Button>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -29,6 +29,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const router = useRouter()
 const authStore = useAuthStore()
