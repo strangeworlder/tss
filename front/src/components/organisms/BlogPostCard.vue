@@ -1,42 +1,43 @@
 <script setup lang="ts">
-import BlogPostTitle from '@/components/atoms/BlogPostTitle.vue';
-import BlogPostImage from '@/components/atoms/BlogPostImage.vue';
-import BlogPostMeta from '@/components/molecules/BlogPostMeta.vue';
-import BlogPostTags from '@/components/molecules/BlogPostTags.vue';
-import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue';
-import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue';
+import BlogPostTitle from '@/components/atoms/BlogPostTitle.vue'
+import BlogPostImage from '@/components/atoms/BlogPostImage.vue'
+import BlogPostMeta from '@/components/molecules/BlogPostMeta.vue'
+import BlogPostTags from '@/components/molecules/BlogPostTags.vue'
+import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue'
+import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 interface Props {
-  title: string;
-  date: string;
+  title: string
+  date: string
   author: {
-    name: string;
+    name: string
     avatar?: {
-      filename: string;
-      altText: string;
-    };
-  };
-  content: string;
-  heroImageFilename?: string;
-  heroImageAlt?: string;
-  heroImageUrl?: string;
-  slug: string;
-  variant?: 'compact' | 'full'; // compact for homepage, full for blog listing
-  tags?: string[];
+      filename: string
+      altText: string
+    }
+  }
+  content: string
+  heroImageFilename?: string
+  heroImageAlt?: string
+  heroImageUrl?: string
+  slug: string
+  variant?: BlogPostTitleVariantEnum // compact for homepage, full for blog listing
+  tags?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'full',
+  variant: BlogPostTitleVariantEnum.FULL,
   tags: () => [],
   date: '',
   author: () => ({ name: 'Anonymous' }),
   slug: '',
-  content: ''
-});
+  content: '',
+})
 
 // Temporary debugging
-console.log('BlogPostCard props:', props);
-console.log('Tags:', props.tags);
+console.log('BlogPostCard props:', props)
+console.log('Tags:', props.tags)
 </script>
 
 <template>
@@ -47,31 +48,17 @@ console.log('Tags:', props.tags);
       :alt="heroImageAlt || title"
       :variant="variant"
     />
-    
+
     <div class="blog-post-card__content">
-      <BlogPostTitle
-        :title="title"
-        :variant="variant"
-      />
-      
-      <BlogPostMeta
-        :date="date"
-        :author="author"
-      />
-      
-      <BlogPostTags
-        v-if="variant === 'full' && tags.length > 0"
-        :tags="tags"
-      />
-      
-      <BlogPostExcerpt
-        :content="content"
-        :variant="variant"
-      />
-      
-      <ReadMoreButton
-        :to="`/blog/${slug}`"
-      />
+      <BlogPostTitle :title="title" :variant="variant" />
+
+      <BlogPostMeta :date="date" :author="author" />
+
+      <BlogPostTags v-if="variant === BlogPostTitleVariantEnum.FULL && tags.length > 0" :tags="tags" />
+
+      <BlogPostExcerpt :content="content" :variant="variant" />
+
+      <ReadMoreButton :to="`/blog/${slug}`" />
     </div>
   </article>
 </template>
@@ -83,7 +70,9 @@ console.log('Tags:', props.tags);
   overflow: hidden;
   background-color: var(--color-background);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .blog-post-card:hover {
@@ -112,4 +101,4 @@ console.log('Tags:', props.tags);
     flex-direction: row;
   }
 }
-</style> 
+</style>

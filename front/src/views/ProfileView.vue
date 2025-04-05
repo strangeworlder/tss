@@ -1,82 +1,85 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useAuthStore } from '@/stores/authStore';
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSize } from '@/types/image';
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useUserStore } from '@/stores/userStore'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
+import AppImage from '@/components/atoms/AppImage.vue'
+import { ImageSizeEnum } from '@/types/image'
 
-const authStore = useAuthStore();
-const loading = ref(false);
-const error = ref<string | null>(null);
-const successMessage = ref<string | null>(null);
-const fileInput = ref<HTMLInputElement | null>(null);
-const avatarPreview = ref<string | null>(null);
+const authStore = useAuthStore()
+const loading = ref(false)
+const error = ref<string | null>(null)
+const successMessage = ref<string | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
+const avatarPreview = ref<string | null>(null)
 
-const user = computed(() => authStore.user);
+const user = computed(() => authStore.user)
 
 const userLevel = computed(() => {
-  if (!user.value) return 'User';
+  if (!user.value) return 'User'
   switch (user.value.role) {
     case 'admin':
-      return 'Administrator';
+      return 'Administrator'
     case 'author':
-      return 'Content Author';
+      return 'Content Author'
     default:
-      return 'Regular User';
+      return 'Regular User'
   }
-});
+})
 
 const handleAvatarChange = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  
-  if (!file) return;
-  
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (!file) return
+
   // Preview the image
-  avatarPreview.value = URL.createObjectURL(file);
-  
+  avatarPreview.value = URL.createObjectURL(file)
+
   // Upload the image
-  const formData = new FormData();
-  formData.append('avatar', file);
-  
-  loading.value = true;
-  error.value = null;
-  successMessage.value = null;
-  
+  const formData = new FormData()
+  formData.append('avatar', file)
+
+  loading.value = true
+  error.value = null
+  successMessage.value = null
+
   try {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
     const response = await fetch(`${API_BASE_URL}/v1/users/avatar`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${authStore.token}`
+        Authorization: `Bearer ${authStore.token}`,
       },
-      body: formData
-    });
-    
+      body: formData,
+    })
+
     if (!response.ok) {
-      throw new Error('Failed to update profile picture');
+      throw new Error('Failed to update profile picture')
     }
-    
-    const data = await response.json();
-    await authStore.fetchUserData(); // Refresh user data
-    successMessage.value = 'Profile picture updated successfully';
+
+    const data = await response.json()
+    await authStore.fetchUserData() // Refresh user data
+    successMessage.value = 'Profile picture updated successfully'
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'An error occurred';
-    avatarPreview.value = null;
+    error.value = err instanceof Error ? err.message : 'An error occurred'
+    avatarPreview.value = null
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const triggerFileInput = () => {
-  fileInput.value?.click();
-};
+  fileInput.value?.click()
+}
 </script>
 
 <template>
   <div class="profile-view">
     <div class="profile-view__container">
       <h1 class="profile-view__title">My Profile</h1>
-      
+
       <!-- User info section -->
       <div class="profile-view__section">
         <div class="profile-view__avatar-container">
@@ -85,7 +88,7 @@ const triggerFileInput = () => {
               v-if="user?.avatar?.filename && !avatarPreview"
               :filename="user.avatar.filename"
               :alt="user.avatar.altText || user.firstName"
-              :size="ImageSize.MEDIUM"
+              :size="ImageSizeEnum.MEDIUM"
               class="profile-view__avatar-img"
             />
             <img
@@ -98,7 +101,7 @@ const triggerFileInput = () => {
               {{ user?.firstName?.[0]?.toUpperCase() }}
             </div>
           </div>
-          
+
           <input
             ref="fileInput"
             type="file"
@@ -106,16 +109,17 @@ const triggerFileInput = () => {
             class="profile-view__file-input"
             @change="handleAvatarChange"
           />
-          
-          <button
-            @click="triggerFileInput"
+
+          <Button 
+            @click="triggerFileInput" 
+            :disabled="loading" 
+            :variant="ButtonVariantEnum.SECONDARY"
             class="profile-view__avatar-button"
-            :disabled="loading"
           >
             {{ loading ? 'Uploading...' : 'Change Profile Picture' }}
-          </button>
+          </Button>
         </div>
-        
+
         <!-- Success/Error messages -->
         <p v-if="successMessage" class="profile-view__message profile-view__message--success">
           {{ successMessage }}
@@ -123,19 +127,19 @@ const triggerFileInput = () => {
         <p v-if="error" class="profile-view__message profile-view__message--error">
           {{ error }}
         </p>
-        
+
         <!-- User details -->
         <div class="profile-view__details">
           <div class="profile-view__detail-group">
             <label class="profile-view__label">Name</label>
             <p class="profile-view__value">{{ user?.firstName }} {{ user?.lastName }}</p>
           </div>
-          
+
           <div class="profile-view__detail-group">
             <label class="profile-view__label">Email</label>
             <p class="profile-view__value">{{ user?.email }}</p>
           </div>
-          
+
           <div class="profile-view__detail-group">
             <label class="profile-view__label">User Level</label>
             <p class="profile-view__value">{{ userLevel }}</p>
@@ -271,14 +275,14 @@ const triggerFileInput = () => {
   .profile-view {
     padding: var(--spacing-4) var(--spacing-2);
   }
-  
+
   .profile-view__section {
     padding: var(--spacing-4);
   }
-  
+
   .profile-view__avatar {
     width: 96px;
     height: 96px;
   }
 }
-</style> 
+</style>

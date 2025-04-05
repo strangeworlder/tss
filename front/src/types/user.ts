@@ -1,39 +1,39 @@
 export enum UserRole {
   USER = 'user',
   AUTHOR = 'author',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
 }
 
 export interface IUserAvatar {
-  filename: string;
-  altText: string;
+  filename: string
+  altText: string
 }
 
 export interface IUser {
-  id: string;
-  _id?: string; // MongoDB _id field
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: UserRole;
-  avatar?: IUserAvatar;
-  bio?: string;
+  id: string
+  _id?: string // MongoDB _id field
+  firstName: string
+  lastName: string
+  email: string
+  role: UserRole
+  avatar?: IUserAvatar
+  bio?: string
 }
 
 export interface IAuthResponse {
-  user: IUser;
-  token: string;
+  user: IUser
+  token: string
 }
 
 export interface User {
-  id: string;
-  name: string;
-  email: string;
+  id: string
+  name: string
+  email: string
   avatar?: {
-    filename: string;
-    altText: string;
-  };
-  role: 'user' | 'admin';
-  createdAt: string;
-  updatedAt: string;
-} 
+    filename: string
+    altText: string
+  }
+  role: 'user' | 'admin'
+  createdAt: string
+  updatedAt: string
+}

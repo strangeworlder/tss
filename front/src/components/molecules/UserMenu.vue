@@ -1,28 +1,18 @@
 <template>
   <div class="user-menu">
-    <button 
-      class="user-menu__button"
-      @click="$emit('toggle')"
-      :aria-expanded="isOpen"
-    >
+    <button class="user-menu__button" @click="$emit('toggle')" :aria-expanded="isOpen">
       <span class="user-menu__name">{{ userName }}</span>
       <span class="user-menu__arrow"></span>
     </button>
-    <div 
-      class="user-menu__dropdown"
-      :class="{ 'user-menu__dropdown--open': isOpen }"
-    >
-      <RouterLink 
-        to="/profile" 
+    <div class="user-menu__dropdown" :class="{ 'user-menu__dropdown--open': isOpen }">
+      <RouterLink
+        to="/profile"
         class="user-menu__link"
         :class="{ 'user-menu__link--active': isProfileActive }"
       >
         Profile
       </RouterLink>
-      <button 
-        @click="$emit('logout')" 
-        class="user-menu__link user-menu__link--logout"
-      >
+      <button @click="$emit('logout')" class="user-menu__link user-menu__link--logout">
         Logout
       </button>
     </div>
@@ -30,18 +20,18 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
 
 defineProps<{
-  userName: string;
-  isOpen: boolean;
-  isProfileActive: boolean;
-}>();
+  userName: string
+  isOpen: boolean
+  isProfileActive: boolean
+}>()
 
 defineEmits<{
-  (e: 'toggle'): void;
-  (e: 'logout'): void;
-}>();
+  (e: 'toggle'): void
+  (e: 'logout'): void
+}>()
 </script>
 
 <style scoped>
@@ -153,4 +143,4 @@ defineEmits<{
     background-color: rgba(255, 255, 255, 0.1);
   }
 }
-</style> 
+</style>

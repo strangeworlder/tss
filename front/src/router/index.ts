@@ -37,13 +37,13 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/profile',
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
   ],
 })
@@ -51,20 +51,20 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Check if route requires authentication
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     // Check if user is authenticated
     if (!authStore.isAuthenticated) {
       next({
         path: '/auth',
-        query: { redirect: to.fullPath }
+        query: { redirect: to.fullPath },
       })
       return
     }
 
     // Check if route requires admin role
-    if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (to.matched.some((record) => record.meta.requiresAdmin)) {
       // Check if user is admin
       if (!authStore.isAdmin) {
         next({ path: '/' })

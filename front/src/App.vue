@@ -44,12 +44,9 @@ onMounted(() => {
           <h1 class="app-header__title">Vue Blog</h1>
         </RouterLink>
 
-        <MenuToggle 
-          :is-open="isMenuOpen"
-          @toggle="isMenuOpen = !isMenuOpen"
-        />
+        <MenuToggle :is-open="isMenuOpen" @toggle="isMenuOpen = !isMenuOpen" />
 
-        <Navigation 
+        <Navigation
           :is-open="isMenuOpen"
           :is-authenticated="authStore.isAuthenticated"
           :is-admin="authStore.isAdmin"

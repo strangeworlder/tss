@@ -2,22 +2,24 @@
   <div class="auth-view">
     <div class="auth-view__container">
       <div class="auth-view__tabs">
-        <button 
-          class="auth-view__tab-btn" 
+        <Button
+          :variant="ButtonVariantEnum.TEXT"
+          class="auth-view__tab-btn"
           :class="{ 'auth-view__tab-btn--active': activeTab === 'login' }"
           @click="activeTab = 'login'"
         >
           Login
-        </button>
-        <button 
-          class="auth-view__tab-btn" 
+        </Button>
+        <Button
+          :variant="ButtonVariantEnum.TEXT"
+          class="auth-view__tab-btn"
           :class="{ 'auth-view__tab-btn--active': activeTab === 'register' }"
           @click="activeTab = 'register'"
         >
           Register
-        </button>
+        </Button>
       </div>
-      
+
       <div class="auth-view__content">
         <LoginForm v-if="activeTab === 'login'" />
         <RegisterForm v-if="activeTab === 'register'" />
@@ -27,11 +29,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import LoginForm from '@/components/auth/LoginForm.vue';
-import RegisterForm from '@/components/auth/RegisterForm.vue';
+import { ref } from 'vue'
+import LoginForm from '@/components/auth/LoginForm.vue'
+import RegisterForm from '@/components/auth/RegisterForm.vue'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
-const activeTab = ref('login');
+const activeTab = ref('login')
 </script>
 
 <style scoped>
@@ -65,7 +69,6 @@ const activeTab = ref('login');
   font-weight: var(--font-weight-semibold);
   background-color: transparent;
   border: none;
-  cursor: pointer;
   transition: all var(--transition-normal);
   color: var(--color-text);
   font-family: var(--font-family-base);
@@ -80,4 +83,4 @@ const activeTab = ref('login');
 .auth-view__content {
   padding: var(--spacing-4);
 }
-</style> 
+</style>

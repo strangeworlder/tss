@@ -11,7 +11,7 @@
           {{ notification.message }}
         </div>
         <Button
-          variant="text"
+          :variant="ButtonVariantEnum.TEXT"
           class="notification-list__close"
           @click="removeNotification(notification.id)"
         >
@@ -23,17 +23,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useNotificationStore } from '@/stores/notification';
-import type { Notification } from '@/stores/notification';
-import Button from '@/components/atoms/Button.vue';
+import { computed } from 'vue'
+import { useNotificationStore } from '@/stores/notification'
+import type { Notification } from '@/stores/notification'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
-const notificationStore = useNotificationStore();
-const notifications = computed(() => notificationStore.getNotifications);
+const notificationStore = useNotificationStore()
+const notifications = computed(() => notificationStore.getNotifications)
 
 const removeNotification = (id: string) => {
-  notificationStore.removeNotification(id);
-};
+  notificationStore.removeNotification(id)
+}
 </script>
 
 <style scoped>
@@ -102,4 +103,4 @@ const removeNotification = (id: string) => {
   opacity: 0;
   transform: translateX(var(--spacing-8));
 }
-</style> 
+</style>

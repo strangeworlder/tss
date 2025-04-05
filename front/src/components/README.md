@@ -13,23 +13,27 @@ This project follows the Atomic Design methodology, which consists of five disti
 ## Guidelines
 
 1. **Naming Convention**:
+
    - Use PascalCase for component names
    - Follow BEM methodology for CSS classes with kebab-case within BEM segments
    - Example: `.blog-post__author--featured`
 
 2. **Component Creation**:
+
    - Keep components focused on a single responsibility
    - Use props for configuration
    - Emit events for parent communication
    - Use slots for content flexibility
 
 3. **Styling**:
+
    - Use scoped CSS to prevent style leakage
    - Reference global variables from `assets/vars.css`
    - Never use inline styles
    - Never use Tailwind CSS classes
 
 4. **TypeScript**:
+
    - Use TypeScript interfaces for props
    - Define prop types explicitly
    - Use enums for consistent values
@@ -49,4 +53,4 @@ When adding a new component, consider where it fits in the atomic design hierarc
 4. Is it a page layout without specific content? → **Template**
 5. Is it a specific instance of a template with real content? → **Page**
 
-See the README in each subdirectory for more specific guidelines. 
+See the README in each subdirectory for more specific guidelines.

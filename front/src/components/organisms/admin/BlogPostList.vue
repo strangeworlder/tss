@@ -1,49 +1,50 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useBlogStore } from '@/stores/blogStore';
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSize } from '@/types/image';
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
-import Button from '@/components/atoms/Button.vue';
+import { ref, onMounted } from 'vue'
+import { useBlogStore } from '@/stores/blogStore'
+import AppImage from '@/components/atoms/AppImage.vue'
+import { ImageSizeEnum } from '@/types/image'
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const emit = defineEmits<{
-  (e: 'edit-post', postId: string): void;
-}>();
+  (e: 'edit-post', postId: string): void
+}>()
 
-const blogStore = useBlogStore();
-const loading = ref(true);
-const error = ref<string | null>(null);
+const blogStore = useBlogStore()
+const loading = ref(true)
+const error = ref<string | null>(null)
 
 const formatDate = (dateString: string | null) => {
-  if (!dateString) return '';
+  if (!dateString) return ''
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
-  });
-};
+    day: 'numeric',
+  })
+}
 
 const handleEditPost = (postId: string) => {
-  emit('edit-post', postId);
-};
+  emit('edit-post', postId)
+}
 
 const fetchPosts = async () => {
-  loading.value = true;
-  error.value = null;
-  
+  loading.value = true
+  error.value = null
+
   try {
-    await blogStore.fetchAdminPosts();
+    await blogStore.fetchAdminPosts()
   } catch (err) {
-    console.error('Error fetching blog posts:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load blog posts';
+    console.error('Error fetching blog posts:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to load blog posts'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 onMounted(() => {
-  fetchPosts();
-});
+  fetchPosts()
+})
 </script>
 
 <template>
@@ -57,27 +58,18 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-list__error">
       <p>{{ error }}</p>
-      <Button 
-        @click="fetchPosts"
-        variant="danger"
-      >
-        Try Again
-      </Button>
+      <Button @click="fetchPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </Button>
     </div>
 
     <!-- Posts list -->
     <div v-else class="blog-post-list__grid">
-      <div 
-        v-for="post in blogStore.posts" 
-        :key="post.id"
-        class="blog-post-list__item"
-      >
+      <div v-for="post in blogStore.posts" :key="post.id" class="blog-post-list__item">
         <div class="blog-post-list__image">
           <AppImage
             v-if="post.heroImage"
             :filename="post.heroImage.filename"
             :alt="post.heroImage.altText || post.title"
-            :size="ImageSize.MEDIUM"
+            :size="ImageSizeEnum.MEDIUM"
             class="blog-post-list__img"
           />
           <div v-else class="blog-post-list__placeholder"></div>
@@ -86,27 +78,20 @@ onMounted(() => {
         <div class="blog-post-list__content">
           <h2 class="blog-post-list__title">{{ post.title }}</h2>
           <div class="blog-post-list__meta">
-            <AuthorInfo
-              :author="post.author"
-              :date="post.publishedAt"
-              size="sm"
-            />
-            <span 
+            <AuthorInfo :author="post.author" :date="post.publishedAt" size="sm" />
+            <span
               :class="[
                 'blog-post-list__status',
-                post.isPublished ? 'blog-post-list__status--published' : 'blog-post-list__status--draft'
+                post.isPublished
+                  ? 'blog-post-list__status--published'
+                  : 'blog-post-list__status--draft',
               ]"
             >
               {{ post.isPublished ? 'Published' : 'Draft' }}
             </span>
           </div>
           <div class="blog-post-list__actions">
-            <Button 
-              @click="handleEditPost(post.id)"
-              variant="primary"
-            >
-              Edit
-            </Button>
+            <Button @click="handleEditPost(post.id)" :variant="ButtonVariantEnum.PRIMARY"> Edit </Button>
           </div>
         </div>
       </div>
@@ -140,7 +125,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .blog-post-list__error {
@@ -241,4 +228,4 @@ onMounted(() => {
   background-color: var(--color-background-soft);
   color: var(--color-text);
 }
-</style> 
+</style>

@@ -31,8 +31,8 @@ export const useAuthStore = defineStore('auth', () => {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
       const response = await fetch(`${API_BASE_URL}/v1/auth/me`, {
         headers: {
-          'Authorization': `Bearer ${token.value}`
-        }
+          Authorization: `Bearer ${token.value}`,
+        },
       })
 
       if (!response.ok) {
@@ -67,6 +67,6 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthor,
     fetchUserData,
     setAuthData,
-    clearAuthData
+    clearAuthData,
   }
-}) 
+})

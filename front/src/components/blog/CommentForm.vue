@@ -13,7 +13,7 @@
         class="comment-form__input"
         :class="{ 'comment-form__input--error': errors.title }"
         placeholder="Enter a title for your comment"
-      >
+      />
       <div v-if="errors.title" class="comment-form__error">{{ errors.title }}</div>
     </div>
 
@@ -31,19 +31,10 @@
     </div>
 
     <div class="comment-form__actions">
-      <Button
-        type="submit"
-        variant="primary"
-        :disabled="loading"
-      >
-        {{ loading ? 'Saving...' : (isReply ? 'Reply' : 'Comment') }}
+      <Button type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="loading">
+        {{ loading ? 'Saving...' : isReply ? 'Reply' : 'Comment' }}
       </Button>
-      <Button
-        v-if="isReply"
-        type="button"
-        variant="secondary"
-        @click="$emit('cancel')"
-      >
+      <Button v-if="isReply" type="button" :variant="ButtonVariantEnum.SECONDARY" @click="$emit('cancel')">
         Cancel
       </Button>
     </div>
@@ -51,77 +42,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import { createComment } from '@/api/commentService';
-import Button from '@/components/atoms/Button.vue';
+import { ref, computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { createComment } from '@/api/commentService'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 const props = defineProps<{
-  parentId: string;
-  parentType: string;
-  isReply?: boolean;
-}>();
+  parentId: string
+  parentType: 'post' | 'comment'
+  isReply?: boolean
+}>()
 
 const emit = defineEmits<{
-  (e: 'submit'): void;
-  (e: 'cancel'): void;
-  (e: 'success'): void;
-  (e: 'error', message: string): void;
-}>();
+  (e: 'submit'): void
+  (e: 'cancel'): void
+  (e: 'success'): void
+  (e: 'error', message: string): void
+}>()
 
-const authStore = useAuthStore();
-const title = ref('');
-const content = ref('');
-const loading = ref(false);
+const authStore = useAuthStore()
+const title = ref('')
+const content = ref('')
+const loading = ref(false)
 const errors = ref({
   title: '',
-  content: ''
-});
+  content: '',
+})
 
 const validateForm = () => {
   errors.value = {
     title: '',
-    content: ''
-  };
+    content: '',
+  }
 
   if (!title.value.trim()) {
-    errors.value.title = 'Title is required';
-    return false;
+    errors.value.title = 'Title is required'
+    return false
   }
 
   if (!content.value.trim()) {
-    errors.value.content = 'Content is required';
-    return false;
+    errors.value.content = 'Content is required'
+    return false
   }
 
-  return true;
-};
+  return true
+}
 
 const handleSubmit = async () => {
   if (!validateForm()) {
-    return;
+    return
   }
 
   try {
-    loading.value = true;
-    await createComment(
-      title.value.trim(),
-      content.value.trim(),
-      props.parentId,
-      props.parentType
-    );
+    loading.value = true
+    await createComment(title.value.trim(), content.value.trim(), props.parentId, props.parentType)
 
-    title.value = '';
-    content.value = '';
-    emit('success');
-    emit('submit');
+    title.value = ''
+    content.value = ''
+    emit('success')
+    emit('submit')
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to create comment';
-    emit('error', message);
+    const message = err instanceof Error ? err.message : 'Failed to create comment'
+    emit('error', message)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
 <style scoped>
@@ -188,4 +175,4 @@ const handleSubmit = async () => {
   gap: var(--spacing-2);
   justify-content: flex-end;
 }
-</style> 
+</style>

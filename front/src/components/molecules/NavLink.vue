@@ -1,10 +1,10 @@
 <template>
-  <RouterLink 
-    :to="to" 
+  <RouterLink
+    :to="to"
     class="nav-link"
     :class="{
       'nav-link--active': isActive,
-      'nav-link--auth': variant === 'auth'
+      'nav-link--auth': variant === 'auth',
     }"
   >
     <slot></slot>
@@ -12,13 +12,13 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
 
 defineProps<{
-  to: string;
-  isActive: boolean;
-  variant?: 'default' | 'auth';
-}>();
+  to: string
+  isActive: boolean
+  variant?: 'default' | 'auth'
+}>()
 </script>
 
 <style scoped>
@@ -59,4 +59,4 @@ defineProps<{
 .nav-link--auth:hover {
   background-color: var(--color-primary-dark);
 }
-</style> 
+</style>

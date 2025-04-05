@@ -1,32 +1,28 @@
 <script setup lang="ts">
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
 
 interface Props {
-  date: string;
+  date: string
   author: {
-    name: string;
+    name: string
     avatar?: {
-      filename: string;
-      altText: string;
-    };
-  };
+      filename: string
+      altText: string
+    }
+  }
 }
 
 withDefaults(defineProps<Props>(), {
   date: '',
-  author: () => ({ name: 'Anonymous' })
-});
+  author: () => ({ name: 'Anonymous' }),
+})
 </script>
 
 <template>
   <div class="blog-post-meta">
     <span v-if="date" class="blog-post-meta__date">{{ date }}</span>
     <div v-if="author" class="blog-post-meta__author">
-      <AuthorInfo
-        :author="author"
-        :date="date"
-        size="sm"
-      />
+      <AuthorInfo :author="author" :date="date" size="sm" />
     </div>
   </div>
 </template>
@@ -43,4 +39,4 @@ withDefaults(defineProps<Props>(), {
 .blog-post-meta__author {
   margin-left: var(--spacing-2);
 }
-</style> 
+</style>

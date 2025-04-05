@@ -1,51 +1,50 @@
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'info';
-  message: string;
-  duration?: number;
+  id: string
+  type: 'success' | 'error' | 'info'
+  message: string
+  duration?: number
 }
 
-interface NotificationState {
-  notifications: Notification[];
-}
+export const useNotificationStore = defineStore('notification', () => {
+  const notifications = ref<Notification[]>([])
 
-export const useNotificationStore = defineStore('notification', {
-  state: (): NotificationState => ({
-    notifications: []
-  }),
+  function addNotification(notification: Omit<Notification, 'id'>): void {
+    const id = Math.random().toString(36).substr(2, 9)
+    const newNotification: Notification = { ...notification, id }
+    notifications.value.push(newNotification)
 
-  getters: {
-    getNotifications: (state) => state.notifications
-  },
-
-  actions: {
-    addNotification(notification: Omit<Notification, 'id'>) {
-      const id = Math.random().toString(36).substr(2, 9);
-      this.notifications.push({ ...notification, id });
-
-      if (notification.duration !== 0) {
-        setTimeout(() => {
-          this.removeNotification(id);
-        }, notification.duration || 5000);
-      }
-    },
-
-    removeNotification(id: string) {
-      this.notifications = this.notifications.filter((n: Notification) => n.id !== id);
-    },
-
-    success(message: string, duration?: number) {
-      this.addNotification({ type: 'success', message, duration });
-    },
-
-    error(message: string, duration?: number) {
-      this.addNotification({ type: 'error', message, duration });
-    },
-
-    info(message: string, duration?: number) {
-      this.addNotification({ type: 'info', message, duration });
+    if (notification.duration !== 0) {
+      setTimeout(() => {
+        removeNotification(id)
+      }, notification.duration || 5000)
     }
   }
-}); 
+
+  function removeNotification(id: string): void {
+    notifications.value = notifications.value.filter((n: Notification) => n.id !== id)
+  }
+
+  function success(message: string, duration?: number): void {
+    addNotification({ type: 'success', message, duration })
+  }
+
+  function error(message: string, duration?: number): void {
+    addNotification({ type: 'error', message, duration })
+  }
+
+  function info(message: string, duration?: number): void {
+    addNotification({ type: 'info', message, duration })
+  }
+
+  return {
+    notifications,
+    addNotification,
+    removeNotification,
+    success,
+    error,
+    info,
+  }
+})

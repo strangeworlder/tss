@@ -1,9 +1,9 @@
 <template>
   <div class="blog-hero">
-    <app-image 
-      :filename="heroImage" 
-      :size="ImageSize.FULL" 
-      :alt="altText" 
+    <app-image
+      :filename="heroImage"
+      :size="ImageSizeEnum.FULL"
+      :alt="altText"
       class="blog-hero__image"
     />
     <div class="blog-hero__content">
@@ -14,34 +14,34 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSize } from '@/types/image';
+import { defineComponent } from 'vue'
+import AppImage from '@/components/atoms/AppImage.vue'
+import { ImageSizeEnum } from '@/types/image'
 
 export default defineComponent({
   name: 'BlogHero',
-  
+
   components: {
-    AppImage
+    AppImage,
   },
-  
+
   props: {
     heroImage: {
       type: String,
-      required: true
+      required: true,
     },
     altText: {
       type: String,
-      default: 'Blog hero image'
-    }
+      default: 'Blog hero image',
+    },
   },
-  
+
   setup() {
     return {
-      ImageSize
-    };
-  }
-});
+      ImageSizeEnum,
+    }
+  },
+})
 </script>
 
 <style scoped>
@@ -70,9 +70,6 @@ export default defineComponent({
   justify-content: center;
   padding: var(--spacing-8);
   color: var(--color-background);
-  background: linear-gradient(
-    rgba(0, 0, 0, 0.2),
-    rgba(0, 0, 0, 0.6)
-  );
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
 }
-</style> 
+</style>
