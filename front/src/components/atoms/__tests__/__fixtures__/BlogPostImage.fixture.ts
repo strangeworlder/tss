@@ -1,4 +1,6 @@
-import { ImageSize } from '@/types/image'
+import type { ImageMetadata } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 /**
  * Creates test props for the BlogPostImage component
@@ -8,8 +10,8 @@ import { ImageSize } from '@/types/image'
 export const createBlogPostImageProps = (overrides = {}) => ({
   alt: 'Test blog image',
   filename: 'test-image.webp',
-  size: ImageSize.MEDIUM,
-  variant: 'full',
+  size: ImageSizeEnum.MEDIUM,
+  variant: BlogPostTitleVariantEnum.FULL,
   ...overrides
 })
 
@@ -20,30 +22,30 @@ export const mockBlogPostImages = {
   default: {
     alt: 'Default blog image',
     filename: 'default-image.webp',
-    size: ImageSize.MEDIUM,
-    variant: 'full'
+    size: ImageSizeEnum.MEDIUM,
+    variant: BlogPostTitleVariantEnum.FULL
   },
   compact: {
     alt: 'Compact blog image',
     filename: 'compact-image.webp',
-    size: ImageSize.MEDIUM,
-    variant: 'compact'
+    size: ImageSizeEnum.MEDIUM,
+    variant: BlogPostTitleVariantEnum.COMPACT
   },
   withUrl: {
     alt: 'Blog image with URL',
     url: 'https://example.com/image.jpg',
-    size: ImageSize.MEDIUM,
-    variant: 'full'
+    size: ImageSizeEnum.MEDIUM,
+    variant: BlogPostTitleVariantEnum.FULL
   },
   large: {
     alt: 'Large blog image',
     filename: 'large-image.webp',
-    size: ImageSize.FULL,
-    variant: 'full'
+    size: ImageSizeEnum.FULL,
+    variant: BlogPostTitleVariantEnum.FULL
   },
   noFilename: {
     alt: 'Blog image without filename',
-    size: ImageSize.MEDIUM,
-    variant: 'full'
+    size: ImageSizeEnum.MEDIUM,
+    variant: BlogPostTitleVariantEnum.FULL
   }
 } 

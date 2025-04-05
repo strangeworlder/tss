@@ -2,7 +2,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import AppImage from '../../AppImage.vue'
-import { ImageSize, ImageFormat } from '@/types/image'
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
 import { mockImageService } from '../__mocks__/imageService.mock'
 
 // Mock the image service
@@ -35,15 +35,15 @@ describe('AppImage', () => {
       const wrapper = mount(AppImage, {
         props: {
           ...defaultProps,
-          size: ImageSize.MEDIUM,
-          format: ImageFormat.WEBP,
+          size: ImageSizeEnum.MEDIUM,
+          format: ImageFormatEnum.WEBP,
         },
       })
       
       expect(mockImageService.getImageUrl).toHaveBeenCalledWith(
         'test-image.jpg',
-        ImageSize.MEDIUM,
-        ImageFormat.WEBP
+        ImageSizeEnum.MEDIUM,
+        ImageFormatEnum.WEBP
       )
     })
 

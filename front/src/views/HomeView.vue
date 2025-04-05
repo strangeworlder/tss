@@ -4,6 +4,7 @@ import { useBlogStore } from '@/stores/blogStore'
 import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
 import { checkApiHealth } from '@/api/apiClient'
 import Button from '@/components/atoms/Button.vue'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 // Get the blog store
 const blogStore = useBlogStore()
@@ -113,7 +114,7 @@ onMounted(() => {
               :hero-image-url="post.heroImageUrl"
               :slug="post.slug"
               :tags="post.tags"
-              variant="compact"
+              :variant="BlogPostTitleVariantEnum.COMPACT"
               class="home-view__post"
             />
           </div>

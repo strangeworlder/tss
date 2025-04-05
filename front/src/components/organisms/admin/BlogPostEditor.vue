@@ -4,7 +4,7 @@ import { useBlogStore } from '@/stores/blogStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useUserStore } from '@/stores/userStore'
 import AppImage from '@/components/atoms/AppImage.vue'
-import { ImageSize } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image'
 import { deleteBlogPost } from '@/api/blogService'
 import { useRouter } from 'vue-router'
 import type { BlogPost } from '@/types/blog'
@@ -438,7 +438,7 @@ onMounted(() => {
               v-if="blogStore.currentPost?.heroImage?.filename && !heroImagePreview"
               :filename="blogStore.currentPost.heroImage.filename"
               :alt="blogStore.currentPost.heroImage.altText || title"
-              :size="ImageSize.MEDIUM"
+              :size="ImageSizeEnum.MEDIUM"
               class="blog-post-editor__preview-img"
             />
             <img

@@ -3,6 +3,7 @@ import AppImage from '@/components/atoms/AppImage.vue'
 import { ImageSizeEnum } from '@/types/image'
 import { computed, ref } from 'vue'
 import { getImageUrl } from '@/api/imageService'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 /**
  * BlogPostImage Component
@@ -70,12 +71,12 @@ interface IProps {
    * The display variant of the image
    * @default 'full'
    */
-  variant?: 'compact' | 'full'
+  variant?: BlogPostTitleVariantEnum
 }
 
 const props = withDefaults(defineProps<IProps>(), {
   size: ImageSizeEnum.MEDIUM,
-  variant: 'full',
+  variant: BlogPostTitleVariantEnum.FULL,
 })
 
 /**
@@ -114,8 +115,9 @@ const handleImageError = () => {
   >
     <AppImage
       v-if="url"
-      :src="url"
+      :filename="url"
       :alt="alt"
+      :size="ImageSizeEnum.FULL"
       class="blog-post-image__img"
       @error="handleImageError"
     />

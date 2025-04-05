@@ -1,5 +1,5 @@
 // Test data for AppImage tests
-import { ImageSize, ImageFormat } from '@/types/image'
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
 
 /**
  * Creates test props for the AppImage component
@@ -9,8 +9,8 @@ import { ImageSize, ImageFormat } from '@/types/image'
 export const createImageProps = (overrides = {}) => ({
   filename: 'test-image.jpg',
   alt: 'Test image',
-  size: ImageSize.FULL,
-  format: ImageFormat.WEBP,
+  size: ImageSizeEnum.MEDIUM,
+  format: ImageFormatEnum.JPEG,
   lazy: true,
   ...overrides
 })
@@ -36,8 +36,8 @@ export const mockImages = {
   customSize: {
     filename: 'custom-size-image.jpg',
     alt: 'Custom size test image',
-    size: ImageSize.MEDIUM,
-    format: ImageFormat.JPEG,
+    size: ImageSizeEnum.MEDIUM,
+    format: ImageFormatEnum.JPEG,
   },
   accessibility: {
     filename: 'accessibility-image.jpg',

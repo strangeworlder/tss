@@ -2,7 +2,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import AppImage from '../../AppImage.vue'
-import { ImageSize, ImageFormat } from '@/types/image'
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
 import { mockImageService } from '../__mocks__/imageService.mock'
 
 // Mock the image service

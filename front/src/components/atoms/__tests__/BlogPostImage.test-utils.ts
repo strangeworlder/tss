@@ -1,14 +1,15 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import BlogPostImage from '../BlogPostImage.vue'
 import { createBlogPostImageProps } from './__fixtures__/BlogPostImage.fixture'
-import { ImageSize } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 interface BlogPostImageProps {
   filename?: string
   url?: string
   alt: string
-  size?: ImageSize
-  variant?: 'compact' | 'full'
+  size?: ImageSizeEnum
+  variant?: BlogPostTitleVariantEnum
 }
 
 /**

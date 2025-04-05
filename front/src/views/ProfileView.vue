@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import AppImage from '@/components/atoms/AppImage.vue'
-import { ImageSize } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image'
 
 const authStore = useAuthStore()
 const loading = ref(false)
@@ -85,7 +85,7 @@ const triggerFileInput = () => {
               v-if="user?.avatar?.filename && !avatarPreview"
               :filename="user.avatar.filename"
               :alt="user.avatar.altText || user.firstName"
-              :size="ImageSize.MEDIUM"
+              :size="ImageSizeEnum.MEDIUM"
               class="profile-view__avatar-img"
             />
             <img

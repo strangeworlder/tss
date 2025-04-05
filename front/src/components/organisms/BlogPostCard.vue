@@ -5,6 +5,7 @@ import BlogPostMeta from '@/components/molecules/BlogPostMeta.vue'
 import BlogPostTags from '@/components/molecules/BlogPostTags.vue'
 import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue'
 import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 interface Props {
   title: string
@@ -21,12 +22,12 @@ interface Props {
   heroImageAlt?: string
   heroImageUrl?: string
   slug: string
-  variant?: 'compact' | 'full' // compact for homepage, full for blog listing
+  variant?: BlogPostTitleVariantEnum // compact for homepage, full for blog listing
   tags?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'full',
+  variant: BlogPostTitleVariantEnum.FULL,
   tags: () => [],
   date: '',
   author: () => ({ name: 'Anonymous' }),
@@ -53,7 +54,7 @@ console.log('Tags:', props.tags)
 
       <BlogPostMeta :date="date" :author="author" />
 
-      <BlogPostTags v-if="variant === 'full' && tags.length > 0" :tags="tags" />
+      <BlogPostTags v-if="variant === BlogPostTitleVariantEnum.FULL && tags.length > 0" :tags="tags" />
 
       <BlogPostExcerpt :content="content" :variant="variant" />
 

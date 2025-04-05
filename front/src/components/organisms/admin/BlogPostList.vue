@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useBlogStore } from '@/stores/blogStore'
 import AppImage from '@/components/atoms/AppImage.vue'
-import { ImageSize } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image'
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
 import Button from '@/components/atoms/Button.vue'
 
@@ -68,7 +68,7 @@ onMounted(() => {
             v-if="post.heroImage"
             :filename="post.heroImage.filename"
             :alt="post.heroImage.altText || post.title"
-            :size="ImageSize.MEDIUM"
+            :size="ImageSizeEnum.MEDIUM"
             class="blog-post-list__img"
           />
           <div v-else class="blog-post-list__placeholder"></div>

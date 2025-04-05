@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import Avatar from '../../Avatar.vue'
-import { ImageSize, ImageFormat } from '@/types/image'
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
 import { mockImageService } from '../__mocks__/imageService.mock'
 
 // Mock the image service
@@ -27,8 +27,8 @@ describe('Avatar', () => {
       expect(wrapper.find('.avatar__image').exists()).toBe(true)
       expect(mockImageService.getImageUrl).toHaveBeenCalledWith(
         'placeholder1.webp',
-        ImageSize.MEDIUM,
-        ImageFormat.WEBP
+        ImageSizeEnum.MEDIUM,
+        ImageFormatEnum.WEBP
       )
     })
 
@@ -43,8 +43,8 @@ describe('Avatar', () => {
       expect(wrapper.find('.avatar__image').exists()).toBe(true)
       expect(mockImageService.getImageUrl).toHaveBeenCalledWith(
         'profile.jpg',
-        ImageSize.MEDIUM,
-        ImageFormat.WEBP
+        ImageSizeEnum.MEDIUM,
+        ImageFormatEnum.WEBP
       )
     })
 
@@ -89,8 +89,8 @@ describe('Avatar', () => {
       expect(wrapper.classes()).toContain('avatar--error')
       expect(mockImageService.getImageUrl).toHaveBeenCalledWith(
         'placeholder1.webp',
-        ImageSize.MEDIUM,
-        ImageFormat.WEBP
+        ImageSizeEnum.MEDIUM,
+        ImageFormatEnum.WEBP
       )
     })
   })

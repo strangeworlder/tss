@@ -6,8 +6,7 @@
  */
 
 import { getImageUrl as getImageUrlFromService } from '@/api/imageService'
-import type { ImageSize, ImageFormat } from '@/types/image'
-import { ImageSize as ImportedImageSize, ImageFormat as ImportedImageFormat } from '@/types/image'
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
 
 /**
  * Get a properly formatted image URL for the given filename and size
@@ -19,13 +18,13 @@ import { ImageSize as ImportedImageSize, ImageFormat as ImportedImageFormat } fr
  */
 export const getImageUrl = (filename: string, size?: string): string => {
   // Convert string to enum value if needed
-  const sizeEnum = size as ImportedImageSize
-  return getImageUrlFromService(filename, sizeEnum, ImportedImageFormat.WEBP)
+  const sizeEnum = size as ImageSizeEnum
+  return getImageUrlFromService(filename, sizeEnum, ImageFormatEnum.WEBP)
 }
 
 // Constants for image sizes (for backward compatibility)
 export const IMAGE_SIZE = {
-  THUMBNAIL: 'thumbnail' as ImportedImageSize.THUMBNAIL,
-  MEDIUM: 'medium' as ImportedImageSize.MEDIUM,
-  FULL: 'full' as ImportedImageSize.FULL,
+  THUMBNAIL: ImageSizeEnum.THUMBNAIL,
+  MEDIUM: ImageSizeEnum.MEDIUM,
+  FULL: ImageSizeEnum.FULL,
 }

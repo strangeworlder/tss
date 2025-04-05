@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import BlogPostTitle from '@/components/atoms/BlogPostTitle.vue'
+import BlogPostImage from '@/components/atoms/BlogPostImage.vue'
+import BlogPostMeta from '@/components/molecules/BlogPostMeta.vue'
+import BlogPostTags from '@/components/molecules/BlogPostTags.vue'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 interface Props {
   content: string
-  variant?: 'compact' | 'full'
+  variant?: BlogPostTitleVariantEnum
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'full',
+  variant: BlogPostTitleVariantEnum.FULL,
 })
 
 const excerptLength = computed(() => {
-  return props.variant === 'compact' ? 100 : 150
+  return props.variant === BlogPostTitleVariantEnum.COMPACT ? 100 : 150
 })
 
 const excerpt = computed(() => {

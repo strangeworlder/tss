@@ -2,7 +2,7 @@
   <div class="blog-hero">
     <app-image
       :filename="heroImage"
-      :size="ImageSize.FULL"
+      :size="ImageSizeEnum.FULL"
       :alt="altText"
       class="blog-hero__image"
     />
@@ -16,7 +16,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AppImage from '@/components/atoms/AppImage.vue'
-import { ImageSize } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image'
 
 export default defineComponent({
   name: 'BlogHero',
@@ -38,7 +38,7 @@ export default defineComponent({
 
   setup() {
     return {
-      ImageSize,
+      ImageSizeEnum,
     }
   },
 })
