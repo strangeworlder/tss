@@ -31,32 +31,29 @@
       >
         <div class="comment-list__header">
           <div class="comment-list__author">
-            <img 
-              v-if="comment.author.avatar?.filename" 
-              :src="comment.author.avatar.filename" 
-              :alt="comment.author.name"
-              class="comment-list__avatar"
-            >
-            <span class="comment-list__author-name">{{ comment.author.name }}</span>
-            <span class="comment-list__date">{{ formatDate(comment.createdAt) }}</span>
+            <AuthorInfo
+              :author="comment.author"
+              :date="comment.createdAt"
+              size="sm"
+            />
           </div>
           <h3 class="comment-list__title">{{ comment.title }}</h3>
         </div>
         <div class="comment-list__content" v-html="formatContent(comment.content)"></div>
         <div class="comment-list__actions">
-          <button 
-            class="button button--text" 
+          <Button 
+            variant="text" 
             @click="showReplyForm(comment._id)"
           >
             Reply
-          </button>
-          <button 
+          </Button>
+          <Button 
             v-if="canDelete(comment)" 
-            class="button button--text button--danger" 
+            variant="text"
             @click="deleteComment(comment._id)"
           >
             Delete
-          </button>
+          </Button>
         </div>
         <div v-if="replyingTo === comment._id" class="comment-list__reply-form">
           <CommentForm
@@ -78,6 +75,8 @@ import { useAuthStore } from '@/stores/auth';
 import { getComments, deleteComment as deleteCommentApi, type Comment } from '@/api/commentService';
 import CommentForm from './CommentForm.vue';
 import { useNotificationStore } from '@/stores/notification';
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
+import Button from '@/components/atoms/Button.vue';
 
 const props = defineProps<{
   parentId: string;
@@ -274,27 +273,5 @@ onMounted(fetchComments);
   margin-top: var(--spacing-4);
   padding-top: var(--spacing-4);
   border-top: 1px solid var(--color-border);
-}
-
-.button {
-  padding: var(--spacing-1) var(--spacing-2);
-  border: none;
-  background: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  transition: color var(--transition-fast);
-}
-
-.button:hover {
-  color: var(--color-primary);
-}
-
-.button--danger {
-  color: var(--color-error);
-}
-
-.button--danger:hover {
-  color: var(--color-error-dark);
 }
 </style> 

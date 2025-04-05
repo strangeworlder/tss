@@ -1,33 +1,20 @@
 <script setup lang="ts">
+import Button from '@/components/atoms/Button.vue';
+
 interface Props {
   to: string;
 }
 </script>
 
 <template>
-  <router-link 
+  <Button 
     :to="to" 
-    class="read-more-button"
+    variant="primary"
   >
     Read More
-  </router-link>
+  </Button>
 </template>
 
 <style scoped>
-.read-more-button {
-  display: inline-block;
-  background-color: var(--color-highlight-1);
-  color: var(--color-background);
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--border-radius-sm);
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  text-decoration: none;
-  transition: background-color var(--transition-normal);
-}
-
-.read-more-button:hover {
-  background-color: var(--color-highlight-2);
-}
+/* Remove custom styles since we're using the Button atom */
 </style> 

@@ -26,49 +26,4 @@ type Author {
   avatar: String
 }
 
-type Comment {
-  id: ID!
-  title: String!
-  content: String!
-  author: Author!
-  parentId: ID!
-  parentType: String!
-  createdAt: String!
-  updatedAt: String!
-  replies: [Comment!]!
-  replyCount: Int!
-}
-
-input CreateCommentInput {
-  title: String!
-  content: String!
-  parentId: ID!
-  parentType: String!
-}
-
-input DeleteCommentInput {
-  commentId: ID!
-}
-
-type CommentResponse {
-  success: Boolean!
-  message: String
-  data: Comment
-}
-
-type DeleteCommentResponse {
-  success: Boolean!
-  message: String
-}
-
-extend type Query {
-  getComments(parentId: ID!, parentType: String!): [Comment!]!
-  getComment(id: ID!): Comment
-}
-
-extend type Mutation {
-  createComment(input: CreateCommentInput!): CommentResponse!
-  deleteComment(input: DeleteCommentInput!): DeleteCommentResponse!
-}
-
 # ... query types and other schema definitions 

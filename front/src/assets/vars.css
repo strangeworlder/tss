@@ -80,6 +80,15 @@
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
+
+  /* Avatar-specific variables */
+  --avatar-size-sm: var(--spacing-8);    /* 2rem - 32px */
+  --avatar-size-md: var(--spacing-12);   /* 3rem - 48px */
+  --avatar-size-lg: var(--spacing-16);   /* 4rem - 64px */
+  
+  /* Additional semantic colors */
+  --color-background-secondary: var(--vt-c-white-soft);
+  --color-text-secondary: var(--vt-c-text-light-2);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -97,5 +106,9 @@
     --color-highlight-1: var(--vt-c-white);
     --color-highlight-2: var(--vt-c-white-soft);
     --color-highlight-3: var(--vt-c-white-mute);
+
+    /* Dark mode overrides for new semantic colors */
+    --color-background-secondary: var(--vt-c-black-soft);
+    --color-text-secondary: var(--vt-c-text-dark-2);
   }
 } 

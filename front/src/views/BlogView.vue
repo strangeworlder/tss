@@ -2,6 +2,7 @@
 import { onMounted, ref, computed } from 'vue';
 import { useBlogStore } from '@/stores/blogStore';
 import BlogPostCard from '@/components/organisms/BlogPostCard.vue';
+import Button from '@/components/atoms/Button.vue';
 import { checkApiHealth } from '@/api/apiClient';
 
 // Get the blog store
@@ -89,21 +90,21 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-view__error">
       <p>{{ error }}</p>
-      <button 
+      <Button 
         v-if="!serverStarting && error.includes('API server is not available')"
         @click="startBackendServer"
-        class="blog-view__button blog-view__button--start"
+        variant="primary"
         :disabled="serverStarting"
       >
         Start Backend Server
-      </button>
-      <button 
+      </Button>
+      <Button 
         @click="fetchBlogPosts"
-        class="blog-view__button blog-view__button--retry"
+        variant="danger"
         :disabled="serverStarting"
       >
         Try Again
-      </button>
+      </Button>
     </div>
     
     <!-- Empty state - only shown if we're not loading and have no error -->
@@ -166,33 +167,6 @@ onMounted(() => {
   padding: var(--spacing-4);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-8);
-}
-
-.blog-view__button {
-  margin-top: var(--spacing-2);
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--border-radius-sm);
-  font-size: 0.875rem;
-  cursor: pointer;
-  border: none;
-  color: var(--vt-c-white);
-}
-
-.blog-view__button--start {
-  background-color: rgb(34, 197, 94);
-  margin-right: var(--spacing-2);
-}
-
-.blog-view__button--start:hover {
-  background-color: rgb(22, 163, 74);
-}
-
-.blog-view__button--retry {
-  background-color: rgb(220, 38, 38);
-}
-
-.blog-view__button--retry:hover {
-  background-color: rgb(185, 28, 28);
 }
 
 .blog-view__empty {

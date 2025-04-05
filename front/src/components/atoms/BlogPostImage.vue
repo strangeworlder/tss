@@ -19,15 +19,8 @@ withDefaults(defineProps<Props>(), {
 <template>
   <div class="blog-post-image" :class="`blog-post-image--${variant}`">
     <AppImage 
-      v-if="filename"
-      :filename="filename" 
+      :filename="filename || 'placeholder1.webp'"
       :size="size" 
-      :alt="alt" 
-      class="blog-post-image__img"
-    />
-    <img 
-      v-else-if="url" 
-      :src="url" 
       :alt="alt" 
       class="blog-post-image__img"
     />

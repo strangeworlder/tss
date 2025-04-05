@@ -47,9 +47,13 @@
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn-register" :disabled="isLoading">
+        <Button 
+          type="submit" 
+          variant="primary" 
+          :disabled="isLoading"
+        >
           {{ isLoading ? 'Creating Account...' : 'Create Account' }}
-        </button>
+        </Button>
         <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
@@ -59,6 +63,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
+import Button from '@/components/atoms/Button.vue';
 
 // Form data
 const formData = reactive({
@@ -237,27 +242,5 @@ input:focus {
 .form-actions {
   margin-top: var(--spacing-6);
   text-align: center;
-}
-
-.btn-register {
-  background-color: var(--color-highlight-1);
-  color: var(--color-background);
-  padding: var(--spacing-3) var(--spacing-6);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: background-color var(--transition-normal);
-  font-family: var(--font-family-base);
-}
-
-.btn-register:hover {
-  background-color: var(--color-highlight-2);
-}
-
-.btn-register:disabled {
-  background-color: var(--color-border);
-  cursor: not-allowed;
 }
 </style> 

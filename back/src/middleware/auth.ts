@@ -3,36 +3,6 @@ import jwt from 'jsonwebtoken';
 import { User } from '../domains/users/models/user.model';
 import { JwtPayload } from 'jsonwebtoken';
 
-interface Context {
-  req: Request;
-}
-
-export const getCurrentUser = async (context: Context) => {
-  try {
-    const authHeader = context.req.headers.authorization;
-    if (!authHeader) {
-      return null;
-    }
-
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      return null;
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as { id: string };
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      return null;
-    }
-
-    return user;
-  } catch (error) {
-    console.error('Error in getCurrentUser:', error);
-    return null;
-  }
-};
-
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log('Auth middleware: Processing request');

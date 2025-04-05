@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useBlogStore } from '@/stores/blogStore';
 import BlogPostCard from '@/components/organisms/BlogPostCard.vue';
 import { checkApiHealth } from '@/api/apiClient';
+import Button from '@/components/atoms/Button.vue';
 
 // Get the blog store
 const blogStore = useBlogStore();
@@ -65,9 +66,13 @@ onMounted(() => {
       <div class="container home-view__hero-container">
         <h1 class="home-view__hero-title">Welcome to Vue Blog</h1>
         <p class="home-view__hero-text">A modern blog built with Vue 3 and TypeScript.</p>
-        <RouterLink to="/blog" class="home-view__cta btn btn--light">
+        <Button 
+          to="/blog" 
+          variant="primary"
+          class="home-view__cta"
+        >
           Read All Blog Posts
-        </RouterLink>
+        </Button>
       </div>
     </section>
 
@@ -84,20 +89,23 @@ onMounted(() => {
         <!-- Error state -->
         <div v-else-if="error" class="text-center py-8">
           <p class="text-red-600 mb-4">{{ error }}</p>
-          <button 
+          <Button 
             @click="fetchRecentPosts" 
-            class="home-view__retry-button"
+            variant="danger"
           >
             Try Again
-          </button>
+          </Button>
         </div>
         
         <!-- Empty state -->
         <div v-else-if="recentPosts.length === 0" class="text-center py-8">
           <p class="text-gray-600 mb-4">No recent posts found.</p>
-          <RouterLink to="/blog" class="home-view__more-link">
+          <Button 
+            to="/blog" 
+            variant="secondary"
+          >
             Check our blog &rarr;
-          </RouterLink>
+          </Button>
         </div>
         
         <!-- Recent posts -->
@@ -121,7 +129,12 @@ onMounted(() => {
             />
           </div>
           <div class="home-view__more-link">
-            <router-link to="/blog" class="btn btn--secondary">View All Blog Posts</router-link>
+            <Button 
+              to="/blog" 
+              variant="secondary"
+            >
+              View All Blog Posts
+            </Button>
           </div>
         </div>
       </div>
@@ -138,12 +151,12 @@ onMounted(() => {
             class="home-view__newsletter-input"
             required
           >
-          <button 
+          <Button 
             type="submit" 
-            class="home-view__newsletter-button btn btn--primary"
+            variant="primary"
           >
             Subscribe
-          </button>
+          </Button>
         </form>
       </div>
     </section>

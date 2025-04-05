@@ -1,10 +1,11 @@
 <template>
   <div class="avatar" :class="[`avatar--${size}`]">
     <img
-      v-if="src"
-      :src="src"
+      v-if="src && !hasError"
+      :src="imageUrl"
       :alt="alt"
       class="avatar__image"
+      @error="handleImageError"
     />
     <div v-else class="avatar__placeholder">
       {{ initials }}
@@ -13,7 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { getImageUrl } from '@/api/imageService';
+import { ImageSize, ImageFormat } from '@/types/image';
 
 const props = defineProps<{
   src?: string;
@@ -22,14 +25,43 @@ const props = defineProps<{
   name?: string;
 }>();
 
+const hasError = ref(false);
+
+// Map component size to ImageSize
+const getImageSize = (size?: string): ImageSize => {
+  switch (size) {
+    case 'sm':
+      return ImageSize.THUMBNAIL;
+    case 'md':
+      return ImageSize.MEDIUM;
+    case 'lg':
+      return ImageSize.FULL;
+    default:
+      return ImageSize.THUMBNAIL;
+  }
+};
+
+const imageUrl = computed(() => {
+  if (hasError.value || !props.src) return '';
+  return getImageUrl(
+    props.src,
+    getImageSize(props.size),
+    ImageFormat.WEBP // Prefer WebP for better compression
+  );
+});
+
 const initials = computed(() => {
   if (!props.name) return '';
   return props.name
     .split(' ')
-    .map(n => n[0])
+    .map((n: string) => n[0])
     .join('')
     .toUpperCase();
 });
+
+const handleImageError = () => {
+  hasError.value = true;
+};
 </script>
 
 <style scoped>
