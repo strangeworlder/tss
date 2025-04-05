@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 
 interface Props {
-  content: string;
-  variant?: 'compact' | 'full';
+  content: string
+  variant?: 'compact' | 'full'
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'full'
-});
+  variant: 'full',
+})
 
 const excerptLength = computed(() => {
-  return props.variant === 'compact' ? 100 : 150;
-});
+  return props.variant === 'compact' ? 100 : 150
+})
 
 const excerpt = computed(() => {
-  const truncated = props.content.substring(0, excerptLength.value);
-  return props.content.length > excerptLength.value ? `${truncated}...` : truncated;
-});
+  const truncated = props.content.substring(0, excerptLength.value)
+  return props.content.length > excerptLength.value ? `${truncated}...` : truncated
+})
 </script>
 
 <template>
@@ -34,4 +34,4 @@ const excerpt = computed(() => {
   font-size: var(--font-size-base);
   line-height: 1.5;
 }
-</style> 
+</style>

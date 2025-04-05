@@ -1,10 +1,10 @@
 <script setup lang="ts">
 interface Props {
-  title: string;
-  variant?: 'compact' | 'full';
+  title: string
+  variant?: 'compact' | 'full'
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
@@ -28,4 +28,4 @@ defineProps<Props>();
 .blog-post-title--full {
   font-size: var(--font-size-xl);
 }
-</style> 
+</style>

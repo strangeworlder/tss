@@ -1,61 +1,66 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import BlogPostList from '@/components/organisms/admin/BlogPostList.vue';
-import BlogPostEditor from '@/components/organisms/admin/BlogPostEditor.vue';
-import { useBlogStore } from '@/stores/blogStore';
-import { useAuthStore } from '@/stores/authStore';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import BlogPostList from '@/components/organisms/admin/BlogPostList.vue'
+import BlogPostEditor from '@/components/organisms/admin/BlogPostEditor.vue'
+import { useBlogStore } from '@/stores/blogStore'
+import { useAuthStore } from '@/stores/authStore'
 
-const router = useRouter();
-const blogStore = useBlogStore();
-const authStore = useAuthStore();
-const activeTab = ref<'list' | 'editor'>('list');
-const editingPostId = ref<string | null>(null);
-const isAuthorized = ref(false);
+const router = useRouter()
+const blogStore = useBlogStore()
+const authStore = useAuthStore()
+const activeTab = ref<'list' | 'editor'>('list')
+const editingPostId = ref<string | null>(null)
+const isAuthorized = ref(false)
 
 onMounted(() => {
   if (!authStore.isAdmin) {
-    router.push('/');
-    return;
+    router.push('/')
+    return
   }
-  isAuthorized.value = true;
-});
+  isAuthorized.value = true
+})
 
 const handleEditPost = (postId: string) => {
-  editingPostId.value = postId;
-  activeTab.value = 'editor';
-};
+  editingPostId.value = postId
+  activeTab.value = 'editor'
+}
 
 const handleCreatePost = () => {
-  editingPostId.value = null;
-  activeTab.value = 'editor';
-};
+  editingPostId.value = null
+  activeTab.value = 'editor'
+}
 
 const handleBackToList = () => {
-  activeTab.value = 'list';
-  editingPostId.value = null;
-};
+  activeTab.value = 'list'
+  editingPostId.value = null
+}
 </script>
 
 <template>
   <div v-if="isAuthorized" class="admin-view">
     <!-- Notification -->
-    <div v-if="blogStore.notification" 
-         :class="['admin-view__notification', `admin-view__notification--${blogStore.notification.type}`]">
+    <div
+      v-if="blogStore.notification"
+      :class="[
+        'admin-view__notification',
+        `admin-view__notification--${blogStore.notification.type}`,
+      ]"
+    >
       {{ blogStore.notification.message }}
     </div>
 
     <header class="admin-view__header">
       <h1 class="admin-view__title">Blog Admin</h1>
       <div class="admin-view__tabs">
-        <button 
+        <button
           class="admin-view__tab"
           :class="{ 'admin-view__tab--active': activeTab === 'list' }"
           @click="activeTab = 'list'"
         >
           Posts
         </button>
-        <button 
+        <button
           class="admin-view__tab"
           :class="{ 'admin-view__tab--active': activeTab === 'editor' }"
           @click="handleCreatePost"
@@ -66,15 +71,8 @@ const handleBackToList = () => {
     </header>
 
     <main class="admin-view__content">
-      <BlogPostList 
-        v-if="activeTab === 'list'"
-        @edit-post="handleEditPost"
-      />
-      <BlogPostEditor 
-        v-else
-        :post-id="editingPostId"
-        @back="handleBackToList"
-      />
+      <BlogPostList v-if="activeTab === 'list'" @edit-post="handleEditPost" />
+      <BlogPostEditor v-else :post-id="editingPostId" @back="handleBackToList" />
     </main>
   </div>
 </template>
@@ -152,4 +150,4 @@ const handleBackToList = () => {
     opacity: 1;
   }
 }
-</style> 
+</style>

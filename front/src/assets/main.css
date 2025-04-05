@@ -2,23 +2,24 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
+  max-width: var(--container-width);
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  padding: var(--spacing-xl);
+  font-weight: var(--font-weight-normal);
 }
 
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  color: var(--color-text-link);
+  transition: var(--transition-normal);
+  padding: var(--spacing-xs);
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    background-color: var(--color-background-muted);
   }
 }
 
@@ -29,7 +30,6 @@ a,
   }
 
   #app {
-    
-    padding: 0 2rem;
+    padding: 0 var(--spacing-xl);
   }
 }

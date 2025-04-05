@@ -1,9 +1,5 @@
 <template>
-  <button 
-    class="menu-toggle"
-    @click="$emit('toggle')"
-    :aria-expanded="isOpen"
-  >
+  <button class="menu-toggle" @click="$emit('toggle')" :aria-expanded="isOpen">
     <span class="menu-toggle__icon"></span>
     <span class="visually-hidden">Toggle menu</span>
   </button>
@@ -11,12 +7,12 @@
 
 <script setup lang="ts">
 defineProps<{
-  isOpen: boolean;
-}>();
+  isOpen: boolean
+}>()
 
 defineEmits<{
-  (e: 'toggle'): void;
-}>();
+  (e: 'toggle'): void
+}>()
 </script>
 
 <style scoped>
@@ -60,4 +56,4 @@ defineEmits<{
     display: block;
   }
 }
-</style> 
+</style>

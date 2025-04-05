@@ -1,13 +1,13 @@
 <script setup lang="ts">
 interface Props {
-  size?: 'sm' | 'md' | 'lg';
-  text?: string;
+  size?: 'sm' | 'md' | 'lg'
+  text?: string
 }
 
 withDefaults(defineProps<Props>(), {
   size: 'md',
-  text: 'Loading...'
-});
+  text: 'Loading...',
+})
 </script>
 
 <template>
@@ -60,4 +60,4 @@ withDefaults(defineProps<Props>(), {
     transform: rotate(360deg);
   }
 }
-</style> 
+</style>

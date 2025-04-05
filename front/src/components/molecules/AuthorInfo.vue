@@ -1,11 +1,6 @@
 <template>
   <div class="author-info">
-    <Avatar
-      :src="author.avatar?.filename"
-      :alt="author.name"
-      :name="author.name"
-      :size="size"
-    />
+    <Avatar :src="author.avatar?.filename" :alt="author.name" :size="size" />
     <div class="author-info__details">
       <span class="author-info__name">{{ author.name }}</span>
       <span v-if="date" class="author-info__date">{{ formatDate(date) }}</span>
@@ -14,22 +9,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import Avatar from '@/components/atoms/Avatar.vue';
+import { computed } from 'vue'
+import Avatar from '@/components/atoms/Avatar.vue'
 
 interface Author {
-  name: string;
+  name: string
   avatar?: {
-    filename: string;
-    altText?: string;
-  };
+    filename: string
+    altText?: string
+  }
 }
 
 const props = defineProps<{
-  author: Author;
-  date?: string;
-  size?: 'sm' | 'md' | 'lg';
-}>();
+  author: Author
+  date?: string
+  size?: 'sm' | 'md' | 'lg'
+}>()
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -37,9 +32,9 @@ const formatDate = (dateString: string) => {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+    minute: '2-digit',
+  })
+}
 </script>
 
 <style scoped>
@@ -64,4 +59,4 @@ const formatDate = (dateString: string) => {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
 }
-</style> 
+</style>

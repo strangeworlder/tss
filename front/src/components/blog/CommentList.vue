@@ -1,7 +1,7 @@
 <template>
   <div class="comment-list">
     <h2 class="comment-list__title">Comments</h2>
-    
+
     <div v-if="isAuthenticated" class="comment-list__form">
       <CommentForm
         :parent-id="parentId"
@@ -14,9 +14,7 @@
       Please <router-link to="/login">log in</router-link> to comment
     </div>
 
-    <div v-if="loading" class="comment-list__loading">
-      Loading comments...
-    </div>
+    <div v-if="loading" class="comment-list__loading">Loading comments...</div>
     <div v-else-if="error" class="comment-list__error">
       {{ error }}
     </div>
@@ -24,34 +22,17 @@
       No comments yet. Be the first to comment!
     </div>
     <div v-else class="comment-list__items">
-      <div
-        v-for="comment in comments"
-        :key="comment._id"
-        class="comment-list__item"
-      >
+      <div v-for="comment in comments" :key="comment._id" class="comment-list__item">
         <div class="comment-list__header">
           <div class="comment-list__author">
-            <AuthorInfo
-              :author="comment.author"
-              :date="comment.createdAt"
-              size="sm"
-            />
+            <AuthorInfo :author="comment.author" :date="comment.createdAt" size="sm" />
           </div>
           <h3 class="comment-list__title">{{ comment.title }}</h3>
         </div>
         <div class="comment-list__content" v-html="formatContent(comment.content)"></div>
         <div class="comment-list__actions">
-          <Button 
-            variant="text" 
-            @click="showReplyForm(comment._id)"
-          >
-            Reply
-          </Button>
-          <Button 
-            v-if="canDelete(comment)" 
-            variant="text"
-            @click="deleteComment(comment._id)"
-          >
+          <Button variant="text" @click="showReplyForm(comment._id)"> Reply </Button>
+          <Button v-if="canDelete(comment)" variant="text" @click="deleteComment(comment._id)">
             Delete
           </Button>
         </div>
@@ -69,43 +50,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { marked } from 'marked';
-import { useAuthStore } from '@/stores/auth';
-import { getComments, deleteComment as deleteCommentApi, type Comment } from '@/api/commentService';
-import CommentForm from './CommentForm.vue';
-import { useNotificationStore } from '@/stores/notification';
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
-import Button from '@/components/atoms/Button.vue';
+import { ref, computed, onMounted } from 'vue'
+import { marked } from 'marked'
+import { useAuthStore } from '@/stores/auth'
+import { getComments, deleteComment as deleteCommentApi, type Comment } from '@/api/commentService'
+import CommentForm from './CommentForm.vue'
+import { useNotificationStore } from '@/stores/notification'
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
+import Button from '@/components/atoms/Button.vue'
 
 const props = defineProps<{
-  parentId: string;
-  parentType: string;
-}>();
+  parentId: string
+  parentType: 'post' | 'comment'
+}>()
 
 const emit = defineEmits<{
-  (e: 'comment-deleted', commentId: string): void;
-}>();
+  (e: 'comment-deleted', commentId: string): void
+}>()
 
-const authStore = useAuthStore();
-const notificationStore = useNotificationStore();
-const isAuthenticated = computed(() => authStore.isAuthenticated);
-const comments = ref<Comment[]>([]);
-const loading = ref(true);
-const error = ref<string | null>(null);
-const replyingTo = ref<string | null>(null);
+const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+const comments = ref<Comment[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+const replyingTo = ref<string | null>(null)
 
 const fetchComments = async () => {
   try {
-    loading.value = true;
-    error.value = null;
-    comments.value = await getComments(props.parentId, props.parentType);
+    loading.value = true
+    error.value = null
+    comments.value = await getComments(props.parentId, props.parentType)
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to load comments';
+    error.value = err instanceof Error ? err.message : 'Failed to load comments'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('en-US', {
@@ -113,9 +94,9 @@ const formatDate = (date: string) => {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+    minute: '2-digit',
+  })
+}
 
 const formatContent = (content: string) => {
   return marked(content, {
@@ -123,47 +104,47 @@ const formatContent = (content: string) => {
     gfm: true,
     sanitize: true,
     smartLists: true,
-    smartypants: true
-  });
-};
+    smartypants: true,
+  })
+}
 
 const showReplyForm = (commentId: string) => {
-  replyingTo.value = commentId;
-};
+  replyingTo.value = commentId
+}
 
 const handleReplySubmit = async () => {
-  replyingTo.value = null;
-  await fetchComments();
-};
+  replyingTo.value = null
+  await fetchComments()
+}
 
 const canDelete = (comment: Comment) => {
-  return authStore.isAdmin || (comment.author.id && comment.author.id === authStore.currentUser?.id);
-};
+  return authStore.isAdmin || (comment.author.id && comment.author.id === authStore.currentUser?.id)
+}
 
 const deleteComment = async (commentId: string) => {
   if (!confirm('Are you sure you want to delete this comment?')) {
-    return;
+    return
   }
 
   try {
-    await deleteCommentApi(commentId);
-    emit('comment-deleted', commentId);
-    await fetchComments();
+    await deleteCommentApi(commentId)
+    emit('comment-deleted', commentId)
+    await fetchComments()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to delete comment';
+    error.value = err instanceof Error ? err.message : 'Failed to delete comment'
   }
-};
+}
 
 const handleCommentSuccess = async () => {
-  await fetchComments();
-  notificationStore.success('Comment added successfully');
-};
+  await fetchComments()
+  notificationStore.success('Comment added successfully')
+}
 
 const handleCommentError = (message: string) => {
-  notificationStore.error(message || 'Failed to add comment');
-};
+  notificationStore.error(message || 'Failed to add comment')
+}
 
-onMounted(fetchComments);
+onMounted(fetchComments)
 </script>
 
 <style scoped>
@@ -274,4 +255,4 @@ onMounted(fetchComments);
   padding-top: var(--spacing-4);
   border-top: 1px solid var(--color-border);
 }
-</style> 
+</style>

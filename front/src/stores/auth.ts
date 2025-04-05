@@ -1,45 +1,49 @@
-import { defineStore } from 'pinia';
-import type { User } from '@/types/user';
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import type { User } from '@/types/user'
 
-interface AuthState {
-  currentUser: User | null;
-  token: string | null;
-}
+export const useAuthStore = defineStore(
+  'auth',
+  () => {
+    const currentUser = ref<User | null>(null)
+    const token = ref<string | null>(null)
 
-export const useAuthStore = defineStore('auth', {
-  state: (): AuthState => ({
-    currentUser: null,
-    token: null
-  }),
+    const isAuthenticated = computed(() => !!token.value)
+    const user = computed(() => currentUser.value)
 
-  getters: {
-    isAuthenticated: (state) => !!state.token,
-    user: (state) => state.currentUser
-  },
+    function setUser(user: User | null): void {
+      currentUser.value = user
+    }
 
-  actions: {
-    setUser(user: User | null) {
-      this.currentUser = user;
-    },
+    function setToken(newToken: string | null): void {
+      token.value = newToken
+    }
 
-    setToken(token: string | null) {
-      this.token = token;
-    },
+    function logout(): void {
+      currentUser.value = null
+      token.value = null
+    }
 
-    logout() {
-      this.currentUser = null;
-      this.token = null;
+    return {
+      currentUser,
+      token,
+      isAuthenticated,
+      user,
+      setUser,
+      setToken,
+      logout,
     }
   },
-
-  persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'auth',
-        storage: localStorage,
-        paths: ['token']
-      }
-    ]
-  }
-}); 
+  {
+    persist: {
+      enabled: true,
+      strategies: [
+        {
+          key: 'auth',
+          storage: localStorage,
+          paths: ['token'],
+        },
+      ],
+    },
+  },
+)

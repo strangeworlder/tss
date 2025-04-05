@@ -1,19 +1,59 @@
 <script setup lang="ts">
-interface Props {
-  text?: string;
-  to?: string;
+import { useRouter } from 'vue-router'
+
+/**
+ * BackButton Component
+ *
+ * A reusable button component that navigates back to a specified route.
+ * Follows accessibility guidelines and provides keyboard navigation.
+ *
+ * @example
+ * <BackButton
+ *   text="Back to Home"
+ *   to="/home"
+ * />
+ */
+
+/**
+ * BackButton component props interface
+ */
+interface IProps {
+  /**
+   * Text to display on the button
+   * @default 'Back'
+   */
+  text?: string
+  /**
+   * Route to navigate to when clicked
+   * @default '/'
+   */
+  to?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<IProps>(), {
   text: 'Back',
-  to: '/'
-});
+  to: '/',
+})
+
+const router = useRouter()
+
+/**
+ * Handles navigation when button is clicked or keyboard is used
+ */
+const handleNavigation = () => {
+  console.log('Navigating to:', props.to)
+  router.push(props.to)
+}
 </script>
 
 <template>
   <button 
-    @click="$router.push(to)"
+    @click="handleNavigation"
+    @keydown.enter="handleNavigation"
     class="back-button"
+    :aria-label="`${text} button`"
+    role="button"
+    tabindex="0"
   >
     &larr; {{ text }}
   </button>
@@ -23,8 +63,8 @@ withDefaults(defineProps<Props>(), {
 .back-button {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-2) var(--spacing-4);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   background: none;
   border: none;
   color: var(--color-text-secondary);
@@ -34,6 +74,11 @@ withDefaults(defineProps<Props>(), {
 }
 
 .back-button:hover {
-  color: var(--color-primary);
+  color: var(--color-text-link);
 }
-</style> 
+
+.back-button:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+</style>

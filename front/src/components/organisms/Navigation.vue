@@ -2,16 +2,12 @@
   <nav class="navigation" :class="{ 'navigation--open': isOpen }">
     <ul class="navigation__list">
       <li v-for="item in navItems" :key="item.to">
-        <NavLink 
-          :to="item.to"
-          :is-active="$route.path === item.to"
-          :variant="item.variant"
-        >
+        <NavLink :to="item.to" :is-active="$route.path === item.to" :variant="item.variant">
           {{ item.text }}
         </NavLink>
       </li>
       <li v-if="isAuthenticated">
-        <UserMenu 
+        <UserMenu
           :user-name="userName"
           :is-open="isUserMenuOpen"
           :is-profile-active="$route.path === '/profile'"
@@ -24,56 +20,65 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
-import NavLink from '@/components/molecules/NavLink.vue';
-import UserMenu from '@/components/molecules/UserMenu.vue';
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import NavLink from '@/components/molecules/NavLink.vue'
+import UserMenu from '@/components/molecules/UserMenu.vue'
+
+// Define the type for navigation items
+interface NavItem {
+  to: string
+  text: string
+  variant?: 'default' | 'auth'
+}
 
 const props = defineProps<{
-  isOpen: boolean;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  userName: string;
-  isUserMenuOpen: boolean;
-}>();
+  isOpen: boolean
+  isAuthenticated: boolean
+  isAdmin: boolean
+  userName: string
+  isUserMenuOpen: boolean
+}>()
 
 const emit = defineEmits<{
-  (e: 'toggleUserMenu'): void;
-  (e: 'logout'): void;
-}>();
+  (e: 'toggleUserMenu'): void
+  (e: 'logout'): void
+}>()
 
-const route = useRoute();
+const route = useRoute()
 
-const navItems = computed(() => {
-  const items = [
+const navItems = computed<NavItem[]>(() => {
+  const items: NavItem[] = [
     { to: '/', text: 'Home' },
     { to: '/blog', text: 'Blog' },
     { to: '/about', text: 'About' },
-  ];
+  ]
 
   if (props.isAdmin) {
-    items.push({ to: '/admin', text: 'Admin' });
+    items.push({ to: '/admin', text: 'Admin' })
   }
 
   if (!props.isAuthenticated) {
-    items.push({ to: '/auth', text: 'Login / Register', variant: 'auth' });
+    items.push({ to: '/auth', text: 'Login / Register', variant: 'auth' })
   }
 
-  return items;
-});
+  return items
+})
 
 const toggleUserMenu = () => {
-  emit('toggleUserMenu');
-};
+  emit('toggleUserMenu')
+}
 
 const handleLogout = () => {
-  emit('logout');
-};
+  emit('logout')
+}
 </script>
 
 <style scoped>
 .navigation {
-  transition: transform var(--transition-normal), opacity var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    opacity var(--transition-normal);
   background-color: var(--color-gray-800);
 }
 
@@ -111,4 +116,4 @@ const handleLogout = () => {
     gap: var(--spacing-2);
   }
 }
-</style> 
+</style>

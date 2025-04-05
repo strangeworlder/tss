@@ -3,32 +3,19 @@
     <!-- Title -->
     <div class="blog-form__field">
       <label class="blog-form__label">Title</label>
-      <input
-        v-model="formData.title"
-        type="text"
-        class="blog-form__input"
-        required
-      />
+      <input v-model="formData.title" type="text" class="blog-form__input" required />
     </div>
 
     <!-- Content -->
     <div class="blog-form__field">
       <label class="blog-form__label">Content</label>
-      <textarea
-        v-model="formData.content"
-        class="blog-form__textarea"
-        required
-      ></textarea>
+      <textarea v-model="formData.content" class="blog-form__textarea" required></textarea>
     </div>
 
     <!-- Excerpt -->
     <div class="blog-form__field">
       <label class="blog-form__label">Excerpt</label>
-      <textarea
-        v-model="formData.excerpt"
-        class="blog-form__textarea"
-        required
-      ></textarea>
+      <textarea v-model="formData.excerpt" class="blog-form__textarea" required></textarea>
     </div>
 
     <!-- Author Selection -->
@@ -64,11 +51,7 @@
         class="blog-form__select"
       >
         <option value="">Select a user</option>
-        <option
-          v-for="user in users"
-          :key="user.id"
-          :value="user.id"
-        >
+        <option v-for="user in users" :key="user.id" :value="user.id">
           {{ user.firstName }} {{ user.lastName }}
         </option>
       </select>
@@ -91,12 +74,7 @@
     <!-- Hero Image -->
     <div class="blog-form__field">
       <label class="blog-form__label">Hero Image</label>
-      <input
-        type="file"
-        accept="image/*"
-        @change="handleImageChange"
-        class="blog-form__input"
-      />
+      <input type="file" accept="image/*" @change="handleImageChange" class="blog-form__input" />
       <img
         v-if="heroImagePreview"
         :src="heroImagePreview"
@@ -108,21 +86,13 @@
     <!-- Publish Date -->
     <div class="blog-form__field">
       <label class="blog-form__label">Publish Date</label>
-      <input
-        v-model="formData.publishedAt"
-        type="date"
-        class="blog-form__input"
-      />
+      <input v-model="formData.publishedAt" type="date" class="blog-form__input" />
     </div>
 
     <!-- Published Status -->
     <div class="blog-form__field">
       <label class="blog-form__label">Published</label>
-      <input
-        v-model="formData.isPublished"
-        type="checkbox"
-        class="blog-form__checkbox"
-      />
+      <input v-model="formData.isPublished" type="checkbox" class="blog-form__checkbox" />
     </div>
 
     <!-- Tags -->
@@ -136,38 +106,18 @@
           class="blog-form__input"
           @keydown.enter.prevent="addTag"
         />
-        <button
-          type="button"
-          @click="addTag"
-          class="blog-form__tag-button"
-        >
-          Add
-        </button>
+        <button type="button" @click="addTag" class="blog-form__tag-button">Add</button>
       </div>
       <div class="blog-form__tag-list">
-        <span
-          v-for="tag in formData.tags"
-          :key="tag"
-          class="blog-form__tag"
-        >
+        <span v-for="tag in formData.tags" :key="tag" class="blog-form__tag">
           {{ tag }}
-          <button
-            type="button"
-            @click="removeTag(tag)"
-            class="blog-form__tag-remove"
-          >
-            ×
-          </button>
+          <button type="button" @click="removeTag(tag)" class="blog-form__tag-remove">×</button>
         </span>
       </div>
     </div>
 
     <!-- Submit Button -->
-    <button
-      type="submit"
-      class="blog-form__submit"
-      :disabled="loading"
-    >
+    <button type="submit" class="blog-form__submit" :disabled="loading">
       {{ loading ? 'Saving...' : 'Submit' }}
     </button>
 
@@ -179,33 +129,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from 'vue';
-import { useAuthStore } from '@/stores/authStore';
-import { useUserStore } from '@/stores/userStore';
-import { useBlogStore } from '@/stores/blogStore';
-import type { BlogPost, Author } from '@/types/blog';
-import type { IUser } from '@/types/user';
+import { ref, computed, onMounted, reactive } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useUserStore } from '@/stores/userStore'
+import { useBlogStore } from '@/stores/blogStore'
+import type { BlogPost, Author } from '@/types/blog'
+import type { IUser } from '@/types/user'
 
 const props = defineProps<{
-  postId?: string;
-}>();
+  postId?: string
+}>()
 
 const emit = defineEmits<{
-  (e: 'back'): void;
-}>();
+  (e: 'back'): void
+}>()
 
-const authStore = useAuthStore();
-const userStore = useUserStore();
-const blogStore = useBlogStore();
-const isAdmin = computed(() => authStore.isAdmin);
-const currentUser = computed(() => authStore.user);
+const authStore = useAuthStore()
+const userStore = useUserStore()
+const blogStore = useBlogStore()
+const isAdmin = computed(() => authStore.isAdmin)
+const currentUser = computed(() => authStore.user)
 
 // Form state
-const loading = ref(false);
-const error = ref<string | null>(null);
-const heroImage = ref<File | null>(null);
-const heroImagePreview = ref<string | null>(null);
-const newTag = ref('');
+const loading = ref(false)
+const error = ref<string | null>(null)
+const heroImage = ref<File | null>(null)
+const heroImagePreview = ref<string | null>(null)
+const newTag = ref('')
 
 // Form data
 const formData = reactive<Partial<BlogPost>>({
@@ -215,191 +165,197 @@ const formData = reactive<Partial<BlogPost>>({
   publishedAt: null,
   isPublished: false,
   tags: [],
-  author: {} as Author
-});
+  author: {} as Author,
+})
 
 // Author selection
-const authorType = ref<'user' | 'text'>('user');
-const selectedUserId = ref<string>('');
-const authorName = ref<string>('');
-const users = ref<IUser[]>([]);
+const authorType = ref<'user' | 'text'>('user')
+const selectedUserId = ref<string>('')
+const authorName = ref<string>('')
+const users = ref<IUser[]>([])
 
-const form = ref<HTMLFormElement | null>(null);
+const form = ref<HTMLFormElement | null>(null)
 
 // Load users for admin selection
 onMounted(async () => {
   if (isAdmin.value) {
     try {
-      users.value = await userStore.fetchUsers();
+      users.value = await userStore.fetchUsers()
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error('Failed to fetch users:', error)
     }
   }
 
   // Load post data if editing
   if (props.postId) {
-    loading.value = true;
+    loading.value = true
     try {
-      await blogStore.fetchPostById(props.postId);
-      const post = blogStore.currentPost;
-      
+      await blogStore.fetchPostById(props.postId)
+      const post = blogStore.currentPost
+
       if (post) {
-        formData.title = post.title;
-        formData.content = post.content;
-        formData.excerpt = post.excerpt;
-        formData.publishedAt = post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : '';
-        formData.isPublished = post.isPublished;
-        formData.tags = [...(post.tags || [])];
+        formData.title = post.title
+        formData.content = post.content
+        formData.excerpt = post.excerpt
+        formData.publishedAt = post.publishedAt
+          ? new Date(post.publishedAt).toISOString().split('T')[0]
+          : ''
+        formData.isPublished = post.isPublished
+        formData.tags = [...(post.tags || [])]
 
         if (post.author.type === 'user') {
-          authorType.value = 'user';
-          selectedUserId.value = post.author.id || '';
-          authorName.value = post.author.name;
+          authorType.value = 'user'
+          selectedUserId.value = post.author.id || ''
+          authorName.value = post.author.name
         } else {
-          authorType.value = 'text';
-          authorName.value = post.author.name;
+          authorType.value = 'text'
+          authorName.value = post.author.name
         }
 
         if (post.heroImage) {
-          heroImagePreview.value = post.heroImage.url;
+          heroImagePreview.value = post.heroImage.url
         }
       }
     } catch (err) {
-      console.error('Error loading post:', err);
-      error.value = err instanceof Error ? err.message : 'Failed to load post';
+      console.error('Error loading post:', err)
+      error.value = err instanceof Error ? err.message : 'Failed to load post'
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   } else if (!isAdmin.value && currentUser.value) {
     // For non-admin users, set themselves as author
-    authorType.value = 'user';
-    selectedUserId.value = currentUser.value.id;
+    authorType.value = 'user'
+    selectedUserId.value = currentUser.value.id
   }
-});
+})
 
 const handleImageChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
+  const input = event.target as HTMLInputElement
   if (input.files && input.files[0]) {
-    heroImage.value = input.files[0];
-    heroImagePreview.value = URL.createObjectURL(input.files[0]);
+    heroImage.value = input.files[0]
+    heroImagePreview.value = URL.createObjectURL(input.files[0])
   }
-};
+}
 
 const addTag = () => {
   if (newTag.value.trim() && !formData.tags?.includes(newTag.value.trim())) {
-    formData.tags = [...(formData.tags || []), newTag.value.trim()];
-    newTag.value = '';
+    formData.tags = [...(formData.tags || []), newTag.value.trim()]
+    newTag.value = ''
   }
-};
+}
 
 const removeTag = (tagToRemove: string) => {
-  formData.tags = formData.tags?.filter(tag => tag !== tagToRemove);
-};
+  formData.tags = formData.tags?.filter((tag) => tag !== tagToRemove)
+}
 
 const handleSubmit = async (event: Event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  
-  try {
-    loading.value = true;
-    error.value = null;
+  event.preventDefault()
+  event.stopPropagation()
 
-    console.log('Starting form submission...');
-    console.log('Current authorType:', authorType.value);
-    console.log('Current selectedUserId:', selectedUserId.value);
-    console.log('Current authorName:', authorName.value);
-    console.log('Is admin:', isAdmin.value);
-    console.log('Users list:', users.value);
+  try {
+    loading.value = true
+    error.value = null
+
+    console.log('Starting form submission...')
+    console.log('Current authorType:', authorType.value)
+    console.log('Current selectedUserId:', selectedUserId.value)
+    console.log('Current authorName:', authorName.value)
+    console.log('Is admin:', isAdmin.value)
+    console.log('Users list:', users.value)
 
     // Create FormData object
-    const submitFormData = new FormData();
-    submitFormData.append('title', formData.title || '');
-    submitFormData.append('content', formData.content || '');
-    submitFormData.append('excerpt', formData.excerpt || '');
-    submitFormData.append('publishedAt', formData.publishedAt || '');
-    submitFormData.append('isPublished', (formData.isPublished ?? false).toString());
-    submitFormData.append('tags', JSON.stringify(formData.tags || []));
+    const submitFormData = new FormData()
+    submitFormData.append('title', formData.title || '')
+    submitFormData.append('content', formData.content || '')
+    submitFormData.append('excerpt', formData.excerpt || '')
+    submitFormData.append('publishedAt', formData.publishedAt || '')
+    submitFormData.append('isPublished', (formData.isPublished ?? false).toString())
+    submitFormData.append('tags', JSON.stringify(formData.tags || []))
 
     // Set author based on type and user role
     if (isAdmin.value) {
-      console.log('Processing admin author selection...');
-      console.log('Selected author type:', authorType.value);
-      
+      console.log('Processing admin author selection...')
+      console.log('Selected author type:', authorType.value)
+
       if (authorType.value === 'user') {
-        console.log('User author selected, userId:', selectedUserId.value);
+        console.log('User author selected, userId:', selectedUserId.value)
         if (!selectedUserId.value) {
-          throw new Error('Please select a user');
+          throw new Error('Please select a user')
         }
-        const selectedUser = users.value.find((user: IUser) => user.id === selectedUserId.value);
-        console.log('Found selected user:', selectedUser);
+        const selectedUser = users.value.find((user: IUser) => user.id === selectedUserId.value)
+        console.log('Found selected user:', selectedUser)
         if (!selectedUser) {
-          throw new Error('Selected user not found');
+          throw new Error('Selected user not found')
         }
         const authorData = {
           type: 'user',
           id: selectedUser.id,
           name: `${selectedUser.firstName} ${selectedUser.lastName}`,
-          avatar: selectedUser.avatar ? {
-            filename: selectedUser.avatar.filename,
-            altText: selectedUser.avatar.altText
-          } : undefined
-        };
-        console.log('Setting author data:', authorData);
-        submitFormData.append('author', JSON.stringify(authorData));
+          avatar: selectedUser.avatar
+            ? {
+                filename: selectedUser.avatar.filename,
+                altText: selectedUser.avatar.altText,
+              }
+            : undefined,
+        }
+        console.log('Setting author data:', authorData)
+        submitFormData.append('author', JSON.stringify(authorData))
       } else if (authorType.value === 'text') {
-        console.log('Text author selected, name:', authorName.value);
+        console.log('Text author selected, name:', authorName.value)
         if (!authorName.value.trim()) {
-          throw new Error('Author name is required');
+          throw new Error('Author name is required')
         }
         const authorData = {
           type: 'text',
-          name: authorName.value.trim()
-        };
-        console.log('Setting author data:', authorData);
-        submitFormData.append('author', JSON.stringify(authorData));
+          name: authorName.value.trim(),
+        }
+        console.log('Setting author data:', authorData)
+        submitFormData.append('author', JSON.stringify(authorData))
       } else {
-        console.error('Invalid author type:', authorType.value);
-        throw new Error('Invalid author type selected');
+        console.error('Invalid author type:', authorType.value)
+        throw new Error('Invalid author type selected')
       }
     } else if (currentUser.value) {
-      console.log('Processing non-admin author selection...');
+      console.log('Processing non-admin author selection...')
       const authorData = {
         type: 'user',
         id: currentUser.value.id,
         name: `${currentUser.value.firstName} ${currentUser.value.lastName}`,
-        avatar: currentUser.value.avatar ? {
-          filename: currentUser.value.avatar.filename,
-          altText: currentUser.value.avatar.altText
-        } : undefined
-      };
-      console.log('Setting author data:', authorData);
-      submitFormData.append('author', JSON.stringify(authorData));
+        avatar: currentUser.value.avatar
+          ? {
+              filename: currentUser.value.avatar.filename,
+              altText: currentUser.value.avatar.altText,
+            }
+          : undefined,
+      }
+      console.log('Setting author data:', authorData)
+      submitFormData.append('author', JSON.stringify(authorData))
     } else {
-      console.error('No current user found');
-      throw new Error('No user found for author');
+      console.error('No current user found')
+      throw new Error('No user found for author')
     }
 
     // Add hero image if selected
     if (heroImage.value) {
-      submitFormData.append('heroImage', heroImage.value);
+      submitFormData.append('heroImage', heroImage.value)
     }
 
-    console.log('Submitting form data:', Object.fromEntries(submitFormData.entries()));
+    console.log('Submitting form data:', Object.fromEntries(submitFormData.entries()))
 
     if (props.postId) {
-      await blogStore.updatePost(props.postId, submitFormData);
+      await blogStore.updatePost(props.postId, submitFormData)
     } else {
-      await blogStore.createPost(submitFormData);
+      await blogStore.createPost(submitFormData)
     }
-    
-    emit('back');
+
+    emit('back')
   } catch (err) {
-    console.error('Error submitting form:', err);
-    error.value = err instanceof Error ? err.message : 'Error submitting form';
+    console.error('Error submitting form:', err)
+    error.value = err instanceof Error ? err.message : 'Error submitting form'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
 <style scoped>
@@ -541,4 +497,4 @@ const handleSubmit = async (event: Event) => {
   border-radius: 4px;
   margin-top: 1rem;
 }
-</style> 
+</style>

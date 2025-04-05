@@ -3,10 +3,7 @@
     :is="to ? 'router-link' : 'button'"
     :to="to"
     class="button"
-    :class="[
-      `button--${variant}`,
-      { 'button--disabled': disabled }
-    ]"
+    :class="[`button--${variant}`, { 'button--disabled': disabled }]"
     :disabled="disabled"
     @click="$emit('click', $event)"
   >
@@ -16,14 +13,14 @@
 
 <script setup lang="ts">
 defineProps<{
-  variant?: 'primary' | 'secondary' | 'danger' | 'text';
-  disabled?: boolean;
-  to?: string;
-}>();
+  variant?: 'primary' | 'secondary' | 'danger' | 'text'
+  disabled?: boolean
+  to?: string
+}>()
 
 defineEmits<{
-  (e: 'click', event: MouseEvent): void;
-}>();
+  (e: 'click', event: MouseEvent): void
+}>()
 </script>
 
 <style scoped>
@@ -80,4 +77,4 @@ defineEmits<{
   opacity: 0.5;
   cursor: not-allowed;
 }
-</style> 
+</style>

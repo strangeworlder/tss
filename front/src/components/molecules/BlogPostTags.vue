@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import TagPill from '@/components/atoms/TagPill.vue';
+import TagPill from '@/components/atoms/TagPill.vue'
 
 interface Props {
-  tags: string[];
+  tags: string[]
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
   <div class="blog-post-tags">
-    <TagPill 
-      v-for="tag in tags" 
-      :key="tag" 
-      :tag="tag"
-      class="blog-post-tags__tag"
-    />
+    <TagPill v-for="tag in tags" :key="tag" :tag="tag" class="blog-post-tags__tag" />
   </div>
 </template>
 
@@ -26,4 +21,4 @@ defineProps<Props>();
   gap: var(--spacing-2);
   margin-bottom: var(--spacing-3);
 }
-</style> 
+</style>

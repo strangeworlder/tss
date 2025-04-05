@@ -1,301 +1,326 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
-import { useBlogStore } from '@/stores/blogStore';
-import { useAuthStore } from '@/stores/authStore';
-import { useUserStore } from '@/stores/userStore';
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSize } from '@/types/image';
-import { deleteBlogPost } from '@/api/blogService';
-import { useRouter } from 'vue-router';
-import type { BlogPost } from '@/types/blog';
-import type { IUser } from '@/types/user';
-import Button from '@/components/atoms/Button.vue';
+import { ref, onMounted, watch, computed } from 'vue'
+import { useBlogStore } from '@/stores/blogStore'
+import { useAuthStore } from '@/stores/authStore'
+import { useUserStore } from '@/stores/userStore'
+import AppImage from '@/components/atoms/AppImage.vue'
+import { ImageSize } from '@/types/image'
+import { deleteBlogPost } from '@/api/blogService'
+import { useRouter } from 'vue-router'
+import type { BlogPost } from '@/types/blog'
+import type { IUser } from '@/types/user'
+import Button from '@/components/atoms/Button.vue'
 
 const props = defineProps<{
-  postId: string | null;
-}>();
+  postId: string | null
+}>()
 
 const emit = defineEmits<{
-  (e: 'back'): void;
-}>();
+  (e: 'back'): void
+}>()
 
-const blogStore = useBlogStore();
-const authStore = useAuthStore();
-const userStore = useUserStore();
-const loading = ref(true);
-const error = ref<string | null>(null);
-const saving = ref(false);
+const blogStore = useBlogStore()
+const authStore = useAuthStore()
+const userStore = useUserStore()
+const loading = ref(true)
+const error = ref<string | null>(null)
+const saving = ref(false)
 
 // Form data
-const title = ref('');
-const content = ref('');
-const excerpt = ref('');
-const publishedAt = ref('');
-const isPublished = ref(true);
-const authorType = ref<'user' | 'text'>('user');
-const selectedUserId = ref<string>('');
-const authorName = ref('');
-const tags = ref<string[]>([]);
-const newTag = ref('');
-const heroImage = ref<File | null>(null);
-const heroImagePreview = ref<string | null>(null);
+const title = ref('')
+const content = ref('')
+const excerpt = ref('')
+const publishedAt = ref('')
+const isPublished = ref(true)
+const authorType = ref<'user' | 'text'>('user')
+const selectedUserId = ref<string>('')
+const authorName = ref('')
+const tags = ref<string[]>([])
+const newTag = ref('')
+const heroImage = ref<File | null>(null)
+const heroImagePreview = ref<string | null>(null)
 
-const router = useRouter();
-const showDeleteConfirm = ref(false);
+const router = useRouter()
+const showDeleteConfirm = ref(false)
 
-const isAdmin = computed(() => authStore.isAdmin);
-const currentUser = computed(() => authStore.user);
-const users = ref<IUser[]>([]);
+const isAdmin = computed(() => authStore.isAdmin)
+const currentUser = computed(() => authStore.user)
+const users = ref<IUser[]>([])
 
 // Load users for admin selection
 onMounted(async () => {
   if (isAdmin.value) {
     try {
-      console.log('Fetching users...');
-      const fetchedUsers = await userStore.fetchUsers();
+      console.log('Fetching users...')
+      const fetchedUsers = await userStore.fetchUsers()
       // Map the users to ensure we have the correct ID field
-      users.value = fetchedUsers.map(user => ({
+      users.value = fetchedUsers.map((user: IUser) => ({
         ...user,
-        id: user._id || user.id // Use _id if available, fallback to id
-      }));
-      console.log('Fetched users:', users.value);
-      console.log('First user ID:', users.value[0]?.id);
-      console.log('First user data:', users.value[0]);
+        id: user._id || user.id, // Use _id if available, fallback to id
+      }))
+      console.log('Fetched users:', users.value)
+      console.log('First user ID:', users.value[0]?.id)
+      console.log('First user data:', users.value[0])
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error('Failed to fetch users:', error)
     }
   }
-});
+})
 
 // Watch for postId changes to load post data
-watch(() => props.postId, async (newId) => {
-  if (newId) {
-    await loadPost(newId);
-  } else {
-    loading.value = false;
-    resetForm();
-  }
-});
+watch(
+  () => props.postId,
+  async (newId) => {
+    if (newId) {
+      await loadPost(newId)
+    } else {
+      loading.value = false
+      resetForm()
+    }
+  },
+)
 
 const loadPost = async (postId: string) => {
-  loading.value = true;
-  error.value = null;
-  
+  loading.value = true
+  error.value = null
+
   try {
-    await blogStore.fetchPostById(postId);
-    const post = blogStore.currentPost;
-    
+    await blogStore.fetchPostById(postId)
+    const post = blogStore.currentPost
+
     if (post) {
-      title.value = post.title;
-      content.value = post.content;
-      excerpt.value = post.excerpt;
-      publishedAt.value = post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : '';
-      isPublished.value = post.isPublished;
-      
+      title.value = post.title
+      content.value = post.content
+      excerpt.value = post.excerpt
+      publishedAt.value = post.publishedAt
+        ? new Date(post.publishedAt).toISOString().split('T')[0]
+        : ''
+      isPublished.value = post.isPublished
+
       // Set author data based on type
       if (post.author.type === 'user') {
-        authorType.value = 'user';
-        selectedUserId.value = post.author.id || '';
-        authorName.value = post.author.name;
+        authorType.value = 'user'
+        selectedUserId.value = post.author.id || ''
+        authorName.value = post.author.name
       } else {
-        authorType.value = 'text';
-        authorName.value = post.author.name;
+        authorType.value = 'text'
+        authorName.value = post.author.name
       }
-      
-      tags.value = [...(post.tags || [])];
+
+      tags.value = [...(post.tags || [])]
     }
   } catch (err) {
-    console.error('Error loading post:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load post';
+    console.error('Error loading post:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to load post'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const resetForm = () => {
-  title.value = '';
-  content.value = '';
-  excerpt.value = '';
-  publishedAt.value = new Date().toISOString().split('T')[0];
-  isPublished.value = true;
-  authorName.value = '';
-  tags.value = [];
-  heroImage.value = null;
-  heroImagePreview.value = null;
-};
+  title.value = ''
+  content.value = ''
+  excerpt.value = ''
+  publishedAt.value = new Date().toISOString().split('T')[0]
+  isPublished.value = true
+  authorName.value = ''
+  tags.value = []
+  heroImage.value = null
+  heroImagePreview.value = null
+}
 
 const handleImageChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
+  const input = event.target as HTMLInputElement
   if (input.files && input.files[0]) {
-    heroImage.value = input.files[0];
-    heroImagePreview.value = URL.createObjectURL(input.files[0]);
+    heroImage.value = input.files[0]
+    heroImagePreview.value = URL.createObjectURL(input.files[0])
   }
-};
+}
 
 const addTag = () => {
   if (newTag.value.trim() && !tags.value.includes(newTag.value.trim())) {
-    tags.value.push(newTag.value.trim());
-    newTag.value = '';
+    tags.value.push(newTag.value.trim())
+    newTag.value = ''
   }
-};
+}
 
 const removeTag = (tagToRemove: string) => {
-  tags.value = tags.value.filter(tag => tag !== tagToRemove);
-};
+  tags.value = tags.value.filter((tag) => tag !== tagToRemove)
+}
 
 const handleSubmit = async () => {
-  saving.value = true;
-  error.value = null;
-  
+  saving.value = true
+  error.value = null
+
   try {
-    console.log('Starting form submission...');
-    console.log('Current authorType:', authorType.value);
-    console.log('Current selectedUserId:', selectedUserId.value);
-    console.log('Current selectedUserId type:', typeof selectedUserId.value);
-    console.log('Available users:', users.value);
-    console.log('Users array length:', users.value.length);
-    console.log('First user ID:', users.value[0]?.id);
-    console.log('First user ID type:', typeof users.value[0]?.id);
-    console.log('Selected user:', users.value.find(u => u.id === selectedUserId.value));
-    
-    const formData = new FormData();
-    formData.append('title', title.value);
-    formData.append('content', content.value);
-    formData.append('excerpt', excerpt.value);
-    formData.append('publishedAt', publishedAt.value ? new Date(publishedAt.value).toISOString() : '');
-    formData.append('isPublished', isPublished.value.toString());
-    formData.append('tags', JSON.stringify(tags.value));
+    console.log('Starting form submission...')
+    console.log('Current authorType:', authorType.value)
+    console.log('Current selectedUserId:', selectedUserId.value)
+    console.log('Current selectedUserId type:', typeof selectedUserId.value)
+    console.log('Available users:', users.value)
+    console.log('Users array length:', users.value.length)
+    console.log('First user ID:', users.value[0]?.id)
+    console.log('First user ID type:', typeof users.value[0]?.id)
+    console.log(
+      'Selected user:',
+      users.value.find((u) => u.id === selectedUserId.value),
+    )
+
+    const formData = new FormData()
+    formData.append('title', title.value)
+    formData.append('content', content.value)
+    formData.append('excerpt', excerpt.value)
+    formData.append(
+      'publishedAt',
+      publishedAt.value ? new Date(publishedAt.value).toISOString() : '',
+    )
+    formData.append('isPublished', isPublished.value.toString())
+    formData.append('tags', JSON.stringify(tags.value))
 
     // Set author based on type and user role
     if (isAdmin.value) {
-      console.log('Processing admin author selection...');
-      console.log('Selected author type:', authorType.value);
-      
+      console.log('Processing admin author selection...')
+      console.log('Selected author type:', authorType.value)
+
       if (authorType.value === 'user') {
-        console.log('User author selected, userId:', selectedUserId.value);
-        console.log('UserId type:', typeof selectedUserId.value);
-        console.log('Users array:', users.value);
-        console.log('Users array length:', users.value.length);
-        
+        console.log('User author selected, userId:', selectedUserId.value)
+        console.log('UserId type:', typeof selectedUserId.value)
+        console.log('Users array:', users.value)
+        console.log('Users array length:', users.value.length)
+
         if (!selectedUserId.value) {
-          console.error('No user selected');
-          throw new Error('Please select a user');
+          console.error('No user selected')
+          throw new Error('Please select a user')
         }
-        
+
         const selectedUser = users.value.find((user: IUser) => {
-          console.log('Comparing user ID:', user.id, 'with selected ID:', selectedUserId.value);
-          console.log('User ID type:', typeof user.id, 'Selected ID type:', typeof selectedUserId.value);
-          return user.id === selectedUserId.value;
-        });
-        
-        console.log('Found selected user:', selectedUser);
-        
+          console.log('Comparing user ID:', user.id, 'with selected ID:', selectedUserId.value)
+          console.log(
+            'User ID type:',
+            typeof user.id,
+            'Selected ID type:',
+            typeof selectedUserId.value,
+          )
+          return user.id === selectedUserId.value
+        })
+
+        console.log('Found selected user:', selectedUser)
+
         if (!selectedUser) {
-          console.error('Selected user not found');
-          throw new Error('Selected user not found');
+          console.error('Selected user not found')
+          throw new Error('Selected user not found')
         }
-        
+
         const authorData = {
           type: 'user',
           id: selectedUser.id,
           name: `${selectedUser.firstName} ${selectedUser.lastName}`,
-          avatar: selectedUser.avatar ? {
-            filename: selectedUser.avatar.filename,
-            altText: selectedUser.avatar.altText
-          } : undefined
-        };
-        console.log('Setting author data:', authorData);
-        formData.append('author', JSON.stringify(authorData));
+          avatar: selectedUser.avatar
+            ? {
+                filename: selectedUser.avatar.filename,
+                altText: selectedUser.avatar.altText,
+              }
+            : undefined,
+        }
+        console.log('Setting author data:', authorData)
+        formData.append('author', JSON.stringify(authorData))
       } else if (authorType.value === 'text') {
-        console.log('Text author selected, name:', authorName.value);
+        console.log('Text author selected, name:', authorName.value)
         if (!authorName.value.trim()) {
-          throw new Error('Author name is required');
+          throw new Error('Author name is required')
         }
         const authorData = {
           type: 'text',
-          name: authorName.value.trim()
-        };
-        console.log('Setting author data:', authorData);
-        formData.append('author', JSON.stringify(authorData));
+          name: authorName.value.trim(),
+        }
+        console.log('Setting author data:', authorData)
+        formData.append('author', JSON.stringify(authorData))
       } else {
-        console.error('Invalid author type:', authorType.value);
-        throw new Error('Invalid author type selected');
+        console.error('Invalid author type:', authorType.value)
+        throw new Error('Invalid author type selected')
       }
     } else if (currentUser.value) {
-      console.log('Processing non-admin author selection...');
+      console.log('Processing non-admin author selection...')
       const authorData = {
         type: 'user',
         id: currentUser.value.id,
         name: `${currentUser.value.firstName} ${currentUser.value.lastName}`,
-        avatar: currentUser.value.avatar ? {
-          filename: currentUser.value.avatar.filename,
-          altText: currentUser.value.avatar.altText
-        } : undefined
-      };
-      console.log('Setting author data:', authorData);
-      formData.append('author', JSON.stringify(authorData));
+        avatar: currentUser.value.avatar
+          ? {
+              filename: currentUser.value.avatar.filename,
+              altText: currentUser.value.avatar.altText,
+            }
+          : undefined,
+      }
+      console.log('Setting author data:', authorData)
+      formData.append('author', JSON.stringify(authorData))
     } else {
-      console.error('No current user found');
-      throw new Error('No user found for author');
+      console.error('No current user found')
+      throw new Error('No user found for author')
     }
 
     if (heroImage.value) {
-      formData.append('heroImage', heroImage.value);
+      formData.append('heroImage', heroImage.value)
     }
 
-    console.log('Submitting form data:', Object.fromEntries(formData.entries()));
+    console.log('Submitting form data:', Object.fromEntries(formData.entries()))
 
     if (props.postId) {
-      await blogStore.updatePost(props.postId, formData);
+      await blogStore.updatePost(props.postId, formData)
     } else {
-      await blogStore.createPost(formData);
+      await blogStore.createPost(formData)
     }
-    
-    emit('back');
+
+    emit('back')
   } catch (err) {
-    console.error('Error saving post:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to save post';
+    console.error('Error saving post:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to save post'
   } finally {
-    saving.value = false;
+    saving.value = false
   }
-};
+}
 
 const handleDelete = async () => {
-  if (!blogStore.currentPost?.id) return;
-  
+  if (!blogStore.currentPost?.id) return
+
   try {
-    await deleteBlogPost(blogStore.currentPost.id);
+    await deleteBlogPost(blogStore.currentPost.id)
     // Show success message
     blogStore.setNotification({
       type: 'success',
-      message: 'Post deleted successfully'
-    });
+      message: 'Post deleted successfully',
+    })
     // Emit back event to return to the list
-    emit('back');
+    emit('back')
   } catch (error) {
-    console.error('Error deleting post:', error);
+    console.error('Error deleting post:', error)
     blogStore.setNotification({
       type: 'error',
-      message: error instanceof Error ? error.message : 'Failed to delete post'
-    });
+      message: error instanceof Error ? error.message : 'Failed to delete post',
+    })
   }
-};
+}
 
 onMounted(() => {
   if (props.postId) {
-    loadPost(props.postId);
+    loadPost(props.postId)
   } else {
-    loading.value = false;
-    resetForm();
+    loading.value = false
+    resetForm()
   }
-});
+})
 </script>
 
 <template>
   <div class="blog-post-editor">
     <!-- Notification -->
-    <div v-if="blogStore.notification" 
-         :class="['blog-post-editor__notification', `blog-post-editor__notification--${blogStore.notification.type}`]">
+    <div
+      v-if="blogStore.notification"
+      :class="[
+        'blog-post-editor__notification',
+        `blog-post-editor__notification--${blogStore.notification.type}`,
+      ]"
+    >
       {{ blogStore.notification.message }}
     </div>
 
@@ -308,10 +333,7 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-editor__error">
       <p>{{ error }}</p>
-      <Button 
-        @click="props.postId ? loadPost(props.postId) : resetForm()"
-        variant="danger"
-      >
+      <Button @click="props.postId ? loadPost(props.postId) : resetForm()" variant="danger">
         Try Again
       </Button>
     </div>
@@ -322,29 +344,17 @@ onMounted(() => {
         <h2 class="blog-post-editor__title">
           {{ props.postId ? 'Edit Post' : 'New Post' }}
         </h2>
-        <Button 
-          type="button"
-          @click="emit('back')"
-          variant="secondary"
-        >
-          Back to List
-        </Button>
+        <Button type="button" @click="emit('back')" variant="secondary"> Back to List </Button>
       </div>
 
       <div class="blog-post-editor__field">
         <label for="title" class="blog-post-editor__label">Title</label>
-        <input 
-          id="title"
-          v-model="title"
-          type="text"
-          required
-          class="blog-post-editor__input"
-        />
+        <input id="title" v-model="title" type="text" required class="blog-post-editor__input" />
       </div>
 
       <div class="blog-post-editor__field">
         <label for="content" class="blog-post-editor__label">Content (Markdown)</label>
-        <textarea 
+        <textarea
           id="content"
           v-model="content"
           required
@@ -355,7 +365,7 @@ onMounted(() => {
 
       <div class="blog-post-editor__field">
         <label for="excerpt" class="blog-post-editor__label">Excerpt</label>
-        <textarea 
+        <textarea
           id="excerpt"
           v-model="excerpt"
           required
@@ -366,7 +376,7 @@ onMounted(() => {
 
       <div class="blog-post-editor__field">
         <label for="publishedAt" class="blog-post-editor__label">Publish Date</label>
-        <input 
+        <input
           id="publishedAt"
           v-model="publishedAt"
           type="date"
@@ -378,7 +388,7 @@ onMounted(() => {
       <div class="blog-post-editor__field">
         <label class="blog-post-editor__label">Publication Status</label>
         <div class="blog-post-editor__checkbox">
-          <input 
+          <input
             id="isPublished"
             v-model="isPublished"
             type="checkbox"
@@ -392,13 +402,9 @@ onMounted(() => {
         <label class="blog-post-editor__label">Tags</label>
         <div class="blog-post-editor__tags">
           <div class="blog-post-editor__tag-list">
-            <span 
-              v-for="tag in tags" 
-              :key="tag"
-              class="blog-post-editor__tag"
-            >
+            <span v-for="tag in tags" :key="tag" class="blog-post-editor__tag">
               {{ tag }}
-              <Button 
+              <Button
                 type="button"
                 @click="removeTag(tag)"
                 variant="text"
@@ -409,20 +415,14 @@ onMounted(() => {
             </span>
           </div>
           <div class="blog-post-editor__tag-input">
-            <input 
+            <input
               v-model="newTag"
               type="text"
               placeholder="Add a tag"
               @keyup.enter.prevent="addTag"
               class="blog-post-editor__input"
             />
-            <Button 
-              type="button"
-              @click="addTag"
-              variant="secondary"
-            >
-              Add
-            </Button>
+            <Button type="button" @click="addTag" variant="secondary"> Add </Button>
           </div>
         </div>
       </div>
@@ -430,7 +430,10 @@ onMounted(() => {
       <div class="blog-post-editor__field">
         <label class="blog-post-editor__label">Hero Image</label>
         <div class="blog-post-editor__image-upload">
-          <div v-if="heroImagePreview || blogStore.currentPost?.heroImage" class="blog-post-editor__image-preview">
+          <div
+            v-if="heroImagePreview || blogStore.currentPost?.heroImage"
+            class="blog-post-editor__image-preview"
+          >
             <AppImage
               v-if="blogStore.currentPost?.heroImage?.filename && !heroImagePreview"
               :filename="blogStore.currentPost.heroImage.filename"
@@ -445,7 +448,7 @@ onMounted(() => {
               class="blog-post-editor__preview-img"
             />
           </div>
-          <input 
+          <input
             type="file"
             accept="image/*"
             @change="handleImageChange"
@@ -487,11 +490,7 @@ onMounted(() => {
           class="blog-post-editor__select"
         >
           <option value="">Select a user</option>
-          <option
-            v-for="user in users"
-            :key="user.id"
-            :value="user.id"
-          >
+          <option v-for="user in users" :key="user.id" :value="user.id">
             {{ user.firstName }} {{ user.lastName }}
           </option>
         </select>
@@ -512,15 +511,11 @@ onMounted(() => {
       </div>
 
       <div class="blog-post-editor__actions">
-        <Button 
-          type="submit"
-          :disabled="saving"
-          variant="primary"
-        >
-          {{ saving ? 'Saving...' : (props.postId ? 'Update Post' : 'Create Post') }}
+        <Button type="submit" :disabled="saving" variant="primary">
+          {{ saving ? 'Saving...' : props.postId ? 'Update Post' : 'Create Post' }}
         </Button>
-        
-        <Button 
+
+        <Button
           v-if="props.postId"
           type="button"
           variant="danger"
@@ -538,18 +533,8 @@ onMounted(() => {
         <h3>Delete Post</h3>
         <p>Are you sure you want to delete this post? This action cannot be undone.</p>
         <div class="blog-post-editor__delete-confirm-actions">
-          <Button 
-            variant="secondary"
-            @click="showDeleteConfirm = false"
-          >
-            Cancel
-          </Button>
-          <Button 
-            variant="danger"
-            @click="handleDelete"
-          >
-            Delete
-          </Button>
+          <Button variant="secondary" @click="showDeleteConfirm = false"> Cancel </Button>
+          <Button variant="danger" @click="handleDelete"> Delete </Button>
         </div>
       </div>
     </div>
@@ -606,7 +591,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .blog-post-editor__error {
@@ -890,4 +877,4 @@ onMounted(() => {
   padding-top: var(--spacing-4);
   border-top: 1px solid var(--color-border);
 }
-</style> 
+</style>
