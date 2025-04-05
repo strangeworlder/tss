@@ -3,20 +3,36 @@ import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { computed, ref, onMounted } from 'vue'
 import NotificationList from '@/components/common/NotificationList.vue'
-import Button from '@/components/atoms/Button.vue'
+import MenuToggle from '@/components/atoms/MenuToggle.vue'
+import Navigation from '@/components/organisms/Navigation.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const isMenuOpen = ref(false)
+const isUserMenuOpen = ref(false)
 
 const userFullName = computed(() => {
   if (!authStore.user) return ''
   return `${authStore.user.firstName} ${authStore.user.lastName}`
 })
 
-const handleLogout = () => {
-  authStore.clearAuthData()
-  router.push('/')
+const handleLogout = async () => {
+  await authStore.logout()
+  router.push('/auth')
 }
+
+// Close menus when clicking outside
+onMounted(() => {
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement
+    if (!target.closest('.navigation') && !target.closest('.menu-toggle')) {
+      isMenuOpen.value = false
+    }
+    if (!target.closest('.user-menu')) {
+      isUserMenuOpen.value = false
+    }
+  })
+})
 </script>
 
 <template>
@@ -24,34 +40,24 @@ const handleLogout = () => {
     <NotificationList />
     <header class="app-header">
       <div class="container app-header__container">
-        <h1 class="app-header__title">Vue Blog</h1>
-        <nav class="app-header__nav">
-          <ul class="app-header__nav-list">
-            <li><RouterLink to="/" class="app-header__nav-link">Home</RouterLink></li>
-            <li><RouterLink to="/blog" class="app-header__nav-link">Blog</RouterLink></li>
-            <li><RouterLink to="/about" class="app-header__nav-link">About</RouterLink></li>
-            <li v-if="authStore.isAdmin">
-              <RouterLink to="/admin" class="app-header__nav-link">Admin</RouterLink>
-            </li>
-            <li v-if="!authStore.isAuthenticated">
-              <RouterLink to="/auth" class="app-header__nav-link">Login / Register</RouterLink>
-            </li>
-            <li v-else class="app-header__user-menu">
-              <RouterLink to="/profile" class="app-header__nav-link">
-                <span class="app-header__user-name">{{ userFullName }}</span>
-              </RouterLink>
-              <div class="app-header__actions">
-                <Button 
-                  @click="handleLogout" 
-                  variant="text"
-                  class="app-header__logout-button"
-                >
-                  Logout
-                </Button>
-              </div>
-            </li>
-          </ul>
-        </nav>
+        <RouterLink to="/" class="app-header__logo">
+          <h1 class="app-header__title">Vue Blog</h1>
+        </RouterLink>
+
+        <MenuToggle 
+          :is-open="isMenuOpen"
+          @toggle="isMenuOpen = !isMenuOpen"
+        />
+
+        <Navigation 
+          :is-open="isMenuOpen"
+          :is-authenticated="authStore.isAuthenticated"
+          :is-admin="authStore.isAdmin"
+          :user-name="userFullName"
+          :is-user-menu-open="isUserMenuOpen"
+          @toggle-user-menu="isUserMenuOpen = !isUserMenuOpen"
+          @logout="handleLogout"
+        />
       </div>
     </header>
 
@@ -70,63 +76,38 @@ const handleLogout = () => {
 <style scoped>
 .app {
   min-height: 100vh;
-  background-color: var(--color-background-primary);
-  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 .app-header {
   background-color: var(--color-gray-800);
   color: var(--color-white);
-  padding: var(--spacing-4);
-  line-height: 1.5;
-  max-height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .app-header__container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 64px;
+  padding: 0 var(--spacing-4);
+}
+
+.app-header__logo {
+  text-decoration: none;
+  color: var(--color-white);
 }
 
 .app-header__title {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.app-header__nav-list {
-  display: flex;
-  align-items: center;
-}
-
-.app-header__nav-list li {
-  margin-left: var(--spacing-4);
-}
-
-.app-header__nav-list li:first-child {
-  margin-left: 0;
-}
-
-.app-header__nav-link {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
   color: var(--color-white);
-  text-decoration: none;
-}
-
-.app-header__nav-link:hover {
-  color: var(--color-gray-300);
-}
-
-.app-header__user-menu {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.app-header__user-name {
-  color: var(--color-white);
-}
-
-.app-header__logout-button {
-  margin-left: var(--spacing-4);
 }
 
 .app-main {
@@ -145,17 +126,10 @@ const handleLogout = () => {
   text-align: center;
 }
 
-@media (min-width: 1024px) {
-  .app-header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .app-header__nav {
-    text-align: left;
-    font-size: 1rem;
-    padding: 1rem 0;
-  }
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
 }
 </style>
