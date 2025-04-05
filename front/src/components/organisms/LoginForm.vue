@@ -1,24 +1,48 @@
+<!--
+LoginForm Component
+
+An organism component that handles user login functionality.
+Composes atomic and molecular components to create a complete login form.
+
+Features:
+- Email and password input fields
+- Form validation
+- Error handling
+- Loading states
+- Semantic styling
+- Accessible form controls
+
+Usage:
+<LoginForm @success="handleLoginSuccess" />
+-->
+
 <template>
   <div class="login-form">
-    <h2>Login to Your Account</h2>
-    <form @submit.prevent="handleSubmit">
-      <div class="form-group" :class="{ error: errors.email }">
-        <label for="email">Email</label>
-        <input type="email" id="email" v-model="formData.email" required />
-        <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
-      </div>
+    <h2 class="login-form__title">Login to Your Account</h2>
+    <form @submit.prevent="handleSubmit" class="login-form__form">
+      <FormGroup
+        id="email"
+        label="Email"
+        type="email"
+        v-model="formData.email"
+        :error="errors.email"
+        required
+      />
 
-      <div class="form-group" :class="{ error: errors.password }">
-        <label for="password">Password</label>
-        <input type="password" id="password" v-model="formData.password" required />
-        <p v-if="errors.password" class="error-message">{{ errors.password }}</p>
-      </div>
+      <FormGroup
+        id="password"
+        label="Password"
+        type="password"
+        v-model="formData.password"
+        :error="errors.password"
+        required
+      />
 
-      <div class="form-actions">
+      <div class="login-form__actions">
         <Button type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="isLoading">
           {{ isLoading ? 'Logging in...' : 'Login' }}
         </Button>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <FormError :message="errorMessage" />
       </div>
     </form>
   </div>
@@ -29,6 +53,8 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import Button from '@/components/atoms/Button.vue'
+import FormGroup from '@/components/molecules/FormGroup.vue'
+import FormError from '@/components/atoms/FormError.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 const router = useRouter()
@@ -76,7 +102,7 @@ const validateForm = (): boolean => {
 }
 
 // Submit handler
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   // Validate form
   if (!validateForm()) {
     return
@@ -125,10 +151,10 @@ const handleSubmit = async () => {
   padding: var(--spacing-8);
   border-radius: var(--border-radius);
   background-color: var(--color-background-soft);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px var(--color-shadow);
 }
 
-h2 {
+.login-form__title {
   text-align: center;
   margin-bottom: var(--spacing-6);
   color: var(--color-heading);
@@ -136,49 +162,14 @@ h2 {
   font-weight: var(--font-weight-semibold);
 }
 
-.form-group {
-  margin-bottom: var(--spacing-4);
+.login-form__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
 }
 
-label {
-  display: block;
-  margin-bottom: var(--spacing-2);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
-}
-
-input {
-  width: 100%;
-  padding: var(--spacing-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-base);
-  font-family: var(--font-family-base);
-  transition: border-color var(--transition-fast);
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-
-input:focus {
-  outline: none;
-  border-color: var(--color-border-hover);
-}
-
-.form-group.error input {
-  border-color: var(--color-highlight-1);
-}
-
-.error-message {
-  color: var(--color-highlight-1);
-  font-size: var(--font-size-xs);
-  margin-top: var(--spacing-1);
-}
-
-.form-actions {
+.login-form__actions {
   margin-top: var(--spacing-6);
   text-align: center;
 }
-
-/* Remove the old button styles since we're using the Button atom */
-</style>
+</style> 
