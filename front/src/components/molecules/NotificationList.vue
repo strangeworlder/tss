@@ -67,12 +67,38 @@ const removeNotification = (id: string): void => {
   position: fixed;
   top: var(--spacing-md);
   right: var(--spacing-md);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  max-width: 24rem;
+  z-index: var(--z-index-modal);
+  max-width: var(--notification-max-width);
   width: 100%;
+}
+
+.notification {
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+}
+
+.notification--success {
+  background-color: var(--color-success);
+  color: var(--color-text-on-success);
+}
+
+.notification--error {
+  background-color: var(--color-danger);
+  color: var(--color-text-on-danger);
+}
+
+.notification--warning {
+  background-color: var(--color-warning);
+  color: var(--color-text-on-warning);
+}
+
+.notification--info {
+  background-color: var(--color-info);
+  color: var(--color-text-on-info);
 }
 
 .notification-list__item {
@@ -81,28 +107,8 @@ const removeNotification = (id: string): void => {
   align-items: center;
   padding: var(--spacing-md);
   border-radius: var(--border-radius-md);
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   animation: slideIn 0.3s ease-out;
-}
-
-.notification-list__item--success {
-  background-color: var(--color-success);
-  color: var(--color-text-on-success);
-}
-
-.notification-list__item--error {
-  background-color: var(--color-danger);
-  color: var(--color-text-on-danger);
-}
-
-.notification-list__item--warning {
-  background-color: var(--color-warning);
-  color: var(--color-text-on-warning);
-}
-
-.notification-list__item--info {
-  background-color: var(--color-info);
-  color: var(--color-text-on-info);
 }
 
 .notification-list__content {
@@ -146,12 +152,11 @@ const removeNotification = (id: string): void => {
   }
 }
 
-@media (max-width: 48rem) {
+@media (max-width: var(--breakpoint-sm)) {
   .notification-list {
     top: var(--spacing-sm);
     right: var(--spacing-sm);
     left: var(--spacing-sm);
-    max-width: none;
   }
 }
 </style> 

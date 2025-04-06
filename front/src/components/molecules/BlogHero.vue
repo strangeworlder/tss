@@ -1,3 +1,27 @@
+<!--
+ * BlogHero Component
+ *
+ * A hero component for blog posts that displays a full-width image with content overlay.
+ * Supports custom alt text and uses the AppImage component for image handling.
+ *
+ * Features:
+ * - Full-width hero image display
+ * - Content overlay with gradient background
+ * - Responsive design
+ * - Customizable alt text
+ *
+ * Props:
+ * - heroImage (String, required): The filename of the hero image
+ * - altText (String, default: 'Blog hero image'): Alternative text for the image
+ *
+ * Slots:
+ * - default: Content to display over the hero image
+ *
+ * Accessibility:
+ * - Uses semantic HTML
+ * - Provides alt text for the image
+ * - Ensures content is readable with gradient overlay
+ -->
 <template>
   <div class="blog-hero">
     <app-image
@@ -48,7 +72,7 @@ export default defineComponent({
 .blog-hero {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: var(--blog-image-height-full);
   overflow: hidden;
   border-radius: var(--border-radius);
 }
@@ -68,7 +92,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: var(--spacing-8);
+  padding: var(--spacing-xl);
   color: var(--color-background);
   background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
 }

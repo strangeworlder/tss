@@ -1,3 +1,21 @@
+<!--
+  BlogPostMeta
+  A molecule component that displays metadata for a blog post, including the publication date and author information.
+  
+  Features:
+  - Displays publication date
+  - Shows author information using AuthorInfo component
+  - Responsive layout with proper spacing
+  
+  Props:
+  - date: string - The publication date of the blog post
+  - author: Author - The author information object
+  
+  Accessibility:
+  - Uses semantic HTML elements
+  - Provides clear visual hierarchy
+  - Maintains proper text contrast
+-->
 <script setup lang="ts">
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
 import type { Author } from '@/types/blog'
@@ -30,12 +48,12 @@ withDefaults(defineProps<Props>(), {
 .blog-post-meta {
   color: var(--color-text);
   opacity: 0.8;
-  margin-bottom: var(--spacing-3);
+  margin-bottom: var(--spacing-md);
   font-size: var(--font-size-sm);
   font-family: var(--font-family-base);
 }
 
 .blog-post-meta__author {
-  margin-left: var(--spacing-2);
+  margin-left: var(--spacing-sm);
 }
 </style>

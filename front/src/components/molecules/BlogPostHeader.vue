@@ -1,3 +1,22 @@
+<!--
+  BlogPostHeader
+  A component that displays the header section of a blog post, including title, author info, and tags.
+  
+  Features:
+  - Displays blog post title
+  - Shows author information with publication date
+  - Displays tags associated with the post
+  - Optional back button to return to blog listing
+  
+  Props:
+  - post: BlogPost - The blog post data to display
+  - showBackButton: boolean - Whether to show the back button (default: true)
+  
+  Accessibility:
+  - Uses semantic HTML elements (header, h1)
+  - Proper heading hierarchy maintained
+  - No redundant ARIA attributes
+-->
 <script setup lang="ts">
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
 import TagPill from '@/components/atoms/TagPill.vue'
@@ -37,33 +56,33 @@ withDefaults(defineProps<Props>(), {
 
 <style scoped>
 .blog-post-header {
-  margin-bottom: var(--spacing-8);
+  margin-bottom: var(--spacing-xl);
 }
 
 .blog-post-header__back {
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-md);
 }
 
 .blog-post-header__title {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-md);
   line-height: 1.2;
 }
 
 .blog-post-header__meta {
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-md);
 }
 
 .blog-post-header__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2);
+  gap: var(--spacing-sm);
 }
 
 .blog-post-header__tag {
-  margin-right: var(--spacing-2);
+  margin-right: var(--spacing-sm);
 }
 
 @media (min-width: 768px) {
