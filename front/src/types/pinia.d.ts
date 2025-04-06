@@ -57,25 +57,20 @@ export interface BlogStore {
 }
 
 export interface AuthStore {
-  user: {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    role: string
-    avatar?: {
-      filename: string
-      altText: string
-    }
-    bio?: string
-  } | null
+  // State
+  currentUser: IUser | null
   token: string | null
+  loading: boolean
+  error: string | null
+
+  // Getters
   isAuthenticated: boolean
+  userRole: string | null
   isAdmin: boolean
-  isAuthor: boolean
-  fetchUserData: () => Promise<void>
-  setAuthData: (userData: any, authToken: string) => void
-  clearAuthData: () => void
+
+  // Actions
+  login(email: string, password: string): Promise<void>
+  logout(): Promise<void>
 }
 
 export interface UserStore {

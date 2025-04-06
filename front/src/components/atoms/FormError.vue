@@ -15,6 +15,7 @@ Props:
 |-----------|--------|---------|--------------------------------|
 | message   | string | ''      | Error message to display       |
 | className | string | ''      | Additional CSS classes         |
+| id        | string | undefined | Unique identifier for the error |
 
 Accessibility:
 - Uses role="alert" for screen reader announcements
@@ -45,7 +46,15 @@ Usage:
 <script setup lang="ts">
 import type { IFormErrorProps } from '@/types/form'
 
-defineProps<IFormErrorProps>()
+const props = withDefaults(defineProps<{
+  message?: string
+  className?: string
+  id?: string
+}>(), {
+  message: '',
+  className: '',
+  id: undefined
+})
 </script>
 
 <style scoped>

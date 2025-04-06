@@ -1,8 +1,8 @@
 <template>
   <div class="author-info">
-    <Avatar :src="author.avatar?.filename" :alt="author.name" :size="size" />
+    <Avatar :src="author?.avatar?.filename" :alt="author?.name || 'Anonymous'" :size="size" />
     <div class="author-info__details">
-      <span class="author-info__name">{{ author.name }}</span>
+      <span class="author-info__name">{{ author?.name || 'Anonymous' }}</span>
       <span v-if="date" class="author-info__date">{{ formatDate(date) }}</span>
     </div>
   </div>
@@ -11,28 +11,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Avatar from '@/components/atoms/Avatar.vue'
-
-interface Author {
-  name: string
-  avatar?: {
-    filename: string
-    altText?: string
-  }
-}
+import type { Author } from '@/types/blog'
 
 const props = defineProps<{
-  author: Author
+  author?: Author
   date?: string
   size?: 'sm' | 'md' | 'lg'
 }>()
 
 const formatDate = (dateString: string) => {
+  if (!dateString) return ''
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: 'numeric'
   })
 }
 </script>

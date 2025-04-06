@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 import { computed, ref, onMounted } from 'vue'
-import NotificationList from '@/components/common/NotificationList.vue'
+import NotificationList from '@/components/molecules/NotificationList.vue'
 import MenuToggle from '@/components/atoms/MenuToggle.vue'
 import Navigation from '@/components/organisms/Navigation.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const isMenuOpen = ref(false)
 const isUserMenuOpen = ref(false)
 

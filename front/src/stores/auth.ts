@@ -1,49 +1,62 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { User } from '@/types/user'
+import type { IUser } from '../types/user'
+import type { IAuthState } from '../types/auth'
+import { login as loginApi, logout as logoutApi } from '../api/authService'
+import { UserRole } from '../types/user'
 
-export const useAuthStore = defineStore(
-  'auth',
-  () => {
-    const currentUser = ref<User | null>(null)
-    const token = ref<string | null>(null)
+interface AuthStore extends IAuthState {
+  isAuthenticated: boolean
+  userRole: string | null
+  isAdmin: boolean
+  login(email: string, password: string): Promise<void>
+  logout(): Promise<void>
+}
 
-    const isAuthenticated = computed(() => !!token.value)
-    const user = computed(() => currentUser.value)
+export const useAuthStore = defineStore<'auth', AuthStore>('auth', {
+  state: (): IAuthState => ({
+    token: null,
+    currentUser: null,
+    loading: false,
+    error: null
+  }),
 
-    function setUser(user: User | null): void {
-      currentUser.value = user
-    }
-
-    function setToken(newToken: string | null): void {
-      token.value = newToken
-    }
-
-    function logout(): void {
-      currentUser.value = null
-      token.value = null
-    }
-
-    return {
-      currentUser,
-      token,
-      isAuthenticated,
-      user,
-      setUser,
-      setToken,
-      logout,
-    }
-  },
-  {
-    persist: {
-      enabled: true,
-      strategies: [
-        {
-          key: 'auth',
-          storage: localStorage,
-          paths: ['token'],
-        },
-      ],
+  getters: {
+    isAuthenticated(state: IAuthState): boolean {
+      return !!state.token
     },
+    userRole(state: IAuthState): string | null {
+      return state.currentUser?.role || null
+    },
+    isAdmin(state: IAuthState): boolean {
+      return state.currentUser?.role === UserRole.ADMIN
+    }
   },
-)
+
+  actions: {
+    async login(email: string, password: string): Promise<void> {
+      try {
+        this.loading = true
+        this.error = null
+        const response = await loginApi({ email, password })
+        this.token = response.token
+        this.currentUser = response.user
+      } catch (err) {
+        this.error = err instanceof Error ? err.message : 'Login failed'
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async logout(): Promise<void> {
+      try {
+        await logoutApi()
+        this.token = null
+        this.currentUser = null
+      } catch (err) {
+        this.error = err instanceof Error ? err.message : 'Logout failed'
+        throw err
+      }
+    }
+  }
+})
