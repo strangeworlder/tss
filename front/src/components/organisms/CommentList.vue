@@ -156,7 +156,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { marked } from 'marked'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/authStore'
 import { getComments, deleteComment as deleteCommentApi } from '@/api/commentService'
 import type { IComment } from '@/types/comment'
 import type { IApiError } from '@/types/error'
@@ -248,12 +248,21 @@ const fetchComments = async (): Promise<void> => {
 
 const formatContent = (content: string): string => {
   if (!content) return ''
-  return marked(content, {
-    breaks: true,
-    gfm: true,
-    headerIds: false,
-    mangle: false
-  })
+  try {
+    // marked can return a Promise in some cases, so we need to handle it
+    const result = marked(content, {
+      breaks: true,
+      gfm: true
+    })
+    // If result is a Promise, return a placeholder until it resolves
+    if (result instanceof Promise) {
+      return 'Loading...'
+    }
+    return result
+  } catch (error) {
+    console.error('Error formatting content:', error)
+    return content
+  }
 }
 
 const showReplyForm = (commentId: string | undefined) => {
@@ -269,7 +278,7 @@ const handleReplySubmit = async (): Promise<void> => {
 
 const canDelete = (comment: IComment | undefined): boolean => {
   if (!comment || !comment.author) return false
-  const currentUser = authStore.currentUser
+  const currentUser = authStore.user
   return currentUser?.id === comment.author.id || authStore.isAdmin
 }
 

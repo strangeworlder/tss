@@ -6,17 +6,12 @@ import BlogPostTags from '@/components/molecules/BlogPostTags.vue'
 import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue'
 import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue'
 import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import type { Author } from '@/types/blog'
 
 interface Props {
   title: string
   date: string
-  author: {
-    name: string
-    avatar?: {
-      filename: string
-      altText: string
-    }
-  }
+  author: Author
   content: string
   heroImageFilename?: string
   heroImageAlt?: string
@@ -30,7 +25,11 @@ const props = withDefaults(defineProps<Props>(), {
   variant: BlogPostTitleVariantEnum.FULL,
   tags: () => [],
   date: '',
-  author: () => ({ name: 'Anonymous' }),
+  author: () => ({ 
+    name: 'Anonymous',
+    type: 'text',
+    id: undefined
+  } as Author),
   slug: '',
   content: '',
 })
@@ -54,7 +53,7 @@ console.log('Tags:', props.tags)
 
       <BlogPostMeta :date="date" :author="author" />
 
-      <BlogPostTags v-if="variant === BlogPostTitleVariantEnum.FULL && tags.length > 0" :tags="tags" />
+      <BlogPostTags v-if="variant === BlogPostTitleVariantEnum.FULL && tags && tags.length > 0" :tags="tags" />
 
       <BlogPostExcerpt :content="content" :variant="variant" />
 

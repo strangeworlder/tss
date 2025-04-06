@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notification'
 import { computed, ref, onMounted } from 'vue'
 import NotificationList from '@/components/molecules/NotificationList.vue'

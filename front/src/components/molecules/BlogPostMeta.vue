@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
+import type { Author } from '@/types/blog'
 
 interface Props {
   date: string
-  author: {
-    name: string
-    avatar?: {
-      filename: string
-      altText: string
-    }
-  }
+  author: Author
 }
 
 withDefaults(defineProps<Props>(), {
   date: '',
-  author: () => ({ name: 'Anonymous' }),
+  author: () => ({ 
+    name: 'Anonymous', 
+    type: 'text',
+    id: undefined
+  } as Author),
 })
 </script>
 
