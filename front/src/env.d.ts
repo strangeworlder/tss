@@ -25,8 +25,7 @@ declare module 'pinia' {
 }
 
 declare module '@/stores/auth' {
-  import { useAuthStore } from '@/stores/auth'
-  export { useAuthStore }
+  export { useAuthStore } from '@/stores/authStore'
 }
 
 declare module 'dompurify' {

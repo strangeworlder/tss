@@ -1,56 +1,97 @@
-# Vue Components Using Atomic Design
+# Component Architecture
 
-This project follows the Atomic Design methodology, which consists of five distinct levels of components:
+This directory follows atomic design principles to organize UI components in a structured and maintainable way.
 
-## Structure
+## Directory Structure
 
-- **atoms/**: Basic building blocks - smallest, indivisible components
-- **molecules/**: Groups of atoms functioning together as a unit
-- **organisms/**: Complex components composed of molecules, atoms, and other organisms
-- **templates/**: Page layouts without specific content
-- **pages/**: Specific instances of templates with real content
+```
+components/
+├── atoms/         # Basic UI elements (buttons, inputs, icons)
+├── molecules/     # Simple combinations of atoms
+├── organisms/     # Complex UI components
+├── templates/     # Page layouts
+└── pages/         # Complete pages
+```
 
-## Guidelines
+## Component Classification
 
-1. **Naming Convention**:
+### Atoms
+Basic building blocks of the UI:
+- Single, indivisible components
+- No dependencies on other components
+- No state management
+- No API calls
+- Pure presentational components
+- Examples: Button, Input, Avatar, Icon
 
-   - Use PascalCase for component names
-   - Follow BEM methodology for CSS classes with kebab-case within BEM segments
-   - Example: `.blog-post__author--featured`
+### Molecules
+Simple combinations of atoms:
+- Single, well-defined responsibility
+- Composed of atoms
+- Simple internal state only
+- No API calls
+- No global state management
+- Examples: FormField, AuthorInfo, SearchBar
 
-2. **Component Creation**:
+### Organisms
+Complex UI components:
+- Multiple responsibilities
+- Composed of multiple molecules and atoms
+- Complex state management
+- API calls
+- Global state management (Pinia stores)
+- Examples: CommentList, BlogPostCard, CommentForm
 
-   - Keep components focused on a single responsibility
-   - Use props for configuration
-   - Emit events for parent communication
-   - Use slots for content flexibility
+### Templates
+Page layouts:
+- Define the structure of pages
+- Arrange organisms in a specific layout
+- Examples: DefaultLayout, AuthLayout
 
-3. **Styling**:
+### Pages
+Complete pages:
+- Represent specific routes
+- Composed of templates and organisms
+- Examples: HomeView, BlogDetailView
 
-   - Use scoped CSS to prevent style leakage
-   - Reference global variables from `assets/vars.css`
-   - Never use inline styles
-   - Never use Tailwind CSS classes
+## Decision Tree for Component Placement
 
-4. **TypeScript**:
+When deciding whether a component should be a molecule or an organism, ask these questions:
 
-   - Use TypeScript interfaces for props
-   - Define prop types explicitly
-   - Use enums for consistent values
+1. Does the component make API calls? → Organism
+2. Does the component depend on global state management? → Organism
+3. Does the component have multiple responsibilities? → Organism
+4. Does the component represent a complete feature? → Organism
+5. Is the component composed of multiple molecules? → Organism
+6. Does the component have complex interactions? → Organism
 
-5. **Testing**:
-   - Test components in isolation
-   - Mock dependencies when necessary
-   - Test key functionality and user interactions
+If the answer to any of these questions is "yes," the component should be an organism. Otherwise, it should be a molecule.
 
-## Adding New Components
+## Component Guidelines
 
-When adding a new component, consider where it fits in the atomic design hierarchy:
+- Use PascalCase for component names
+- Use kebab-case for component files
+- Use BEM syntax for CSS classes
+- Prefix interfaces with 'I' (IUser)
+- Suffix enums with 'Enum' (StatusEnum)
+- Document components with HTML comments at the top
+- Include tests in `__tests__` directory
+- Follow accessibility guidelines
 
-1. Is it a basic UI element that can't be broken down further? → **Atom**
-2. Is it a group of atoms that form a functional unit? → **Molecule**
-3. Is it a complex, distinct section of the interface? → **Organism**
-4. Is it a page layout without specific content? → **Template**
-5. Is it a specific instance of a template with real content? → **Page**
+## Documentation Requirements
 
-See the README in each subdirectory for more specific guidelines.
+All components must include:
+1. Component name and description
+2. Features list
+3. Props documentation
+4. Events documentation
+5. Accessibility considerations
+
+## Testing Requirements
+
+- Every component MUST have unit tests
+- Tests must cover all props, events, and slots
+- Tests must verify accessibility features
+- Tests must include error states and edge cases
+- Tests must verify responsive behavior
+- 100% coverage required for critical components

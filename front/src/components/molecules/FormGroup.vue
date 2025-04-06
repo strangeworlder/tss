@@ -79,6 +79,6 @@ defineEmits<{
 
 <style scoped>
 .form-group {
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-md);
 }
 </style> 

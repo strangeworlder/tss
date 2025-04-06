@@ -64,6 +64,12 @@
   --color-text-link: var(--color-primary-600);
   --color-text-link-hover: var(--color-primary-700);
 
+  /* Text on status colors */
+  --color-text-on-success: var(--color-neutral-100);
+  --color-text-on-danger: var(--color-neutral-100);
+  --color-text-on-warning: var(--color-neutral-900);
+  --color-text-on-info: var(--color-neutral-100);
+
   /* Border colors */
   --color-border: var(--color-neutral-300);
   --color-border-hover: var(--color-neutral-400);
@@ -124,6 +130,11 @@
   --border-radius: 0.5rem;
   --border-radius-lg: 1rem;
 
+  /* Shadows */
+  --shadow-sm: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
@@ -146,6 +157,9 @@
   /* Blog image variables */
   --blog-image-height-full: 16rem;
   --blog-image-height-compact: 12rem;
+  
+  /* Notification variables */
+  --notification-max-width: 24rem;
   
   /* Breakpoints */
   --breakpoint-sm: 36rem; /* 576px */
@@ -174,6 +188,12 @@
     --color-text-disabled: var(--color-neutral-600);
     --color-text-link: var(--color-primary-400);
     --color-text-link-hover: var(--color-primary-300);
+
+    /* Text on status colors */
+    --color-text-on-success: var(--color-neutral-900);
+    --color-text-on-danger: var(--color-neutral-900);
+    --color-text-on-warning: var(--color-neutral-900);
+    --color-text-on-info: var(--color-neutral-900);
 
     /* Border colors */
     --color-border: var(--color-neutral-700);

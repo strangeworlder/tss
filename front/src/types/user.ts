@@ -25,15 +25,7 @@ export interface IAuthResponse {
   token: string
 }
 
-export interface User {
-  id: string
-  name: string
-  email: string
-  avatar?: {
-    filename: string
-    altText: string
-  }
-  role: 'user' | 'admin'
+export interface User extends IUser {
   createdAt: string
   updatedAt: string
 }

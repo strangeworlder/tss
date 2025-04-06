@@ -6,10 +6,11 @@ import AppImage from '@/components/atoms/AppImage.vue'
 import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue'
 import BackButton from '@/components/atoms/BackButton.vue'
 import BlogPostHeader from '@/components/molecules/BlogPostHeader.vue'
-import CommentList from '@/components/blog/CommentList.vue'
+import CommentList from '@/components/organisms/CommentList.vue'
 import { ImageSizeEnum } from '@/types/image'
 import { checkApiHealth } from '@/api/apiClient'
 import { marked } from 'marked'
+import { CommentParentTypeEnum } from '@/types/comment'
 
 const route = useRoute()
 const router = useRouter()
@@ -124,7 +125,7 @@ onMounted(() => {
 
       <!-- Comments section -->
       <div class="blog-detail-view__comments">
-        <CommentList :parent-id="post.id" parent-type="post" />
+        <CommentList :parent-id="post.id" :parent-type="CommentParentTypeEnum.POST" />
       </div>
     </article>
 
