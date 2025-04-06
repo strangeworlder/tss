@@ -59,6 +59,28 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token')
   }
 
+  async function logout() {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+      const response = await fetch(`${API_BASE_URL}/v1/auth/logout`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to logout')
+      }
+
+      clearAuthData()
+    } catch (error) {
+      console.error('Error during logout:', error)
+      // Still clear local data even if the API call fails
+      clearAuthData()
+    }
+  }
+
   return {
     user,
     token,
@@ -68,5 +90,6 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUserData,
     setAuthData,
     clearAuthData,
+    logout,
   }
 })
