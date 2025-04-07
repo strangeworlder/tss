@@ -156,7 +156,7 @@ const props = withDefaults(defineProps<Props>(), {
 }
 
 .blog-post-card__content {
-  padding: var(--spacing-lg);
+  padding: 0 var(--spacing-lg);
 }
 
 /* Compact variant specific styles */

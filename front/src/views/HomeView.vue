@@ -336,7 +336,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background-color: var(--color-background-card);
-  padding: var(--spacing-md);
+  padding: 0;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
 }
