@@ -14,11 +14,9 @@
     "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "lint:eslint": "eslint . --fix",
+    "lint": "biome lint . --write",
     "lint:biome": "biome lint . --write",
-    "lint": "run-s lint:*",
-    "format": "prettier --write src/",
-    "format:biome": "biome format . --write"
+    "format": "biome format . --write"
   },
   "dependencies": {
     "@types/marked": "^5.0.2",
@@ -42,7 +40,6 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "cypress": "^14.1.0",
-    "eslint": "^9.21.0",
     "eslint-plugin-cypress": "^4.2.0",
     "eslint-plugin-oxlint": "^0.15.13",
     "eslint-plugin-vue": "~10.0.0",
