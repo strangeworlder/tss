@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import blogController from '../controllers/blog.controller';
-import upload from '../../../config/multer';
+import { blogHeroUpload } from '../../../config/multer';
 import bodyParser from 'body-parser';
 import { authenticate } from '../../../middlewares/auth.middleware';
 import commentRoutes from './comment.routes';
@@ -28,8 +28,8 @@ router.use((err: any, req: any, res: any, next: any) => {
 const handleFormData = (req: any, res: any, next: any) => {
   if (req.headers['content-type']?.includes('multipart/form-data')) {
     try {
-      // Use multer to handle the form data
-      upload.single('heroImage')(req, res, (err) => {
+      // Use blogHeroUpload to handle the form data
+      blogHeroUpload.single('heroImage')(req, res, (err) => {
         if (err) {
           console.error('Error handling form data:', err);
           return res.status(400).json({

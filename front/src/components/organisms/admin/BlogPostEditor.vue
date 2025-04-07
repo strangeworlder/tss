@@ -44,6 +44,12 @@ const isAdmin = computed(() => authStore.isAdmin);
 const currentUser = computed(() => authStore.user);
 const users = ref<IUser[]>([]);
 
+// Add this helper function after the imports
+const getUserIdentifier = (user: IUser): string => {
+  // Handle both _id and id properties
+  return (user as any)._id || user.id;
+};
+
 // Load users for admin selection
 onMounted(async () => {
   if (isAdmin.value) {
@@ -53,7 +59,7 @@ onMounted(async () => {
       // Map the users to ensure we have the correct ID field
       users.value = fetchedUsers.map((user: IUser) => ({
         ...user,
-        id: user.id, // Use id property only
+        id: getUserIdentifier(user), // Use the helper function to get the correct ID
       }));
       console.log('Fetched users:', users.value);
       console.log('First user ID:', users.value[0]?.id);
@@ -97,7 +103,8 @@ const loadPost = async (postId: string) => {
       // Set author data based on type
       if (post.author.type === 'user') {
         authorType.value = 'user';
-        selectedUserId.value = post.author.id || '';
+        // Handle both _id and id properties
+        selectedUserId.value = (post.author as any)._id || post.author.id || '';
         authorName.value = post.author.name;
       } else {
         authorType.value = 'text';
@@ -120,6 +127,8 @@ const resetForm = () => {
   excerpt.value = '';
   publishedAt.value = new Date().toISOString().split('T')[0];
   isPublished.value = true;
+  authorType.value = 'user';
+  selectedUserId.value = '';
   authorName.value = '';
   tags.value = [];
   heroImage.value = null;
@@ -129,8 +138,11 @@ const resetForm = () => {
 const handleImageChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files?.[0]) {
+    console.log('File selected:', input.files[0]);
     heroImage.value = input.files[0];
     heroImagePreview.value = URL.createObjectURL(input.files[0]);
+    console.log('heroImage value set to:', heroImage.value);
+    console.log('Preview URL created:', heroImagePreview.value);
   }
 };
 
@@ -150,19 +162,6 @@ const handleSubmit = async () => {
   error.value = null;
 
   try {
-    console.log('Starting form submission...');
-    console.log('Current authorType:', authorType.value);
-    console.log('Current selectedUserId:', selectedUserId.value);
-    console.log('Current selectedUserId type:', typeof selectedUserId.value);
-    console.log('Available users:', users.value);
-    console.log('Users array length:', users.value.length);
-    console.log('First user ID:', users.value[0]?.id);
-    console.log('First user ID type:', typeof users.value[0]?.id);
-    console.log(
-      'Selected user:',
-      users.value.find((u) => u.id === selectedUserId.value)
-    );
-
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('content', content.value);
@@ -176,41 +175,21 @@ const handleSubmit = async () => {
 
     // Set author based on type and user role
     if (isAdmin.value) {
-      console.log('Processing admin author selection...');
-      console.log('Selected author type:', authorType.value);
-
       if (authorType.value === 'user') {
-        console.log('User author selected, userId:', selectedUserId.value);
-        console.log('UserId type:', typeof selectedUserId.value);
-        console.log('Users array:', users.value);
-        console.log('Users array length:', users.value.length);
-
         if (!selectedUserId.value) {
-          console.error('No user selected');
           throw new Error('Please select a user');
         }
 
-        const selectedUser = users.value.find((user: IUser) => {
-          console.log('Comparing user ID:', user.id, 'with selected ID:', selectedUserId.value);
-          console.log(
-            'User ID type:',
-            typeof user.id,
-            'Selected ID type:',
-            typeof selectedUserId.value
-          );
-          return user.id === selectedUserId.value;
-        });
-
-        console.log('Found selected user:', selectedUser);
-
+        const selectedUser = users.value.find(
+          (user) => getUserIdentifier(user) === selectedUserId.value
+        );
         if (!selectedUser) {
-          console.error('Selected user not found');
           throw new Error('Selected user not found');
         }
 
         const authorData = {
           type: 'user',
-          id: selectedUser.id,
+          id: getUserIdentifier(selectedUser),
           name: `${selectedUser.firstName} ${selectedUser.lastName}`,
           avatar: selectedUser.avatar
             ? {
@@ -219,10 +198,8 @@ const handleSubmit = async () => {
               }
             : undefined,
         };
-        console.log('Setting author data:', authorData);
         formData.append('author', JSON.stringify(authorData));
       } else if (authorType.value === 'text') {
-        console.log('Text author selected, name:', authorName.value);
         if (!authorName.value.trim()) {
           throw new Error('Author name is required');
         }
@@ -230,17 +207,13 @@ const handleSubmit = async () => {
           type: 'text',
           name: authorName.value.trim(),
         };
-        console.log('Setting author data:', authorData);
         formData.append('author', JSON.stringify(authorData));
-      } else {
-        console.error('Invalid author type:', authorType.value);
-        throw new Error('Invalid author type selected');
       }
     } else if (currentUser.value) {
-      console.log('Processing non-admin author selection...');
+      // Non-admin users can only post as themselves
       const authorData = {
         type: 'user',
-        id: currentUser.value.id,
+        id: getUserIdentifier(currentUser.value),
         name: `${currentUser.value.firstName} ${currentUser.value.lastName}`,
         avatar: currentUser.value.avatar
           ? {
@@ -249,18 +222,19 @@ const handleSubmit = async () => {
             }
           : undefined,
       };
-      console.log('Setting author data:', authorData);
       formData.append('author', JSON.stringify(authorData));
     } else {
-      console.error('No current user found');
       throw new Error('No user found for author');
     }
 
+    // Add the hero image if one is selected
     if (heroImage.value) {
+      console.log('Adding hero image to FormData:', heroImage.value);
       formData.append('heroImage', heroImage.value);
+      console.log('FormData entries after adding hero image:', Array.from(formData.entries()));
+    } else {
+      console.log('No hero image to add to FormData');
     }
-
-    console.log('Submitting form data:', Object.fromEntries(formData.entries()));
 
     if (props.postId) {
       await blogStore.updatePost(props.postId, formData);
@@ -472,6 +446,7 @@ onMounted(() => {
             accept="image/*"
             @change="handleImageChange"
             class="blog-post-editor__file-input"
+            :key="heroImage ? 'has-file' : 'no-file'"
           />
         </div>
       </div>

@@ -96,15 +96,6 @@ const getFormattedDate = (dateString: string | null | undefined): string | undef
   return formatted || undefined;
 };
 
-const mapUserToAuthor = (user: IUser): Author => {
-  return {
-    type: 'user',
-    id: user.id,
-    name: `${user.firstName} ${user.lastName}`,
-    avatar: user.avatar,
-  };
-};
-
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -196,7 +187,7 @@ onMounted(() => {
               :key="post.id"
               :title="post.title"
               :date="getFormattedDate(post.publishedAt)"
-              :author="mapUserToAuthor(post.author)"
+              :author="post.author"
               :content="post.excerpt"
               :hero-image-filename="post.heroImage?.filename"
               :hero-image-alt="post.heroImage?.altText"

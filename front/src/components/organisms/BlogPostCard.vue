@@ -23,7 +23,7 @@
     description: "The publication date of the blog post"
   }
   author: {
-    type: Author
+    type: Author | IUser
     required: false
     description: "The author information for the blog post"
   }
@@ -81,11 +81,13 @@ import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue';
 import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue';
 import { BlogPostTitleVariantEnum } from '@/types/blogPost';
 import type { Author } from '@/types/blog';
+import type { IUser } from '@/types/user';
+import { computed } from 'vue';
 
 interface Props {
   title: string;
   date: string | null | undefined;
-  author: Author;
+  author: Author | IUser;
   content: string;
   heroImageFilename?: string;
   heroImageAlt?: string;
@@ -108,6 +110,21 @@ const props = withDefaults(defineProps<Props>(), {
   slug: '',
   content: '',
 });
+
+// Convert IUser to Author format when needed
+const formattedAuthor = computed<Author>(() => {
+  if ('type' in props.author) {
+    return props.author as Author;
+  }
+
+  const user = props.author as IUser;
+  return {
+    type: 'user',
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    avatar: user.avatar,
+  };
+});
 </script>
 
 <template>
@@ -124,7 +141,7 @@ const props = withDefaults(defineProps<Props>(), {
     <div class="blog-post-card__content">
       <BlogPostTitle :title="title" :variant="variant" />
 
-      <BlogPostMeta :date="date" :author="author" />
+      <BlogPostMeta :date="date" :author="formattedAuthor" />
 
       <BlogPostTags
         v-if="variant === BlogPostTitleVariantEnum.FULL && tags && tags.length > 0"
@@ -153,6 +170,10 @@ const props = withDefaults(defineProps<Props>(), {
 .blog-post-card:hover {
   transform: translateY(-0.125rem);
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.blog-post-card--full .blog-post-card__content {
+  padding: var(--spacing-md);
 }
 
 .blog-post-card__content {

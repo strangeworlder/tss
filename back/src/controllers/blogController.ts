@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import BlogPost from '../models/BlogPost';
 import upload from '../config/multer';
+import { blogHeroUpload } from '../config/multer';
 
 export const updatePost = async (req: Request, res: Response) => {
   try {
@@ -60,7 +61,7 @@ export const updatePost = async (req: Request, res: Response) => {
     // Handle hero image if uploaded
     if (req.file) {
       updateData.heroImage = {
-        url: `/uploads/${req.file.filename}`,
+        filename: req.file.filename,
         alt: req.body.title || 'Blog post hero image',
       };
       console.log('Backend: Hero image update:', updateData.heroImage);
@@ -177,12 +178,12 @@ export const createPost = async (req: Request, res: Response) => {
       success: true,
       data: savedPost,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Controller: Error creating post:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating post',
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };

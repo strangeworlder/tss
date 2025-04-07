@@ -1,5 +1,11 @@
 # Component Analysis Template
 
+## 0. CRITICAL: Component Reuse Check
+- [ ] Existing components have been thoroughly searched for before creating this component
+- [ ] No duplicate functionality exists in the codebase
+- [ ] If similar components exist, they have been considered for extension rather than creating a new component
+- [ ] Component follows DRY (Don't Repeat Yourself) principles
+
 ## 0. CRITICAL: Component Location Check
 - [ ] Component is in the correct atomic design directory (atoms, molecules, organisms, templates, pages)
 - [ ] If not, it MUST be moved to the appropriate directory based on its complexity and responsibility
@@ -37,7 +43,7 @@
 - [ ] All styling uses semantic variables from vars.css
 - [ ] No hard-coded values used
 - [ ] All spacing uses standardized rem-based variables (xs, sm, md, lg, xl)
-- [ ] No px units used
+- [ ] No px units used (EXCEPT for media query breakpoints)
 - [ ] BEM syntax correctly applied
 - [ ] No inline styles or Tailwind classes used
 

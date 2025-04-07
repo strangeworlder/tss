@@ -56,6 +56,8 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
   if (body instanceof FormData) {
     // Don't set Content-Type header for FormData, let the browser set it with the boundary
     requestOptions.body = body;
+    console.log('API Request: Handling FormData');
+    console.log('FormData entries:', Array.from(body.entries()));
   } else if (body) {
     // For JSON data
     requestOptions.headers = {

@@ -352,6 +352,15 @@ export const updatePost = async (req: Request, res: Response) => {
       updateData.isPublished = post.isPublished;
     }
 
+    // Handle hero image if uploaded
+    if (req.file) {
+      updateData.heroImage = {
+        filename: req.file.filename,
+        altText: parsedBody.title || 'Blog post hero image',
+      };
+      console.log('Backend: Hero image update:', updateData.heroImage);
+    }
+
     console.log('Backend: [3] Update data:', updateData);
 
     // Update the post
@@ -406,7 +415,6 @@ export const updatePost = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -481,6 +489,14 @@ export const createPost = async (req: Request, res: Response) => {
       counter++;
     }
 
+    // Handle hero image if uploaded
+    const heroImage = req.file
+      ? {
+          filename: req.file.filename,
+          altText: req.body.title || 'Blog post hero image',
+        }
+      : undefined;
+
     const post = await BlogPostModel.create({
       ...req.body,
       author,
@@ -489,11 +505,26 @@ export const createPost = async (req: Request, res: Response) => {
       tags: req.body.tags || [],
       publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : null,
       isPublished: req.body.isPublished || false,
+      heroImage,
     });
+
+    // Convert to plain object and enhance with additional fields
+    const postObject = post.toObject();
+    const enhancedPost = {
+      ...postObject,
+      id: postObject._id.toString(),
+      _id: undefined,
+      createdAt: new Date(postObject.createdAt).toISOString(),
+      updatedAt: new Date(postObject.updatedAt).toISOString(),
+      publishedAt: postObject.publishedAt ? new Date(postObject.publishedAt).toISOString() : null,
+      heroImageUrl: postObject.heroImage
+        ? imageService.getImageUrl(postObject.heroImage.filename)
+        : null,
+    };
 
     return res.status(201).json({
       success: true,
-      data: post,
+      data: enhancedPost,
     });
   } catch (error) {
     console.error('Error creating post:', error);

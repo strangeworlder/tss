@@ -1,11 +1,27 @@
+<!--
+  ProfileView
+  A page component that displays and allows editing of the user's profile information.
+  
+  Features:
+  - Displays user profile information (name, email, role)
+  - Allows uploading and changing profile picture
+  - Shows success/error messages for avatar upload
+  - Responsive design for different screen sizes
+  
+  Accessibility:
+  - Uses semantic HTML elements
+  - Proper heading hierarchy
+  - Keyboard accessible file upload
+  - Clear success/error messaging
+-->
+
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import AppButton from '@/components/atoms/AppButton.vue';
 import { ButtonVariantEnum } from '@/types/button';
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSizeEnum } from '@/types/image';
 import UserAvatar from '@/components/atoms/UserAvatar.vue';
+import { UserRole } from '@/types/user';
 
 const authStore = useAuthStore();
 const loading = ref(false);
@@ -16,19 +32,19 @@ const avatarPreview = ref<string | null>(null);
 
 const user = computed(() => authStore.user);
 
-const userLevel = computed(() => {
+const userLevel = computed((): string => {
   if (!user.value) return 'User';
   switch (user.value.role) {
-    case 'admin':
+    case UserRole.ADMIN:
       return 'Administrator';
-    case 'author':
+    case UserRole.EDITOR:
       return 'Content Author';
     default:
       return 'Regular User';
   }
 });
 
-const handleAvatarChange = async (event: Event) => {
+const handleAvatarChange = async (event: Event): Promise<void> => {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
 
@@ -69,7 +85,7 @@ const handleAvatarChange = async (event: Event) => {
   }
 };
 
-const triggerFileInput = () => {
+const triggerFileInput = (): void => {
   fileInput.value?.click();
 };
 </script>
@@ -160,7 +176,7 @@ const triggerFileInput = () => {
   background-color: var(--color-background-soft);
   border-radius: var(--border-radius);
   padding: var(--spacing-6);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .profile-view__avatar-container {
@@ -231,8 +247,8 @@ const triggerFileInput = () => {
   }
 
   .profile-view__avatar {
-    width: 96px;
-    height: 96px;
+    width: 6rem;
+    height: 6rem;
   }
 }
 </style>
