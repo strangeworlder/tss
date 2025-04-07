@@ -5,20 +5,20 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { BlogPost, BlogPostPreview } from '@/types/blog'
+import type { IBlogPost, IBlogPostPreview } from '@/types/blog'
 import * as blogService from '@/api/blogService'
 
 export const useBlogStore = defineStore('blog', () => {
   // State
-  const posts = ref<BlogPostPreview[]>([])
-  const currentPost = ref<BlogPost | null>(null)
+  const posts = ref<IBlogPostPreview[]>([])
+  const currentPost = ref<IBlogPost | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
   const notification = ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
 
   // Getters
   const postsByTag = computed(() => {
-    return (tag: string) => posts.value.filter((post) => post.tags.includes(tag))
+    return (tag: string) => posts.value.filter((post: IBlogPostPreview) => post.tags.includes(tag))
   })
 
   // Actions

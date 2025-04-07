@@ -50,7 +50,7 @@ describe('BlogPostHeader', () => {
     expect(tags.length).toBe(mockBlogPostHeaders.default.post.tags.length)
 
     // Check that each tag is displayed
-    mockBlogPostHeaders.default.post.tags.forEach((tag, index) => {
+    mockBlogPostHeaders.default.post.tags.forEach((tag: string, index: number) => {
       expect(tags[index].text()).toBe(tag)
     })
   })

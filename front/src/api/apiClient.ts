@@ -2,7 +2,7 @@
  * Base API client for making requests to the backend
  */
 
-import type { ApiResponse } from '@/types/blog'
+import type { IApiResponse } from '@/types/blog'
 
 // Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1'
@@ -128,29 +128,29 @@ export async function checkApiHealth(): Promise<boolean> {
 }
 
 // Generic GET method
-export async function apiGet<T>(endpoint: string): Promise<ApiResponse<T>> {
-  return apiRequest<ApiResponse<T>>(endpoint, { method: 'GET' })
+export async function apiGet<T>(endpoint: string): Promise<IApiResponse<T>> {
+  return apiRequest<IApiResponse<T>>(endpoint, { method: 'GET' })
 }
 
 export async function apiPost<T>(
   endpoint: string,
   data: unknown,
   options: Omit<RequestOptions, 'method' | 'body'> = {},
-): Promise<ApiResponse<T>> {
-  return apiRequest<ApiResponse<T>>(endpoint, { ...options, method: 'POST', body: data })
+): Promise<IApiResponse<T>> {
+  return apiRequest<IApiResponse<T>>(endpoint, { ...options, method: 'POST', body: data })
 }
 
 export async function apiPut<T>(
   endpoint: string,
   data: unknown,
   options: Omit<RequestOptions, 'method' | 'body'> = {},
-): Promise<ApiResponse<T>> {
-  return apiRequest<ApiResponse<T>>(endpoint, { ...options, method: 'PUT', body: data })
+): Promise<IApiResponse<T>> {
+  return apiRequest<IApiResponse<T>>(endpoint, { ...options, method: 'PUT', body: data })
 }
 
 export async function apiDelete<T>(
   endpoint: string,
   options: Omit<RequestOptions, 'method'> = {},
-): Promise<ApiResponse<T>> {
-  return apiRequest<ApiResponse<T>>(endpoint, { ...options, method: 'DELETE' })
+): Promise<IApiResponse<T>> {
+  return apiRequest<IApiResponse<T>>(endpoint, { ...options, method: 'DELETE' })
 }

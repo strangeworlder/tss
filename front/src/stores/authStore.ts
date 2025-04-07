@@ -12,7 +12,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role === UserRole.ADMIN)
-  const isAuthor = computed(() => user.value?.role === UserRole.AUTHOR || isAdmin.value)
+  const isEditor = computed(() => user.value?.role === UserRole.EDITOR || isAdmin.value)
   const userRole = computed(() => user.value?.role || null)
 
   // Initialize user data if token exists
@@ -100,7 +100,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     isAuthenticated,
     isAdmin,
-    isAuthor,
+    isEditor,
     userRole,
     fetchUserData,
     setAuthData,

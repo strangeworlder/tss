@@ -4,17 +4,17 @@
  */
 
 import { apiGet, apiPost, apiPut, apiDelete } from './apiClient'
-import type { BlogPost, BlogPostPreview, ApiResponse } from '@/types/blog'
+import type { IBlogPost, IBlogPostPreview, IApiResponse } from '@/types/blog'
 
 /**
  * Fetch all blog posts
  * @param limit Optional number of posts to fetch
  */
-export async function fetchBlogPosts(limit?: number): Promise<BlogPostPreview[]> {
+export async function fetchBlogPosts(limit?: number): Promise<IBlogPostPreview[]> {
   try {
     const endpoint = '/v1/blog'
     const params = limit ? `?limit=${limit}` : ''
-    const response = await apiGet<BlogPostPreview[]>(endpoint + params)
+    const response = await apiGet<IBlogPostPreview[]>(endpoint + params)
 
     // Make sure we're returning the data array from the response
     if (response?.success && Array.isArray(response.data)) {
@@ -32,10 +32,10 @@ export async function fetchBlogPosts(limit?: number): Promise<BlogPostPreview[]>
  * Fetch a single blog post by slug
  * @param slug The blog post slug
  */
-export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost> {
+export async function fetchBlogPostBySlug(slug: string): Promise<IBlogPost> {
   try {
     console.log(`Frontend: Fetching blog post with slug "${slug}"`)
-    const response = await apiGet<BlogPost>(`/v1/blog/${slug}`)
+    const response = await apiGet<IBlogPost>(`/v1/blog/${slug}`)
 
     console.log('Frontend: API response:', response)
 
@@ -56,9 +56,9 @@ export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost> {
  * @param tag The tag to filter by
  * @param limit Optional number of posts to fetch
  */
-export async function fetchBlogPostsByTag(tag: string, limit?: number): Promise<BlogPostPreview[]> {
+export async function fetchBlogPostsByTag(tag: string, limit?: number): Promise<IBlogPostPreview[]> {
   const endpoint = limit ? `/v1/blog/tag/${tag}?limit=${limit}` : `/v1/blog/tag/${tag}`
-  const response = await apiGet<BlogPostPreview[]>(endpoint)
+  const response = await apiGet<IBlogPostPreview[]>(endpoint)
 
   if (response?.success && Array.isArray(response.data)) {
     return response.data
@@ -71,12 +71,12 @@ export async function fetchBlogPostsByTag(tag: string, limit?: number): Promise<
  * Create a new blog post
  * @param formData FormData containing the post data and image
  */
-export async function createBlogPost(formData: FormData): Promise<BlogPost> {
+export async function createBlogPost(formData: FormData): Promise<IBlogPost> {
   try {
     console.log('Service: Creating new blog post')
     console.log('Service: FormData entries:', Array.from(formData.entries()))
 
-    const response = await apiPost<BlogPost>('/v1/blog', formData, {
+    const response = await apiPost<IBlogPost>('/v1/blog', formData, {
       headers: {
         // Don't set Content-Type header, let the browser set it with the boundary for multipart/form-data
       },
@@ -100,10 +100,10 @@ export async function createBlogPost(formData: FormData): Promise<BlogPost> {
  * @param id The blog post ID
  * @param formData FormData containing the updated post data and image
  */
-export async function updateBlogPost(id: string, formData: FormData): Promise<BlogPost> {
+export async function updateBlogPost(id: string, formData: FormData): Promise<IBlogPost> {
   try {
     console.log('Service: Updating blog post with ID:', id)
-    const response = await apiPut<BlogPost>(`/v1/blog/id/${id}`, formData, {
+    const response = await apiPut<IBlogPost>(`/v1/blog/id/${id}`, formData, {
       headers: {
         // Don't set Content-Type header, let the browser set it with the boundary for multipart/form-data
       },
@@ -126,9 +126,9 @@ export async function updateBlogPost(id: string, formData: FormData): Promise<Bl
  * Fetch a single blog post by ID
  * @param id The blog post ID
  */
-export async function fetchBlogPostById(id: string): Promise<BlogPost> {
+export async function fetchBlogPostById(id: string): Promise<IBlogPost> {
   try {
-    const response = await apiGet<BlogPost>(`/v1/blog/id/${id}`)
+    const response = await apiGet<IBlogPost>(`/v1/blog/id/${id}`)
 
     if (response?.success && response.data) {
       return response.data
@@ -162,11 +162,11 @@ export async function deleteBlogPost(id: string): Promise<void> {
  * Fetch all blog posts for admin (including unpublished)
  * @param limit Optional number of posts to fetch
  */
-export async function fetchAdminPosts(limit?: number): Promise<BlogPostPreview[]> {
+export async function fetchAdminPosts(limit?: number): Promise<IBlogPostPreview[]> {
   try {
     const endpoint = '/v1/blog/admin/all'
     const params = limit ? `?limit=${limit}` : ''
-    const response = await apiGet<BlogPostPreview[]>(endpoint + params)
+    const response = await apiGet<IBlogPostPreview[]>(endpoint + params)
 
     if (response?.success && Array.isArray(response.data)) {
       return response.data

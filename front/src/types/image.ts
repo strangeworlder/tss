@@ -5,9 +5,12 @@
 
 // Available image sizes
 export enum ImageSizeEnum {
-  THUMBNAIL = 'thumbnail',
+  SMALL = 'small',
   MEDIUM = 'medium',
-  FULL = 'full',
+  LARGE = 'large',
+  XLARGE = 'xlarge',
+  THUMBNAIL = 'thumbnail',
+  FULL = 'full'
 }
 
 // Available image formats
@@ -40,4 +43,13 @@ export interface ImageUrlResponse {
   url: string
   size: string
   format: string
+}
+
+export interface IImage {
+  filename: string
+  altText: string
+  size?: ImageSizeEnum
+  width?: number
+  height?: number
+  url?: string
 }

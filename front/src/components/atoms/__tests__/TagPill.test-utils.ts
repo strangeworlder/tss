@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { vi } from 'vitest'
+import { createRouter, createWebHistory } from 'vue-router'
 import TagPill from '../TagPill.vue'
 import { createTagPillProps } from './__fixtures__/TagPill.fixture'
 
@@ -17,16 +18,17 @@ interface ITagPillProps {
  * @returns The mounted component
  */
 export function mountTagPill(props: ITagPillProps = createTagPillProps()) {
+  const router = createRouter({
+    history: createWebHistory(),
+    routes: [],
+  })
+
   return mount(TagPill, {
     props,
     global: {
+      plugins: [router],
       stubs: {
         'router-link': true,
-      },
-      mocks: {
-        $router: {
-          push: vi.fn(),
-        },
       },
     },
   })

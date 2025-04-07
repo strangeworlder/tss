@@ -1,5 +1,6 @@
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { vi } from 'vitest'
+import { createRouter, createWebHistory } from 'vue-router'
 import BackButton from '../BackButton.vue'
 import { createBackButtonProps } from './__fixtures__/BackButton.fixture'
 
@@ -14,15 +15,17 @@ interface BackButtonProps {
  * @returns VueWrapper instance
  */
 export const mountBackButton = (props = {}): VueWrapper => {
-  const routerPushMock = vi.fn()
+  const router = createRouter({
+    history: createWebHistory(),
+    routes: [],
+  })
 
   return mount(BackButton, {
     props: createBackButtonProps(props) as BackButtonProps,
     global: {
-      mocks: {
-        $router: {
-          push: routerPushMock,
-        },
+      plugins: [router],
+      stubs: {
+        'router-link': true,
       },
     },
   })

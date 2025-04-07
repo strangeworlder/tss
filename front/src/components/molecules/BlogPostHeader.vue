@@ -21,16 +21,31 @@
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
 import TagPill from '@/components/atoms/TagPill.vue'
 import BackButton from '@/components/atoms/BackButton.vue'
-import type { BlogPost } from '@/types/blog'
+import type { IBlogPost, Author } from '@/types/blog'
+import type { IUser } from '@/types/user'
 
 interface Props {
-  post: BlogPost
+  post: IBlogPost
   showBackButton?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
   showBackButton: true,
 })
+
+/**
+ * Maps an IUser to an Author
+ * @param user - The user to map
+ * @returns An Author object
+ */
+const mapUserToAuthor = (user: IUser): Author => {
+  return {
+    type: 'user',
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    avatar: user.avatar,
+  }
+}
 </script>
 
 <template>
@@ -45,7 +60,7 @@ withDefaults(defineProps<Props>(), {
     <h1 class="blog-post-header__title">{{ post.title }}</h1>
 
     <div class="blog-post-header__meta">
-      <AuthorInfo :author="post.author" :date="post.publishedAt || undefined" size="md" />
+      <AuthorInfo :author="mapUserToAuthor(post.author)" :date="post.publishedAt || undefined" size="md" />
     </div>
 
     <div v-if="post.tags && post.tags.length > 0" class="blog-post-header__tags">

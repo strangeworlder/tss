@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mountTagPill } from './TagPill.test-utils'
 import { mockTagPills } from './__fixtures__/TagPill.fixture'
+import { createRouter, createWebHistory } from 'vue-router'
 
 describe('TagPill', () => {
   it('renders correctly with default props', () => {
@@ -29,19 +30,29 @@ describe('TagPill', () => {
   })
 
   it('navigates to correct route when clicked', async () => {
+    const router = createRouter({
+      history: createWebHistory(),
+      routes: [],
+    })
+    const pushSpy = vi.spyOn(router, 'push')
+    
     const wrapper = mountTagPill()
-    const router = wrapper.vm.$router
-
     await wrapper.trigger('click')
-    expect(router.push).toHaveBeenCalledWith('/blog/tag/test-tag')
+    
+    expect(pushSpy).toHaveBeenCalledWith('/blog/tag/test-tag')
   })
 
   it('does not navigate when not clickable', async () => {
+    const router = createRouter({
+      history: createWebHistory(),
+      routes: [],
+    })
+    const pushSpy = vi.spyOn(router, 'push')
+    
     const wrapper = mountTagPill(mockTagPills.nonClickable)
-    const router = wrapper.vm.$router
-
     await wrapper.trigger('click')
-    expect(router.push).not.toHaveBeenCalled()
+    
+    expect(pushSpy).not.toHaveBeenCalled()
   })
 
   it('applies correct styling for primary variant', () => {

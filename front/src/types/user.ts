@@ -1,23 +1,30 @@
+/**
+ * Enum representing user roles in the system
+ */
 export enum UserRole {
-  USER = 'user',
-  AUTHOR = 'author',
   ADMIN = 'admin',
+  EDITOR = 'editor',
+  USER = 'user'
+}
+
+/**
+ * Interface representing a user in the system
+ */
+export interface IUser {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: UserRole
+  avatar?: {
+    filename: string
+    altText: string
+  }
 }
 
 export interface IUserAvatar {
   filename: string
   altText: string
-}
-
-export interface IUser {
-  id: string
-  _id?: string // MongoDB _id field
-  firstName: string
-  lastName: string
-  email: string
-  role: UserRole
-  avatar?: IUserAvatar
-  bio?: string
 }
 
 export interface IAuthResponse {

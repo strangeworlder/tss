@@ -7,6 +7,7 @@ import AppImage from '@/components/atoms/AppImage.vue'
 import { ImageSizeEnum } from '@/types/image'
 import { deleteBlogPost } from '@/api/blogService'
 import type { IUser } from '@/types/user'
+import type { IBlogPost } from '@/types/blog'
 import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
@@ -52,7 +53,7 @@ onMounted(async () => {
       // Map the users to ensure we have the correct ID field
       users.value = fetchedUsers.map((user: IUser) => ({
         ...user,
-        id: user._id || user.id, // Use _id if available, fallback to id
+        id: user.id, // Use id property only
       }))
       console.log('Fetched users:', users.value)
       console.log('First user ID:', users.value[0]?.id)
@@ -294,6 +295,21 @@ const handleDelete = async () => {
       type: 'error',
       message: error instanceof Error ? error.message : 'Failed to delete post',
     })
+  }
+}
+
+const createInitialPost = (user: IUser): IBlogPost => {
+  return {
+    id: user.id,
+    title: '',
+    slug: '',
+    content: '',
+    excerpt: '',
+    author: user,
+    tags: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isPublished: false
   }
 }
 

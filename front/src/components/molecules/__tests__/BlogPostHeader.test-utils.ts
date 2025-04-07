@@ -1,13 +1,13 @@
 import { mount } from '@vue/test-utils'
 import BlogPostHeader from '../BlogPostHeader.vue'
-import type { BlogPost } from '@/types/blog'
+import type { IBlogPost } from '@/types/blog'
 import { createBlogPostHeaderProps } from './__fixtures__/BlogPostHeader.fixture'
 
 /**
  * Interface for BlogPostHeader component props
  */
 interface IBlogPostHeaderProps {
-  post: BlogPost
+  post: IBlogPost
   showBackButton?: boolean
 }
 

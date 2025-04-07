@@ -1,7 +1,8 @@
-import type { BlogPost } from '@/types/blog'
+import type { IBlogPost } from '@/types/blog'
+import { UserRole } from '@/types/user'
 
 interface BlogPostHeaderProps {
-  post: BlogPost
+  post: IBlogPost
   showBackButton?: boolean
 }
 
@@ -19,9 +20,11 @@ export function createBlogPostHeaderProps(overrides: Partial<BlogPostHeaderProps
       content: 'This is the full content of the test blog post.',
       excerpt: 'This is the excerpt of the test blog post.',
       author: {
-        type: 'user' as const,
         id: 'user1',
-        name: 'Test Author',
+        firstName: 'Test',
+        lastName: 'Author',
+        email: 'test.author@example.com',
+        role: UserRole.USER,
         avatar: {
           filename: 'avatar.jpg',
           altText: 'Test Author Avatar',
@@ -55,7 +58,7 @@ export const mockBlogPostHeaders = {
   noPublishedDate: createBlogPostHeaderProps({
     post: {
       ...createBlogPostHeaderProps().post,
-      publishedAt: null,
+      publishedAt: undefined,
     },
   }),
   longTitle: createBlogPostHeaderProps({

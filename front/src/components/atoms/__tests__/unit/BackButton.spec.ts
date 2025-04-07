@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { createRouter, createWebHistory } from 'vue-router'
 import {
   mountBackButton,
   clickBackButton,
   pressEnterOnBackButton,
   getButtonText,
-  wasRouterPushCalledWith,
 } from '../BackButton.test-utils'
 import { mockBackButtons } from '../__fixtures__/BackButton.fixture'
 
@@ -30,27 +30,42 @@ describe('BackButton', () => {
 
   describe('navigation', () => {
     it('should navigate to default path when clicked', async () => {
+      const router = createRouter({
+        history: createWebHistory(),
+        routes: [],
+      })
+      const pushSpy = vi.spyOn(router, 'push')
+      
       const wrapper = mountBackButton()
-
       await clickBackButton(wrapper)
 
-      expect(wasRouterPushCalledWith(wrapper, '/')).toBe(true)
+      expect(pushSpy).toHaveBeenCalledWith('/')
     })
 
     it('should navigate to custom path when clicked', async () => {
+      const router = createRouter({
+        history: createWebHistory(),
+        routes: [],
+      })
+      const pushSpy = vi.spyOn(router, 'push')
+      
       const wrapper = mountBackButton(mockBackButtons.customPath)
-
       await clickBackButton(wrapper)
 
-      expect(wasRouterPushCalledWith(wrapper, '/dashboard')).toBe(true)
+      expect(pushSpy).toHaveBeenCalledWith('/dashboard')
     })
 
     it('should navigate when Enter key is pressed', async () => {
+      const router = createRouter({
+        history: createWebHistory(),
+        routes: [],
+      })
+      const pushSpy = vi.spyOn(router, 'push')
+      
       const wrapper = mountBackButton(mockBackButtons.customBoth)
-
       await pressEnterOnBackButton(wrapper)
 
-      expect(wasRouterPushCalledWith(wrapper, '/profile')).toBe(true)
+      expect(pushSpy).toHaveBeenCalledWith('/profile')
     })
   })
 
