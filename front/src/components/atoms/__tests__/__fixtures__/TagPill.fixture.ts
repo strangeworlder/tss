@@ -1,14 +1,23 @@
 /**
+ * TagPill component props interface
+ */
+interface TagPillProps {
+  tag: string
+  clickable?: boolean
+  variant?: 'primary' | 'secondary'
+}
+
+/**
  * Creates a default set of props for the TagPill component
  * @param overrides - Props to override the defaults
  * @returns The props for the TagPill component
  */
-export function createTagPillProps(overrides: Record<string, any> = {}) {
+export function createTagPillProps(overrides: Partial<TagPillProps> = {}) {
   return {
     tag: 'test-tag',
     clickable: true,
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -30,4 +39,4 @@ export const mockTagPills = {
     tag: 'secondary-tag',
     variant: 'secondary',
   }),
-};
+}

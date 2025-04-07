@@ -1,14 +1,14 @@
-import { mount } from '@vue/test-utils';
-import BlogPostHeader from '../BlogPostHeader.vue';
-import type { BlogPost } from '@/types/blog';
-import { createBlogPostHeaderProps } from './__fixtures__/BlogPostHeader.fixture';
+import { mount } from '@vue/test-utils'
+import BlogPostHeader from '../BlogPostHeader.vue'
+import type { BlogPost } from '@/types/blog'
+import { createBlogPostHeaderProps } from './__fixtures__/BlogPostHeader.fixture'
 
 /**
  * Interface for BlogPostHeader component props
  */
 interface IBlogPostHeaderProps {
-  post: BlogPost;
-  showBackButton?: boolean;
+  post: BlogPost
+  showBackButton?: boolean
 }
 
 /**
@@ -19,7 +19,7 @@ interface IBlogPostHeaderProps {
 export function mountBlogPostHeader(props: IBlogPostHeaderProps = createBlogPostHeaderProps()) {
   return mount(BlogPostHeader, {
     props,
-  });
+  })
 }
 
 /**
@@ -52,5 +52,5 @@ export function createDefaultBlogPostHeaderProps(overrides: Partial<IBlogPostHea
     },
     showBackButton: true,
     ...overrides,
-  };
+  }
 }

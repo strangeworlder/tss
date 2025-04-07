@@ -1,68 +1,65 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useBlogStore } from '@/stores/blogStore';
-import BlogPostCard from '@/components/organisms/BlogPostCard.vue';
-import { checkApiHealth } from '@/api/apiClient';
-import Button from '@/components/atoms/Button.vue';
-import { BlogPostTitleVariantEnum } from '@/types/blogPost';
-import { ButtonVariantEnum } from '@/types/button';
+import { ref, onMounted, computed } from 'vue'
+import { useBlogStore } from '@/stores/blogStore'
+import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
+import { checkApiHealth } from '@/api/apiClient'
+import Button from '@/components/atoms/Button.vue'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import { ButtonVariantEnum } from '@/types/button'
 
 // Get the blog store
-const blogStore = useBlogStore();
-const storeLoading = computed(() => blogStore.loading);
-const storeError = computed(() => blogStore.error);
-const loading = ref(false);
-const error = ref<string | null>(null);
+const blogStore = useBlogStore()
+const loading = ref(false)
+const error = ref<string | null>(null)
 
 // Get only 3 most recent posts for the homepage
 const recentPosts = computed(() => {
-  return blogStore.posts.slice(0, 3);
-});
+  return blogStore.posts.slice(0, 3)
+})
 
 // Fetch recent blog posts from the API
 const fetchRecentPosts = async () => {
-  loading.value = true;
-  error.value = null;
+  loading.value = true
+  error.value = null
 
   try {
     // First check if the API is available
-    const isHealthy = await checkApiHealth();
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const isHealthy = await checkApiHealth()
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
     if (!isHealthy) {
-      error.value =
-        `API server ${API_BASE_URL}/health is not available. Please make sure the backend server is running.`;
-      return;
+      error.value = `API server ${API_BASE_URL}/health is not available. Please make sure the backend server is running.`
+      return
     }
 
     // Use the store action to fetch posts (limit to 3 for homepage)
-    await blogStore.fetchPosts(3);
+    await blogStore.fetchPosts(3)
   } catch (err) {
-    console.error('Error fetching recent posts:', err);
+    console.error('Error fetching recent posts:', err)
     error.value =
       err instanceof Error
         ? err.message
-        : 'Failed to load recent posts. Please make sure the backend server is running.';
+        : 'Failed to load recent posts. Please make sure the backend server is running.'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // Format date (2023-10-15T14:30:00Z -> October 15, 2023)
 const formatDate = (dateString: string | null) => {
-  if (!dateString) return '';
+  if (!dateString) return ''
 
-  const date = new Date(dateString);
+  const date = new Date(dateString)
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  });
-};
+  })
+}
 
 onMounted(() => {
-  fetchRecentPosts();
-});
+  fetchRecentPosts()
+})
 </script>
 
 <template>
@@ -71,7 +68,9 @@ onMounted(() => {
       <div class="container home-view__hero-container">
         <h1 class="home-view__hero-title">Welcome to Vue Blog</h1>
         <p class="home-view__hero-text">A modern blog built with Vue 3 and TypeScript.</p>
-        <Button to="/blog" :variant="ButtonVariantEnum.PRIMARY" class="home-view__cta"> Read All Blog Posts </Button>
+        <Button to="/blog" :variant="ButtonVariantEnum.PRIMARY" class="home-view__cta">
+          Read All Blog Posts
+        </Button>
       </div>
     </section>
 

@@ -17,12 +17,12 @@
   - Maintains proper text contrast
 -->
 <script setup lang="ts">
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
-import type { Author } from '@/types/blog';
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
+import type { Author } from '@/types/blog'
 
 interface Props {
-  date: string;
-  author: Author;
+  date: string
+  author: Author
 }
 
 withDefaults(defineProps<Props>(), {
@@ -33,7 +33,7 @@ withDefaults(defineProps<Props>(), {
       type: 'text',
       id: undefined,
     }) as Author,
-});
+})
 </script>
 
 <template>

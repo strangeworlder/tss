@@ -18,19 +18,19 @@
   - No redundant ARIA attributes
 -->
 <script setup lang="ts">
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
-import TagPill from '@/components/atoms/TagPill.vue';
-import BackButton from '@/components/atoms/BackButton.vue';
-import type { BlogPost } from '@/types/blog';
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
+import TagPill from '@/components/atoms/TagPill.vue'
+import BackButton from '@/components/atoms/BackButton.vue'
+import type { BlogPost } from '@/types/blog'
 
 interface Props {
-  post: BlogPost;
-  showBackButton?: boolean;
+  post: BlogPost
+  showBackButton?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
   showBackButton: true,
-});
+})
 </script>
 
 <template>

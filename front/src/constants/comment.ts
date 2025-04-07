@@ -8,4 +8,4 @@ export const COMMENT_CONSTANTS = {
   DELETE_BUTTON_TEXT: 'Delete',
   SUBMIT_BUTTON_TEXT: 'Submit',
   CANCEL_BUTTON_TEXT: 'Cancel',
-} as const;
+} as const

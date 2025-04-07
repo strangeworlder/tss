@@ -33,31 +33,24 @@ Usage:
 -->
 
 <template>
-  <p 
-    v-if="message" 
-    class="form-error" 
-    role="alert"
-    :class="className"
-  >
+  <p v-if="message" class="form-error" role="alert" :class="className">
     {{ message }}
   </p>
 </template>
 
 <script setup lang="ts">
-import type { IFormErrorProps } from '@/types/form';
-
-const props = withDefaults(
+withDefaults(
   defineProps<{
-    message?: string;
-    className?: string;
-    id?: string;
+    message?: string
+    className?: string
+    id?: string
   }>(),
   {
     message: '',
     className: '',
     id: undefined,
-  }
-);
+  },
+)
 </script>
 
 <style scoped>
@@ -67,4 +60,4 @@ const props = withDefaults(
   margin-top: var(--spacing-xs);
   text-align: center;
 }
-</style> 
+</style>

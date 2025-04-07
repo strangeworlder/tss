@@ -6,8 +6,8 @@ export enum NotificationTypeEnum {
 }
 
 export interface INotification {
-  id: string;
-  type: NotificationTypeEnum;
-  message: string;
-  duration?: number; // Optional duration in milliseconds before auto-dismissal
+  id: string
+  type: NotificationTypeEnum
+  message: string
+  duration?: number // Optional duration in milliseconds before auto-dismissal
 }

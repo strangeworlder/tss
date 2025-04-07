@@ -61,22 +61,22 @@ Usage:
 </template>
 
 <script setup lang="ts">
-import InputField from '@/components/atoms/InputField.vue';
-import type { IFormFieldProps } from '@/types/form';
+import InputField from '@/components/atoms/InputField.vue'
+import type { IFormFieldProps } from '@/types/form'
 
-const props = withDefaults(defineProps<IFormFieldProps>(), {
+withDefaults(defineProps<IFormFieldProps>(), {
   type: 'text',
   required: false,
   placeholder: '',
   disabled: false,
   className: '',
-});
+})
 
-defineEmits<(e: 'update:modelValue', value: string) => void>();
+defineEmits<(e: 'update:modelValue', value: string) => void>()
 </script>
 
 <style scoped>
 .form-group {
   margin-bottom: var(--spacing-md);
 }
-</style> 
+</style>

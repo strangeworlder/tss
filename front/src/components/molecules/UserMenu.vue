@@ -20,18 +20,18 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
 
 defineProps<{
-  userName: string;
-  isOpen: boolean;
-  isProfileActive: boolean;
-}>();
+  userName: string
+  isOpen: boolean
+  isProfileActive: boolean
+}>()
 
 defineEmits<{
-  (e: 'toggle'): void;
-  (e: 'logout'): void;
-}>();
+  (e: 'toggle'): void
+  (e: 'logout'): void
+}>()
 </script>
 
 <style scoped>

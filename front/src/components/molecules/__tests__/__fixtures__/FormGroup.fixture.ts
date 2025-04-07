@@ -1,4 +1,4 @@
-import type { IFormFieldProps } from '@/types/form';
+import type { IFormFieldProps } from '@/types/form'
 
 /**
  * Creates a default set of props for the FormGroup component
@@ -11,7 +11,7 @@ export function createFormGroupProps(overrides = {}): IFormFieldProps {
     label: 'Test Label',
     modelValue: '',
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -49,4 +49,4 @@ export const mockFormGroups = {
     type: 'password',
     placeholder: 'Enter your password',
   }),
-};
+}

@@ -22,6 +22,7 @@ const isAuthor = computed(() => user.value?.role === UserRole.AUTHOR || isAdmin.
 ```
 
 #### Key Functions:
+
 - `setAuthData(userData, authToken)`: Stores user data and token
 - `clearAuthData()`: Clears authentication state
 - `fetchUserData()`: Retrieves user data using stored token
@@ -49,7 +50,7 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
     }
     return Promise.reject(error)
-  }
+  },
 )
 ```
 
@@ -63,9 +64,9 @@ const handleSubmit = async () => {
   const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData)
+    body: JSON.stringify(formData),
   })
-  
+
   const data = await response.json()
   authStore.setAuthData(data.user, data.token)
 }
@@ -74,15 +75,18 @@ const handleSubmit = async () => {
 ## Authentication Flow
 
 1. **Login Process**:
+
    - User submits login credentials
    - Backend validates and returns user data and JWT token
    - `authStore.setAuthData()` stores token in localStorage and user data in Pinia store
 
 2. **API Requests**:
+
    - API interceptor automatically injects token into request headers
    - Format: `Authorization: Bearer <token>`
 
 3. **Token Management**:
+
    - Token stored in localStorage with key `'token'`
    - Token automatically cleared on 401 responses
    - Token used for all authenticated API requests
@@ -95,12 +99,14 @@ const handleSubmit = async () => {
 ## Common Issues and Solutions
 
 1. **401 Unauthorized Errors**:
+
    - Check if token exists in localStorage
    - Verify token format in Authorization header
    - Ensure token hasn't expired
    - Check if token is being properly injected into requests
 
 2. **Token Storage**:
+
    - Always use `'token'` as the localStorage key
    - Use `authStore.setAuthData()` to store tokens
    - Use `authStore.clearAuthData()` to clear tokens
@@ -113,31 +119,34 @@ const handleSubmit = async () => {
 ## Best Practices
 
 1. **Token Storage**:
+
    ```typescript
    // ✅ Correct way to store token
    localStorage.setItem('token', token)
-   
+
    // ❌ Don't use different keys
    localStorage.setItem('auth', token)
    ```
 
 2. **API Requests**:
+
    ```typescript
    // ✅ Correct way to make authenticated requests
    const response = await api.get('/endpoint')
-   
+
    // ❌ Don't manually add headers
    const response = await fetch('/endpoint', {
-     headers: { Authorization: `Bearer ${token}` }
+     headers: { Authorization: `Bearer ${token}` },
    })
    ```
 
 3. **Auth State Management**:
+
    ```typescript
    // ✅ Correct way to manage auth state
    const authStore = useAuthStore()
    authStore.setAuthData(user, token)
-   
+
    // ❌ Don't manage auth state outside the store
    localStorage.setItem('token', token)
    ```
@@ -145,6 +154,7 @@ const handleSubmit = async () => {
 ## Testing Authentication
 
 1. **Login Test**:
+
    ```typescript
    test('login stores token correctly', async () => {
      const authStore = useAuthStore()
@@ -166,11 +176,13 @@ const handleSubmit = async () => {
 ## Security Considerations
 
 1. **Token Storage**:
+
    - Tokens are stored in localStorage (consider using httpOnly cookies for production)
    - Tokens are automatically cleared on 401 responses
    - Tokens are cleared on logout
 
 2. **API Security**:
+
    - All authenticated endpoints require valid JWT token
    - Tokens are validated on the backend
    - CORS is properly configured
@@ -185,11 +197,13 @@ const handleSubmit = async () => {
 When making changes to the authentication system:
 
 1. **Token Storage**:
+
    - Always use the auth store for token management
    - Keep using `'token'` as the localStorage key
    - Update both storage and retrieval methods together
 
 2. **API Configuration**:
+
    - Update interceptors when changing token format
    - Maintain consistent error handling
    - Keep CORS configuration up to date
@@ -198,4 +212,4 @@ When making changes to the authentication system:
    - Test login/logout flows
    - Verify token injection
    - Check error handling
-   - Test token expiration 
+   - Test token expiration

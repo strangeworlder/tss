@@ -29,13 +29,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import LoginForm from '@/components/organisms/LoginForm.vue';
-import RegisterForm from '@/components/organisms/RegisterForm.vue';
-import Button from '@/components/atoms/Button.vue';
-import { ButtonVariantEnum } from '@/types/button';
+import { ref } from 'vue'
+import LoginForm from '@/components/organisms/LoginForm.vue'
+import RegisterForm from '@/components/organisms/RegisterForm.vue'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
-const activeTab = ref('login');
+const activeTab = ref('login')
 </script>
 
 <style scoped>

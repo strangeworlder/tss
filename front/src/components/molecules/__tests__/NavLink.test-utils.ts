@@ -1,13 +1,13 @@
-import { mount } from '@vue/test-utils';
-import NavLink from '../NavLink.vue';
+import { mount } from '@vue/test-utils'
+import NavLink from '../NavLink.vue'
 
 /**
  * Interface for NavLink props
  */
 export interface INavLinkProps {
-  to: string;
-  isActive: boolean;
-  variant?: 'default' | 'auth';
+  to: string
+  isActive: boolean
+  variant?: 'default' | 'auth'
 }
 
 /**
@@ -21,7 +21,7 @@ export function createDefaultNavLinkProps(overrides: Partial<INavLinkProps> = {}
     isActive: false,
     variant: 'default',
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -37,5 +37,5 @@ export function mountNavLink(props: INavLinkProps = createDefaultNavLinkProps())
         RouterLink: true,
       },
     },
-  });
+  })
 }

@@ -1,6 +1,6 @@
-import type { ImageMetadata } from '@/types/image';
-import { ImageSizeEnum } from '@/types/image';
-import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import type { ImageMetadata } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 /**
  * Creates test props for the BlogPostImage component
@@ -13,7 +13,7 @@ export const createBlogPostImageProps = (overrides = {}) => ({
   size: ImageSizeEnum.MEDIUM,
   variant: BlogPostTitleVariantEnum.FULL,
   ...overrides,
-});
+})
 
 /**
  * BlogPostImage test cases
@@ -48,4 +48,4 @@ export const mockBlogPostImages = {
     size: ImageSizeEnum.MEDIUM,
     variant: BlogPostTitleVariantEnum.FULL,
   },
-};
+}

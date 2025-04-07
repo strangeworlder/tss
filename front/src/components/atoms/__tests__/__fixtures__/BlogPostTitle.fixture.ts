@@ -1,16 +1,21 @@
-import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+
+type BlogPostTitleProps = {
+  title: string
+  variant: BlogPostTitleVariantEnum
+}
 
 /**
  * Creates a default set of props for the BlogPostTitle component
  * @param overrides - Props to override the defaults
  * @returns The props for the BlogPostTitle component
  */
-export function createBlogPostTitleProps(overrides: Record<string, any> = {}) {
+export function createBlogPostTitleProps(overrides: Partial<BlogPostTitleProps> = {}) {
   return {
     title: 'Test Blog Post Title',
     variant: BlogPostTitleVariantEnum.FULL,
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -30,4 +35,4 @@ export const mockBlogPostTitles = {
   specialCharacters: createBlogPostTitleProps({
     title: 'Special & Characters < > " \' /',
   }),
-};
+}

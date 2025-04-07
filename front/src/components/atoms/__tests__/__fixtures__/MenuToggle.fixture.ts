@@ -1,13 +1,17 @@
+interface MenuToggleProps {
+  isOpen: boolean
+}
+
 /**
  * Creates a default set of props for the MenuToggle component
  * @param overrides - Props to override the defaults
  * @returns The props for the MenuToggle component
  */
-export function createMenuToggleProps(overrides: Record<string, any> = {}) {
+export function createMenuToggleProps(overrides: Partial<MenuToggleProps> = {}) {
   return {
     isOpen: false,
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -18,4 +22,4 @@ export const mockMenuToggles = {
   open: createMenuToggleProps({
     isOpen: true,
   }),
-};
+}

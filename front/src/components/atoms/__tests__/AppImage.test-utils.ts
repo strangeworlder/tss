@@ -1,6 +1,6 @@
-import { mount, type VueWrapper } from '@vue/test-utils';
-import AppImage from '../AppImage.vue';
-import { createImageProps } from './__fixtures__/AppImage.fixture';
+import { mount, type VueWrapper } from '@vue/test-utils'
+import AppImage from '../AppImage.vue'
+import { createImageProps } from './__fixtures__/AppImage.fixture'
 
 /**
  * Mounts the AppImage component with the given props
@@ -10,16 +10,16 @@ import { createImageProps } from './__fixtures__/AppImage.fixture';
 export const mountAppImage = (props = {}): VueWrapper => {
   return mount(AppImage, {
     props: createImageProps(props),
-  });
-};
+  })
+}
 
 /**
  * Simulates an image error event
  * @param wrapper - VueWrapper instance
  */
 export const simulateImageError = async (wrapper: VueWrapper): Promise<void> => {
-  await wrapper.trigger('error');
-};
+  await wrapper.trigger('error')
+}
 
 /**
  * Checks if the image has error styling
@@ -27,8 +27,8 @@ export const simulateImageError = async (wrapper: VueWrapper): Promise<void> => 
  * @returns boolean indicating if error styling is applied
  */
 export const hasErrorStyling = (wrapper: VueWrapper): boolean => {
-  return wrapper.classes().includes('image-component--error');
-};
+  return wrapper.classes().includes('image-component--error')
+}
 
 /**
  * Gets the current image source
@@ -36,5 +36,5 @@ export const hasErrorStyling = (wrapper: VueWrapper): boolean => {
  * @returns string representing the current image source
  */
 export const getImageSource = (wrapper: VueWrapper): string => {
-  return wrapper.attributes('src') || '';
-};
+  return wrapper.attributes('src') || ''
+}

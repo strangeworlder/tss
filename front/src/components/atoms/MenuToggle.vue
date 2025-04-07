@@ -42,10 +42,10 @@
  * - Includes aria-label for clear purpose indication
  -->
 <template>
-  <Button 
-    :variant="ButtonVariantEnum.TEXT" 
-    class="menu-toggle" 
-    @click="$emit('toggle')" 
+  <Button
+    :variant="ButtonVariantEnum.TEXT"
+    class="menu-toggle"
+    @click="$emit('toggle')"
     :aria-expanded="isOpen"
     :aria-label="'Toggle menu'"
   >
@@ -54,18 +54,18 @@
 </template>
 
 <script setup lang="ts">
-import Button from '@/components/atoms/Button.vue';
-import { ButtonVariantEnum } from '@/types/button';
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 interface IMenuToggleProps {
-  isOpen: boolean;
+  isOpen: boolean
 }
 
 withDefaults(defineProps<IMenuToggleProps>(), {
   isOpen: false,
-});
+})
 
-defineEmits<(e: 'toggle') => void>();
+defineEmits<(e: 'toggle') => void>()
 </script>
 
 <style scoped>

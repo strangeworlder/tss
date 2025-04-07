@@ -34,21 +34,21 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
 
 /**
  * Props interface for NavLink component
  */
 interface INavLinkProps {
   /** The route to navigate to */
-  to: string;
+  to: string
   /** Whether the link is currently active */
-  isActive: boolean;
+  isActive: boolean
   /** The visual variant of the link */
-  variant?: 'default' | 'auth';
+  variant?: 'default' | 'auth'
 }
 
-defineProps<INavLinkProps>();
+defineProps<INavLinkProps>()
 </script>
 
 <style scoped>

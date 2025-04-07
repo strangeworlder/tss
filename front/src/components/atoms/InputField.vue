@@ -45,13 +45,7 @@ Usage:
 -->
 
 <template>
-  <div 
-    class="input-field" 
-    :class="[
-      { 'input-field--error': error },
-      className
-    ]"
-  >
+  <div class="input-field" :class="[{ 'input-field--error': error }, className]">
     <label :for="id" class="input-field__label">{{ label }}</label>
     <input
       :id="id"
@@ -65,29 +59,24 @@ Usage:
       :aria-invalid="!!error"
       :aria-describedby="error ? `${id}-error` : undefined"
     />
-    <p 
-      v-if="error" 
-      :id="`${id}-error`"
-      class="input-field__error"
-      role="alert"
-    >
+    <p v-if="error" :id="`${id}-error`" class="input-field__error" role="alert">
       {{ error }}
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { IFormFieldProps } from '@/types/form';
+import type { IFormFieldProps } from '@/types/form'
 
-const props = withDefaults(defineProps<IFormFieldProps>(), {
+withDefaults(defineProps<IFormFieldProps>(), {
   type: 'text',
   required: false,
   placeholder: '',
   disabled: false,
   className: '',
-});
+})
 
-defineEmits<(e: 'update:modelValue', value: string) => void>();
+defineEmits<(e: 'update:modelValue', value: string) => void>()
 </script>
 
 <style scoped>
@@ -134,4 +123,4 @@ defineEmits<(e: 'update:modelValue', value: string) => void>();
   font-size: var(--font-size-xs);
   margin-top: var(--spacing-xs);
 }
-</style> 
+</style>

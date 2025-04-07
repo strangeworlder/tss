@@ -1,15 +1,15 @@
-import { mount, type VueWrapper } from '@vue/test-utils';
-import BlogPostImage from '../BlogPostImage.vue';
-import { createBlogPostImageProps } from './__fixtures__/BlogPostImage.fixture';
-import type { ImageSizeEnum } from '@/types/image';
-import type { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import { mount, type VueWrapper } from '@vue/test-utils'
+import BlogPostImage from '../BlogPostImage.vue'
+import { createBlogPostImageProps } from './__fixtures__/BlogPostImage.fixture'
+import type { ImageSizeEnum } from '@/types/image'
+import type { BlogPostTitleVariantEnum } from '@/types/blogPost'
 
 interface BlogPostImageProps {
-  filename?: string;
-  url?: string;
-  alt: string;
-  size?: ImageSizeEnum;
-  variant?: BlogPostTitleVariantEnum;
+  filename?: string
+  url?: string
+  alt: string
+  size?: ImageSizeEnum
+  variant?: BlogPostTitleVariantEnum
 }
 
 /**
@@ -25,8 +25,8 @@ export const mountBlogPostImage = (props = {}): VueWrapper => {
         AppImage: true,
       },
     },
-  });
-};
+  })
+}
 
 /**
  * Gets the variant class applied to the component
@@ -34,9 +34,9 @@ export const mountBlogPostImage = (props = {}): VueWrapper => {
  * @returns string representing the variant class
  */
 export const getVariantClass = (wrapper: VueWrapper): string => {
-  const classes = wrapper.find('.blog-post-image').classes();
-  return classes.find((cls) => cls.startsWith('blog-post-image--')) || '';
-};
+  const classes = wrapper.find('.blog-post-image').classes()
+  return classes.find((cls) => cls.startsWith('blog-post-image--')) || ''
+}
 
 /**
  * Checks if the component has the correct aria-label
@@ -45,8 +45,8 @@ export const getVariantClass = (wrapper: VueWrapper): string => {
  * @returns boolean indicating if aria-label matches
  */
 export const hasCorrectAriaLabel = (wrapper: VueWrapper, expectedLabel: string): boolean => {
-  return wrapper.find('.blog-post-image').attributes('aria-label') === expectedLabel;
-};
+  return wrapper.find('.blog-post-image').attributes('aria-label') === expectedLabel
+}
 
 /**
  * Checks if the component has the correct role
@@ -54,5 +54,5 @@ export const hasCorrectAriaLabel = (wrapper: VueWrapper, expectedLabel: string):
  * @returns boolean indicating if role is 'img'
  */
 export const hasCorrectRole = (wrapper: VueWrapper): boolean => {
-  return wrapper.find('.blog-post-image').attributes('role') === 'img';
-};
+  return wrapper.find('.blog-post-image').attributes('role') === 'img'
+}

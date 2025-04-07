@@ -27,14 +27,14 @@
  * - Inherits accessibility features from Button component
  -->
 <script setup lang="ts">
-import Button from '@/components/atoms/Button.vue';
-import { ButtonVariantEnum } from '@/types/button';
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 interface IReadMoreButtonProps {
-  to: string;
+  to: string
 }
 
-defineProps<IReadMoreButtonProps>();
+defineProps<IReadMoreButtonProps>()
 </script>
 
 <template>

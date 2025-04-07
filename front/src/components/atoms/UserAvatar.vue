@@ -1,11 +1,5 @@
 <template>
-  <div 
-    class="avatar" 
-    :class="[
-      `avatar--${size}`,
-      { 'avatar--error': hasError }
-    ]"
-  >
+  <div class="avatar" :class="[`avatar--${size}`, { 'avatar--error': hasError }]">
     <img
       v-if="src && !hasError"
       :src="imageUrl"
@@ -13,28 +7,23 @@
       class="avatar__image"
       @error="handleImageError"
     />
-    <img
-      v-else
-      :src="placeholderUrl"
-      :alt="alt"
-      class="avatar__image avatar__image--placeholder"
-    />
+    <img v-else :src="placeholderUrl" :alt="alt" class="avatar__image avatar__image--placeholder" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { getImageUrl } from '@/api/imageService';
-import { ImageSizeEnum, ImageFormatEnum } from '@/types/image';
+import { computed, ref } from 'vue'
+import { getImageUrl } from '@/api/imageService'
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
 
 /**
- * Avatar Component
+ * UserAvatar Component
  *
  * A reusable avatar component that displays a user's profile image or a placeholder image as a fallback.
  * Supports different sizes and handles image loading errors gracefully.
  *
  * @example
- * <Avatar
+ * <UserAvatar
  *   src="avatar-123456-1621234567890.webp"
  *   alt="John Doe's profile"
  *   size="md"
@@ -44,7 +33,7 @@ import { ImageSizeEnum, ImageFormatEnum } from '@/types/image';
 /**
  * Size options for the avatar component
  */
-type AvatarSize = 'sm' | 'md' | 'lg';
+type AvatarSize = 'sm' | 'md' | 'lg'
 
 /**
  * Avatar component props interface
@@ -54,67 +43,67 @@ interface IProps {
    * Source filename of the avatar image (from user.avatar.filename)
    * Can be a full URL (starting with http:// or /) or just the filename
    */
-  src?: string;
+  src?: string
   /**
    * Alternative text for the image (required for accessibility)
    */
-  alt: string;
+  alt: string
   /**
    * Size of the avatar component (sm, md, lg)
    */
-  size?: AvatarSize;
+  size?: AvatarSize
 }
 
 const props = withDefaults(defineProps<IProps>(), {
   src: undefined,
   size: 'md',
-});
+})
 
-const hasError = ref(false);
+const hasError = ref(false)
 
 // Map component size to ImageSize enum for API
 const getImageSize = (size?: string): ImageSizeEnum => {
   switch (size) {
     case 'sm':
-      return ImageSizeEnum.THUMBNAIL;
+      return ImageSizeEnum.THUMBNAIL
     case 'md':
-      return ImageSizeEnum.MEDIUM;
+      return ImageSizeEnum.MEDIUM
     case 'lg':
-      return ImageSizeEnum.FULL;
+      return ImageSizeEnum.FULL
     default:
-      return ImageSizeEnum.THUMBNAIL;
+      return ImageSizeEnum.THUMBNAIL
   }
-};
+}
 
 /**
  * Computed image URL based on src prop and size
  */
 const imageUrl = computed(() => {
-  if (hasError.value || !props.src) return '';
+  if (hasError.value || !props.src) return ''
 
   // If src is a full URL, use it directly
   if (props.src.startsWith('http') || props.src.startsWith('/')) {
-    return props.src;
+    return props.src
   }
 
   // Backend stores avatar images in /uploads/images/ directory
   // Using imageService to get proper URLs with sizing
-  return getImageUrl(props.src, getImageSize(props.size), ImageFormatEnum.WEBP);
-});
+  return getImageUrl(props.src, getImageSize(props.size), ImageFormatEnum.WEBP)
+})
 
 /**
  * Computed placeholder image URL
  */
 const placeholderUrl = computed(() => {
-  return getImageUrl('placeholder1.webp', getImageSize(props.size), ImageFormatEnum.WEBP);
-});
+  return getImageUrl('placeholder1.webp', getImageSize(props.size), ImageFormatEnum.WEBP)
+})
 
 /**
  * Handles image loading errors and switches to placeholder
  */
 const handleImageError = () => {
-  hasError.value = true;
-};
+  hasError.value = true
+}
 </script>
 
 <style scoped>
@@ -125,7 +114,9 @@ const handleImageError = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
   border: 0.125rem solid transparent;
 }
 

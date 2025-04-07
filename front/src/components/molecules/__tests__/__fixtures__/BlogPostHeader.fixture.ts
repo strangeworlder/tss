@@ -1,11 +1,16 @@
-import type { BlogPost } from '@/types/blog';
+import type { BlogPost } from '@/types/blog'
+
+interface BlogPostHeaderProps {
+  post: BlogPost
+  showBackButton?: boolean
+}
 
 /**
  * Creates a default set of props for the BlogPostHeader component
  * @param overrides - Props to override the defaults
  * @returns The props for the BlogPostHeader component
  */
-export function createBlogPostHeaderProps(overrides: Record<string, any> = {}) {
+export function createBlogPostHeaderProps(overrides: Partial<BlogPostHeaderProps> = {}) {
   return {
     post: {
       id: '1',
@@ -30,7 +35,7 @@ export function createBlogPostHeaderProps(overrides: Record<string, any> = {}) {
     },
     showBackButton: true,
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -60,4 +65,4 @@ export const mockBlogPostHeaders = {
         'This is a very long blog post title that should wrap to multiple lines on smaller screens',
     },
   }),
-};
+}

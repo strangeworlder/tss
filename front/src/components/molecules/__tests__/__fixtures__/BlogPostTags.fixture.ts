@@ -17,7 +17,7 @@ export const mockTags = {
     'css',
   ],
   single: ['vue'],
-};
+}
 
 /**
  * Creates mock tags with custom values
@@ -25,5 +25,5 @@ export const mockTags = {
  * @returns Array of mock tags
  */
 export function createMockTags(count: number): string[] {
-  return Array.from({ length: count }, (_, i) => `tag-${i + 1}`);
+  return Array.from({ length: count }, (_, i) => `tag-${i + 1}`)
 }

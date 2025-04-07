@@ -1,40 +1,40 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import BlogPostList from '@/components/organisms/admin/BlogPostList.vue';
-import BlogPostEditor from '@/components/organisms/admin/BlogPostEditor.vue';
-import { useBlogStore } from '@/stores/blogStore';
-import { useAuthStore } from '@/stores/authStore';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import BlogPostList from '@/components/organisms/admin/BlogPostList.vue'
+import BlogPostEditor from '@/components/organisms/admin/BlogPostEditor.vue'
+import { useBlogStore } from '@/stores/blogStore'
+import { useAuthStore } from '@/stores/authStore'
 
-const router = useRouter();
-const blogStore = useBlogStore();
-const authStore = useAuthStore();
-const activeTab = ref<'list' | 'editor'>('list');
-const editingPostId = ref<string | null>(null);
-const isAuthorized = ref(false);
+const router = useRouter()
+const blogStore = useBlogStore()
+const authStore = useAuthStore()
+const activeTab = ref<'list' | 'editor'>('list')
+const editingPostId = ref<string | null>(null)
+const isAuthorized = ref(false)
 
 onMounted(() => {
   if (!authStore.isAdmin) {
-    router.push('/');
-    return;
+    router.push('/')
+    return
   }
-  isAuthorized.value = true;
-});
+  isAuthorized.value = true
+})
 
 const handleEditPost = (postId: string) => {
-  editingPostId.value = postId;
-  activeTab.value = 'editor';
-};
+  editingPostId.value = postId
+  activeTab.value = 'editor'
+}
 
 const handleCreatePost = () => {
-  editingPostId.value = null;
-  activeTab.value = 'editor';
-};
+  editingPostId.value = null
+  activeTab.value = 'editor'
+}
 
 const handleBackToList = () => {
-  activeTab.value = 'list';
-  editingPostId.value = null;
-};
+  activeTab.value = 'list'
+  editingPostId.value = null
+}
 </script>
 
 <template>

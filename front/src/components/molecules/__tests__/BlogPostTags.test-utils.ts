@@ -1,6 +1,6 @@
-import { mount } from '@vue/test-utils';
-import BlogPostTags from '../BlogPostTags.vue';
-import type { Props } from '../BlogPostTags.types';
+import { mount } from '@vue/test-utils'
+import BlogPostTags from '../BlogPostTags.vue'
+import type { Props } from '../BlogPostTags.types'
 
 /**
  * Mounts the BlogPostTags component with the given props
@@ -19,7 +19,7 @@ export function mountComponent(props: Props) {
         },
       },
     },
-  });
+  })
 }
 
 /**
@@ -31,5 +31,5 @@ export function createDefaultProps(overrides: Partial<Props> = {}): Props {
   return {
     tags: ['default', 'tags'],
     ...overrides,
-  };
+  }
 }

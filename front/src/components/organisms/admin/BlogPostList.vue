@@ -1,48 +1,39 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useBlogStore } from '@/stores/blogStore';
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSizeEnum } from '@/types/image';
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
-import Button from '@/components/atoms/Button.vue';
-import { ButtonVariantEnum } from '@/types/button';
+import { ref, onMounted } from 'vue'
+import { useBlogStore } from '@/stores/blogStore'
+import AppImage from '@/components/atoms/AppImage.vue'
+import { ImageSizeEnum } from '@/types/image'
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
+import Button from '@/components/atoms/Button.vue'
+import { ButtonVariantEnum } from '@/types/button'
 
-const emit = defineEmits<(e: 'edit-post', postId: string) => void>();
+const emit = defineEmits<(e: 'edit-post', postId: string) => void>()
 
-const blogStore = useBlogStore();
-const loading = ref(true);
-const error = ref<string | null>(null);
-
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
+const blogStore = useBlogStore()
+const loading = ref(true)
+const error = ref<string | null>(null)
 
 const handleEditPost = (postId: string) => {
-  emit('edit-post', postId);
-};
+  emit('edit-post', postId)
+}
 
 const fetchPosts = async () => {
-  loading.value = true;
-  error.value = null;
+  loading.value = true
+  error.value = null
 
   try {
-    await blogStore.fetchAdminPosts();
+    await blogStore.fetchAdminPosts()
   } catch (err) {
-    console.error('Error fetching blog posts:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load blog posts';
+    console.error('Error fetching blog posts:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to load blog posts'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 onMounted(() => {
-  fetchPosts();
-});
+  fetchPosts()
+})
 </script>
 
 <template>
@@ -89,7 +80,9 @@ onMounted(() => {
             </span>
           </div>
           <div class="blog-post-list__actions">
-            <Button @click="handleEditPost(post.id)" :variant="ButtonVariantEnum.PRIMARY"> Edit </Button>
+            <Button @click="handleEditPost(post.id)" :variant="ButtonVariantEnum.PRIMARY">
+              Edit
+            </Button>
           </div>
         </div>
       </div>

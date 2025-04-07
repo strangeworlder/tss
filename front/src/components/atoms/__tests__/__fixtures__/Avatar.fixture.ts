@@ -8,7 +8,7 @@ export const createAvatarProps = (overrides = {}) => ({
   src: '',
   size: 'md',
   ...overrides,
-});
+})
 
 /**
  * Avatar test cases
@@ -46,4 +46,4 @@ export const mockAvatars = {
       size: 'lg',
     },
   },
-};
+}

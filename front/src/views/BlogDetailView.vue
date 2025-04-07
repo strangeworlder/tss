@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watchEffect } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useBlogStore } from '@/stores/blogStore';
-import AppImage from '@/components/atoms/AppImage.vue';
-import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue';
-import BackButton from '@/components/atoms/BackButton.vue';
-import BlogPostHeader from '@/components/molecules/BlogPostHeader.vue';
-import CommentList from '@/components/organisms/CommentList.vue';
-import { ImageSizeEnum } from '@/types/image';
-import { checkApiHealth } from '@/api/apiClient';
-import { marked } from 'marked';
-import { CommentParentTypeEnum } from '@/types/comment';
+import { ref, computed, onMounted, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useBlogStore } from '@/stores/blogStore'
+import AppImage from '@/components/atoms/AppImage.vue'
+import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue'
+import BackButton from '@/components/atoms/BackButton.vue'
+import BlogPostHeader from '@/components/molecules/BlogPostHeader.vue'
+import CommentList from '@/components/organisms/CommentList.vue'
+import { ImageSizeEnum } from '@/types/image'
+import { checkApiHealth } from '@/api/apiClient'
+import { marked } from 'marked'
+import { CommentParentTypeEnum } from '@/types/comment'
 
-const route = useRoute();
-const router = useRouter();
-const slug = computed(() => route.params.slug as string);
+const route = useRoute()
+const router = useRouter()
+const slug = computed(() => route.params.slug as string)
 
 // Get the blog store
-const blogStore = useBlogStore();
-const loading = ref(true);
-const error = ref<string | null>(null);
+const blogStore = useBlogStore()
+const loading = ref(true)
+const error = ref<string | null>(null)
 
 // Get the current post from the store
-const post = computed(() => blogStore.currentPost);
+const post = computed(() => blogStore.currentPost)
 
 // Configure marked options
 marked.setOptions({
@@ -31,56 +31,56 @@ marked.setOptions({
   headerIds: true,
   mangle: false,
   sanitize: true,
-});
+})
 
 // Parse content to HTML using marked
 const parsedContent = computed(() => {
-  if (!post.value?.content) return '';
-  return marked(post.value.content);
-});
+  if (!post.value?.content) return ''
+  return marked(post.value.content)
+})
 
 // Fetch the blog post when the component mounts or when the slug changes
 const fetchBlogPost = async () => {
   if (!slug.value) {
-    error.value = 'Blog post slug is missing';
-    loading.value = false;
-    return;
+    error.value = 'Blog post slug is missing'
+    loading.value = false
+    return
   }
 
-  loading.value = true;
-  error.value = null;
+  loading.value = true
+  error.value = null
 
   try {
-    const isHealthy = await checkApiHealth();
+    const isHealthy = await checkApiHealth()
 
     if (!isHealthy) {
-      error.value = 'API server is not available';
-      return;
+      error.value = 'API server is not available'
+      return
     }
 
-    await blogStore.fetchPostBySlug(slug.value);
+    await blogStore.fetchPostBySlug(slug.value)
 
     if (!blogStore.currentPost) {
-      error.value = 'Blog post not found';
+      error.value = 'Blog post not found'
     }
   } catch (err) {
-    console.error('Error fetching blog post:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load blog post';
+    console.error('Error fetching blog post:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to load blog post'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // Watch for changes in the route parameter
 watchEffect(() => {
   if (route.params.slug) {
-    fetchBlogPost();
+    fetchBlogPost()
   }
-});
+})
 
 onMounted(() => {
-  fetchBlogPost();
-});
+  fetchBlogPost()
+})
 </script>
 
 <template>

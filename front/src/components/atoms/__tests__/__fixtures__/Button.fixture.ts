@@ -1,18 +1,25 @@
-import { ButtonVariantEnum } from '@/types/button';
+import { ButtonVariantEnum } from '@/types/button'
+
+interface ButtonProps {
+  variant?: ButtonVariantEnum
+  disabled?: boolean
+  to?: string
+  ariaLabel?: string
+}
 
 /**
  * Creates a default set of props for the Button component
  * @param overrides - Props to override the defaults
  * @returns The props for the Button component
  */
-export function createButtonProps(overrides: Record<string, any> = {}) {
+export function createButtonProps(overrides: Partial<ButtonProps> = {}) {
   return {
     variant: ButtonVariantEnum.PRIMARY,
     disabled: false,
     to: undefined,
     ariaLabel: undefined,
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -38,4 +45,4 @@ export const mockButtons = {
   withAriaLabel: createButtonProps({
     ariaLabel: 'Accessible Button',
   }),
-};
+}

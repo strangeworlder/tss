@@ -1,5 +1,5 @@
 <!--
- * Button
+ * AppButton
  * 
  * A versatile button component that can be rendered as a button or router-link.
  * 
@@ -24,24 +24,24 @@
  * Usage Examples:
  * 
  * Basic usage:
- * <Button variant="primary" @click="handleClick">
+ * <AppButton variant="primary" @click="handleClick">
  *   Click Me
- * </Button>
+ * </AppButton>
  * 
  * As a router link:
- * <Button to="/some-path" variant="secondary">
+ * <AppButton to="/some-path" variant="secondary">
  *   Navigate
- * </Button>
+ * </AppButton>
  * 
  * Disabled button:
- * <Button variant="primary" disabled>
+ * <AppButton variant="primary" disabled>
  *   Disabled
- * </Button>
+ * </AppButton>
  * 
  * Button with no visible content:
- * <Button variant="primary" aria-label="Close dialog">
+ * <AppButton variant="primary" aria-label="Close dialog">
  *   <span class="visually-hidden">Close dialog</span>
- * </Button>
+ * </AppButton>
  * 
  * Accessibility:
  * - Uses semantic button element
@@ -66,8 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { ButtonVariantEnum } from '@/types/button';
+import { computed } from 'vue'
+import { ButtonVariantEnum } from '@/types/button'
 
 /**
  * Button component props interface
@@ -77,22 +77,22 @@ interface IButtonProps {
    * The visual variant of the button
    * @default 'primary'
    */
-  variant?: ButtonVariantEnum;
+  variant?: ButtonVariantEnum
   /**
    * Whether the button is disabled
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean
   /**
    * If provided, renders as a router-link with this destination
    * @default undefined
    */
-  to?: string;
+  to?: string
   /**
    * Accessible label for the button (only used when no content is provided)
    * @default undefined
    */
-  ariaLabel?: string;
+  ariaLabel?: string
 }
 
 const props = withDefaults(defineProps<IButtonProps>(), {
@@ -100,9 +100,9 @@ const props = withDefaults(defineProps<IButtonProps>(), {
   disabled: false,
   to: undefined,
   ariaLabel: undefined,
-});
+})
 
-const emit = defineEmits<(e: 'click', event: MouseEvent | KeyboardEvent) => void>();
+const emit = defineEmits<(e: 'click', event: MouseEvent | KeyboardEvent) => void>()
 
 /**
  * Computed property to check if the button has no visible content
@@ -111,8 +111,8 @@ const emit = defineEmits<(e: 'click', event: MouseEvent | KeyboardEvent) => void
 const hasNoContent = computed(() => {
   // In a real implementation, this would check if the slot is empty
   // For simplicity, we're assuming the ariaLabel prop indicates no content
-  return !!props.ariaLabel;
-});
+  return !!props.ariaLabel
+})
 
 /**
  * Handles click and keyboard events
@@ -120,9 +120,9 @@ const hasNoContent = computed(() => {
  */
 const handleClick = (event: MouseEvent | KeyboardEvent) => {
   if (!props.disabled) {
-    emit('click', event);
+    emit('click', event)
   }
-};
+}
 </script>
 
 <style scoped>

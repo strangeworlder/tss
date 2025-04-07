@@ -38,9 +38,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import AppImage from '@/components/atoms/AppImage.vue';
-import { ImageSizeEnum } from '@/types/image';
+import { defineComponent } from 'vue'
+import AppImage from '@/components/atoms/AppImage.vue'
+import { ImageSizeEnum } from '@/types/image'
 
 export default defineComponent({
   name: 'BlogHero',
@@ -63,9 +63,9 @@ export default defineComponent({
   setup() {
     return {
       ImageSizeEnum,
-    };
+    }
   },
-});
+})
 </script>
 
 <style scoped>
