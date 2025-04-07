@@ -1,38 +1,38 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
-import { computed, ref, onMounted } from 'vue'
-import NotificationList from '@/components/molecules/NotificationList.vue'
-import MenuToggle from '@/components/atoms/MenuToggle.vue'
-import AppNavigation from '@/components/organisms/AppNavigation.vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
+import { computed, ref, onMounted } from 'vue';
+import NotificationList from '@/components/molecules/NotificationList.vue';
+import MenuToggle from '@/components/atoms/MenuToggle.vue';
+import AppNavigation from '@/components/organisms/AppNavigation.vue';
 
-const router = useRouter()
-const authStore = useAuthStore()
-const isMenuOpen = ref(false)
-const isUserMenuOpen = ref(false)
+const router = useRouter();
+const authStore = useAuthStore();
+const isMenuOpen = ref(false);
+const isUserMenuOpen = ref(false);
 
 const userFullName = computed(() => {
-  if (!authStore.user) return ''
-  return `${authStore.user.firstName} ${authStore.user.lastName}`
-})
+  if (!authStore.user) return '';
+  return `${authStore.user.firstName} ${authStore.user.lastName}`;
+});
 
 const handleLogout = async () => {
-  await authStore.logout()
-  router.push('/auth')
-}
+  await authStore.logout();
+  router.push('/auth');
+};
 
 // Close menus when clicking outside
 onMounted(() => {
   document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement
+    const target = event.target as HTMLElement;
     if (!target.closest('.navigation') && !target.closest('.menu-toggle')) {
-      isMenuOpen.value = false
+      isMenuOpen.value = false;
     }
     if (!target.closest('.user-menu')) {
-      isUserMenuOpen.value = false
+      isUserMenuOpen.value = false;
     }
-  })
-})
+  });
+});
 </script>
 
 <template>

@@ -21,68 +21,74 @@
   - Ensures keyboard navigation for interactive elements
 -->
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useBlogStore } from '@/stores/blogStore'
-import AppImage from '@/components/atoms/AppImage.vue'
-import { ImageSizeEnum } from '@/types/image'
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
-import AppButton from '@/components/atoms/AppButton.vue'
-import { ButtonVariantEnum } from '@/types/button'
-import type { IUser } from '@/types/user'
-import type { Author } from '@/types/blog'
+import { ref, onMounted } from 'vue';
+import { useBlogStore } from '@/stores/blogStore';
+import AppImage from '@/components/atoms/AppImage.vue';
+import { ImageSizeEnum } from '@/types/image';
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
+import AppButton from '@/components/atoms/AppButton.vue';
+import { ButtonVariantEnum } from '@/types/button';
+import type { IUser } from '@/types/user';
+import type { Author } from '@/types/blog';
 
 /**
  * Emits when the edit button is clicked for a post
  * @param postId - The ID of the post to edit
  */
-const emit = defineEmits<(e: 'edit-post', postId: string) => void>()
+const emit = defineEmits<(e: 'edit-post', postId: string) => void>();
 
-const blogStore = useBlogStore()
-const loading = ref<boolean>(true)
-const error = ref<string | null>(null)
+const blogStore = useBlogStore();
+const loading = ref<boolean>(true);
+const error = ref<string | null>(null);
 
 /**
  * Maps an IUser to an Author
  * @param user - The user to map
  * @returns An Author object
  */
-const mapUserToAuthor = (user: IUser): Author => {
+const mapUserToAuthor = (user: IUser | undefined): Author => {
+  if (!user) {
+    return {
+      type: 'text',
+      name: 'Unknown Author',
+    };
+  }
   return {
     type: 'user',
     id: user.id,
     name: `${user.firstName} ${user.lastName}`,
     avatar: user.avatar,
-  }
-}
+  };
+};
 
 /**
  * Handles the edit button click for a post
  * @param postId - The ID of the post to edit
  */
 const handleEditPost = (postId: string): void => {
-  emit('edit-post', postId)
-}
+  emit('edit-post', postId);
+};
 
 /**
  * Fetches blog posts from the store
  */
 const fetchPosts = async (): Promise<void> => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
-    await blogStore.fetchAdminPosts()
+    await blogStore.fetchAdminPosts();
   } catch (err) {
     // Use a proper error handling system instead of console.error
-    error.value = err instanceof Error ? err.message : 'Failed to load blog posts'
+    error.value = err instanceof Error ? err.message : 'Failed to load blog posts';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 onMounted(() => {
-  fetchPosts()
-})
+  fetchPosts();
+});
 </script>
 
 <template>

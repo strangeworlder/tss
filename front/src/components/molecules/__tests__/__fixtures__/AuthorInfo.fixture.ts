@@ -1,5 +1,5 @@
-import type { Author } from '@/types/blog'
-import type { Props } from '../../AuthorInfo.types'
+import type { Author } from '@/types/blog';
+import type { Props } from '../../AuthorInfo.types';
 
 /**
  * Creates a default set of props for the AuthorInfo component
@@ -20,7 +20,7 @@ export function createAuthorInfoProps(overrides: Partial<Props> = {}) {
     date: '2024-03-20',
     size: 'md' as const,
     ...overrides,
-  } as Props
+  } as Props;
 }
 
 /**
@@ -61,4 +61,4 @@ export const mockAuthorInfos = {
   invalidDate: createAuthorInfoProps({
     date: 'invalid-date',
   }),
-}
+};

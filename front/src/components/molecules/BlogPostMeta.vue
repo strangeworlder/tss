@@ -17,30 +17,34 @@
   - Maintains proper text contrast
 -->
 <script setup lang="ts">
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
-import type { Author } from '@/types/blog'
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
+import type { Author } from '@/types/blog';
+import { computed } from 'vue';
 
 interface Props {
-  date: string
-  author: Author
+  date: string | null | undefined;
+  author: Author;
 }
 
-withDefaults(defineProps<Props>(), {
-  date: '',
+const props = withDefaults(defineProps<Props>(), {
+  date: undefined,
   author: () =>
     ({
       name: 'Anonymous',
       type: 'text',
       id: undefined,
     }) as Author,
-})
+});
+
+// Convert null to undefined for the AuthorInfo component
+const formattedDate = computed(() => props.date || undefined);
 </script>
 
 <template>
   <div class="blog-post-meta">
     <span v-if="date" class="blog-post-meta__date">{{ date }}</span>
     <div v-if="author" class="blog-post-meta__author">
-      <AuthorInfo :author="author" :date="date" size="sm" />
+      <AuthorInfo :author="author" :date="formattedDate" size="sm" />
     </div>
   </div>
 </template>

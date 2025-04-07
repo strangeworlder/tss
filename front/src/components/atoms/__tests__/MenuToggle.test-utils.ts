@@ -1,12 +1,12 @@
-import { mount } from '@vue/test-utils'
-import MenuToggle from '../MenuToggle.vue'
-import { createMenuToggleProps } from './__fixtures__/MenuToggle.fixture'
+import { mount } from '@vue/test-utils';
+import MenuToggle from '../MenuToggle.vue';
+import { createMenuToggleProps } from './__fixtures__/MenuToggle.fixture';
 
 /**
  * Interface for MenuToggle component props
  */
 interface IMenuToggleProps {
-  isOpen: boolean
+  isOpen: boolean;
 }
 
 /**
@@ -22,7 +22,7 @@ export function mountMenuToggle(props: IMenuToggleProps = createMenuToggleProps(
         Button: true,
       },
     },
-  })
+  });
 }
 
 /**
@@ -34,5 +34,5 @@ export function createDefaultMenuToggleProps(overrides: Partial<IMenuToggleProps
   return {
     isOpen: false,
     ...overrides,
-  }
+  };
 }

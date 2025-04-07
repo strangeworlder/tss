@@ -41,16 +41,16 @@ Usage:
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    message?: string
-    className?: string
-    id?: string
+    message?: string | null;
+    className?: string;
+    id?: string;
   }>(),
   {
     message: '',
     className: '',
     id: undefined,
-  },
-)
+  }
+);
 </script>
 
 <style scoped>

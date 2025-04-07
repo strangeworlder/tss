@@ -54,18 +54,18 @@
 </template>
 
 <script setup lang="ts">
-import AppButton from '@/components/atoms/AppButton.vue'
-import { ButtonVariantEnum } from '@/types/button'
+import AppButton from '@/components/atoms/AppButton.vue';
+import { ButtonVariantEnum } from '@/types/button';
 
 interface IMenuToggleProps {
-  isOpen: boolean
+  isOpen: boolean;
 }
 
 withDefaults(defineProps<IMenuToggleProps>(), {
   isOpen: false,
-})
+});
 
-defineEmits<(e: 'toggle') => void>()
+defineEmits<(e: 'toggle') => void>();
 </script>
 
 <style scoped>

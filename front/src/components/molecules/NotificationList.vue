@@ -48,18 +48,18 @@ None - communicates with the notification store directly
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useNotificationStore } from '@/stores/notification'
-import type { Notification } from '@/stores/notification'
-import AppButton from '@/components/atoms/AppButton.vue'
-import { ButtonVariantEnum } from '@/types/button'
+import { computed } from 'vue';
+import { useNotificationStore } from '@/stores/notification';
+import type { Notification } from '@/stores/notification';
+import AppButton from '@/components/atoms/AppButton.vue';
+import { ButtonVariantEnum } from '@/types/button';
 
-const notificationStore = useNotificationStore()
-const notifications = computed<Notification[]>(() => notificationStore.notifications)
+const notificationStore = useNotificationStore();
+const notifications = computed<Notification[]>(() => notificationStore.notifications);
 
 const removeNotification = (id: string): void => {
-  notificationStore.removeNotification(id)
-}
+  notificationStore.removeNotification(id);
+};
 </script>
 
 <style scoped>
@@ -152,7 +152,7 @@ const removeNotification = (id: string): void => {
   }
 }
 
-@media (max-width: var(--breakpoint-sm)) {
+@media (max-width: 567px;) {
   .notification-list {
     top: var(--spacing-sm);
     right: var(--spacing-sm);

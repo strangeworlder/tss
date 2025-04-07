@@ -1,5 +1,5 @@
 interface MenuToggleProps {
-  isOpen: boolean
+  isOpen: boolean;
 }
 
 /**
@@ -11,7 +11,7 @@ export function createMenuToggleProps(overrides: Partial<MenuToggleProps> = {}) 
   return {
     isOpen: false,
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -22,4 +22,4 @@ export const mockMenuToggles = {
   open: createMenuToggleProps({
     isOpen: true,
   }),
-}
+};

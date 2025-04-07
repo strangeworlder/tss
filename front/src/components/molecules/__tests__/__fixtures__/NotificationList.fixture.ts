@@ -1,5 +1,5 @@
-import type { INotification } from '@/types/notification'
-import { NotificationTypeEnum } from '@/types/notification'
+import type { INotification } from '@/types/notification';
+import { NotificationTypeEnum } from '@/types/notification';
 
 export const createNotificationListProps = (notifications: INotification[] = []) => {
   return {
@@ -18,8 +18,8 @@ export const createNotificationListProps = (notifications: INotification[] = [])
               message: 'Error message',
             },
           ],
-  }
-}
+  };
+};
 
 export const mockNotificationLists = {
   default: createNotificationListProps(),
@@ -42,4 +42,4 @@ export const mockNotificationLists = {
       message: 'This is a very long error message that should be truncated',
     },
   ]),
-}
+};

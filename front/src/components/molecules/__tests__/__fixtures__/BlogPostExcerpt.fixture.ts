@@ -1,8 +1,8 @@
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
 
 interface BlogPostExcerptProps {
-  content: string
-  variant?: BlogPostTitleVariantEnum
+  content: string;
+  variant?: BlogPostTitleVariantEnum;
 }
 
 /**
@@ -15,7 +15,7 @@ export function createBlogPostExcerptProps(overrides: Partial<BlogPostExcerptPro
     content: 'This is a test blog post content that should be truncated.',
     variant: BlogPostTitleVariantEnum.FULL,
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -38,4 +38,4 @@ export const mockBlogPostExcerpts = {
       'This is a very long blog post content that should be truncated because it exceeds the maximum length allowed for the COMPACT variant. This text should be cut off and an ellipsis should be added at the end.',
     variant: BlogPostTitleVariantEnum.COMPACT,
   }),
-}
+};

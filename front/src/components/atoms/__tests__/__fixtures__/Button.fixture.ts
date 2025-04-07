@@ -1,10 +1,10 @@
-import { ButtonVariantEnum } from '@/types/button'
+import { ButtonVariantEnum } from '@/types/button';
 
 interface ButtonProps {
-  variant?: ButtonVariantEnum
-  disabled?: boolean
-  to?: string
-  ariaLabel?: string
+  variant?: ButtonVariantEnum;
+  disabled?: boolean;
+  to?: string;
+  ariaLabel?: string;
 }
 
 /**
@@ -19,7 +19,7 @@ export function createButtonProps(overrides: Partial<ButtonProps> = {}) {
     to: undefined,
     ariaLabel: undefined,
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -45,4 +45,4 @@ export const mockButtons = {
   withAriaLabel: createButtonProps({
     ariaLabel: 'Accessible Button',
   }),
-}
+};

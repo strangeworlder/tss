@@ -1,9 +1,9 @@
-import type { IBlogPost } from '@/types/blog'
-import { UserRole } from '@/types/user'
+import type { IBlogPost } from '@/types/blog';
+import { UserRole } from '@/types/user';
 
 interface BlogPostHeaderProps {
-  post: IBlogPost
-  showBackButton?: boolean
+  post: IBlogPost;
+  showBackButton?: boolean;
 }
 
 /**
@@ -38,7 +38,7 @@ export function createBlogPostHeaderProps(overrides: Partial<BlogPostHeaderProps
     },
     showBackButton: true,
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -68,4 +68,4 @@ export const mockBlogPostHeaders = {
         'This is a very long blog post title that should wrap to multiple lines on smaller screens',
     },
   }),
-}
+};

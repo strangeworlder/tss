@@ -5,5 +5,5 @@ export interface Props {
   /**
    * Array of tag names to display
    */
-  tags: string[]
+  tags: string[];
 }

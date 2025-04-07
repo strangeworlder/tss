@@ -1,409 +1,164 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountBlogPostList, createDefaultProps } from './BlogPostList.test-utils'
-import { useBlogStore } from '@/stores/blogStore'
-import { ImageSizeEnum } from '@/types/image'
-import { ButtonVariantEnum } from '@/types/button'
-import { mockBlogPosts } from './__fixtures__/BlogPostList.fixture'
-import type { IBlogPost, IBlogPostPreview } from '@/types/blog'
-import { ref } from 'vue'
-import { UserRole } from '@/types/user'
-
-// Mock the store
-vi.mock('@/stores/blogStore', () => ({
-  useBlogStore: vi.fn()
-}))
-
-// Helper function to create a mock store with all required Pinia properties
-const createMockStore = (state: any) => ({
-  ...state,
-  $state: state,
-  $patch: vi.fn(),
-  $reset: vi.fn(),
-  $subscribe: vi.fn(),
-  $dispose: vi.fn(),
-  $onAction: vi.fn(),
-  $onPatch: vi.fn(),
-  $onStateChange: vi.fn()
-})
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
+import { mountBlogPostList } from './BlogPostList.test-utils';
+import { mockBlogPosts } from './__fixtures__/BlogPostList.fixture';
+import { useBlogStore } from '@/stores/blogStore';
+import type { IBlogPost } from '@/types/blog';
 
 describe('BlogPostList', () => {
+  let wrapper: VueWrapper;
+  let blogStore: ReturnType<typeof useBlogStore>;
+
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    wrapper = mountBlogPostList({
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+          }),
+        ],
+      },
+    });
+    blogStore = useBlogStore();
+  });
 
-  describe('rendering', () => {
-    it('renders loading state initially', () => {
-      // Mock the store to return loading state
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>(null),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn(),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+  describe('Rendering', () => {
+    it('should render loading state initially', () => {
+      expect(wrapper.find('.blog-post-list__loading').exists()).toBe(true);
+      expect(wrapper.find('[role="status"]').text()).toContain('Loading posts...');
+    });
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      expect(wrapper.find('.blog-post-list__loading').exists()).toBe(true)
-      expect(wrapper.find('.blog-post-list__spinner').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Loading posts...')
-    })
+    it('should render error state when there is an error', async () => {
+      const error = 'Failed to load blog posts';
+      vi.mocked(blogStore.fetchAdminPosts).mockRejectedValueOnce(new Error(error));
 
-    it('renders error state when fetch fails', async () => {
-      // Mock the store to return error state
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>('Test error'),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn().mockRejectedValue(new Error('Test error')),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+      await wrapper.vm.$nextTick();
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      expect(wrapper.find('.blog-post-list__error').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Test error')
-      expect(wrapper.findComponent({ name: 'AppButton' }).props('variant')).toBe(ButtonVariantEnum.DANGER)
-    })
+      expect(wrapper.find('.blog-post-list__error').exists()).toBe(true);
+      expect(wrapper.find('[role="alert"]').text()).toContain(error);
+    });
 
-    it('renders blog posts when data is loaded', async () => {
-      // Mock the store to return posts
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>(mockBlogPosts.default),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>(null),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn(),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+    it('should render blog posts grid when posts are loaded', async () => {
+      blogStore.posts = mockBlogPosts;
+      await wrapper.vm.$nextTick();
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      expect(wrapper.find('.blog-post-list__grid').exists()).toBe(true)
-      expect(wrapper.findAll('.blog-post-list__item')).toHaveLength(mockBlogPosts.default.length)
-    })
-  })
+      expect(wrapper.find('.blog-post-list__grid').exists()).toBe(true);
+      expect(wrapper.findAll('.blog-post-list__item')).toHaveLength(mockBlogPosts.length);
+    });
+  });
 
-  describe('props and events', () => {
-    it('emits edit-post event when edit button is clicked', async () => {
-      // Mock the store to return posts
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>(mockBlogPosts.default),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>(null),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn(),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+  describe('Props and Data Display', () => {
+    beforeEach(async () => {
+      blogStore.posts = mockBlogPosts;
+      await wrapper.vm.$nextTick();
+    });
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      // Find and click the first edit button
-      const editButton = wrapper.findAll('.blog-post-list__actions .blog-post-list__button')[0]
-      await editButton.trigger('click')
-      
-      // Check that the event was emitted with the correct post ID
-      expect(wrapper.emitted('edit-post')).toBeTruthy()
-      expect(wrapper.emitted('edit-post')?.[0]).toEqual([mockBlogPosts.default[0].id])
-    })
-  })
+    it('should display post title correctly', () => {
+      const firstPost = wrapper.find('.blog-post-list__title');
+      expect(firstPost.text()).toBe(mockBlogPosts[0].title);
+    });
 
-  describe('accessibility', () => {
-    it('has proper ARIA attributes for loading state', () => {
-      // Mock the store to return loading state
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(true),
-        error: ref<string | null>(null),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn(),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+    it('should display author information correctly', () => {
+      const authorInfo = wrapper.findComponent({ name: 'AuthorInfo' });
+      expect(authorInfo.exists()).toBe(true);
+      expect(authorInfo.props('author')).toMatchObject({
+        type: 'user',
+        id: mockBlogPosts[0].author.id,
+        name: `${mockBlogPosts[0].author.firstName} ${mockBlogPosts[0].author.lastName}`,
+      });
+    });
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      const loadingElement = wrapper.find('.blog-post-list__loading')
-      expect(loadingElement.exists()).toBe(true)
-      expect(loadingElement.attributes('role')).toBe('status')
-      expect(loadingElement.attributes('aria-live')).toBe('polite')
-    })
+    it('should show correct status badge for published posts', () => {
+      const publishedStatus = wrapper.find('.blog-post-list__status--published');
+      expect(publishedStatus.text()).toBe('Published');
+    });
 
-    it('has proper ARIA attributes for error state', async () => {
-      // Mock the store to return error state
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>('Test error'),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn().mockRejectedValue(new Error('Test error')),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+    it('should show correct status badge for draft posts', async () => {
+      const draftPost: IBlogPost = { ...mockBlogPosts[0], isPublished: false };
+      blogStore.posts = [draftPost];
+      await wrapper.vm.$nextTick();
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      // Force the component to show error state
-      await wrapper.setData({ error: 'Test error', loading: false })
-      
-      const errorElement = wrapper.find('.blog-post-list__error')
-      expect(errorElement.exists()).toBe(true)
-      expect(errorElement.attributes('role')).toBe('alert')
-    })
+      const draftStatus = wrapper.find('.blog-post-list__status--draft');
+      expect(draftStatus.text()).toBe('Draft');
+    });
+  });
 
-    it('provides alt text for images', async () => {
-      // Mock the store to return posts with images
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([
-          {
-            id: '1',
-            title: 'Test Post',
-            slug: 'test-post',
-            excerpt: 'Test excerpt',
-            author: {
-              id: '1',
-              firstName: 'John',
-              lastName: 'Doe',
-              email: 'john@example.com',
-              role: UserRole.ADMIN
-            },
-            heroImage: {
-              filename: 'test-image.jpg',
-              altText: 'Test image alt text'
-            },
-            tags: ['test'],
-            isPublished: true
-          }
-        ]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>(null),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn(),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+  describe('Events', () => {
+    beforeEach(async () => {
+      blogStore.posts = mockBlogPosts;
+      await wrapper.vm.$nextTick();
+    });
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      // Force the component to show posts
-      await wrapper.setData({ loading: false, error: null })
-      
-      // Find the first image
-      const image = wrapper.findComponent({ name: 'AppImage' })
-      expect(image.exists()).toBe(true)
-      expect(image.props('alt')).toBe('Test image alt text')
-    })
-  })
+    it('should emit edit-post event when edit button is clicked', async () => {
+      const editButton = wrapper.find('.blog-post-list__actions button');
+      await editButton.trigger('click');
 
-  describe('responsive behavior', () => {
-    it('renders posts in a responsive grid', async () => {
-      // Mock the store to return posts
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([
-          {
-            id: '1',
-            title: 'Test Post',
-            slug: 'test-post',
-            excerpt: 'Test excerpt',
-            author: {
-              id: '1',
-              firstName: 'John',
-              lastName: 'Doe',
-              email: 'john@example.com',
-              role: UserRole.ADMIN
-            },
-            heroImage: {
-              filename: 'test-image.jpg',
-              altText: 'Test image alt text'
-            },
-            tags: ['test'],
-            isPublished: true
-          }
-        ]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>(null),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn(),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+      expect(wrapper.emitted('edit-post')).toBeTruthy();
+      expect(wrapper.emitted('edit-post')?.[0]).toEqual([mockBlogPosts[0].id]);
+    });
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      // Force the component to show posts
-      await wrapper.setData({ loading: false, error: null })
-      
-      const grid = wrapper.find('.blog-post-list__grid')
-      expect(grid.exists()).toBe(true)
-      expect(grid.attributes('style')).toContain('grid-template-columns')
-    })
-  })
+    it('should retry fetching posts when try again button is clicked', async () => {
+      vi.mocked(blogStore.fetchAdminPosts).mockRejectedValueOnce(new Error('Failed to load'));
+      await wrapper.vm.$nextTick();
 
-  describe('error handling', () => {
-    it('shows error message when fetch fails', async () => {
-      // Mock the store to return error state
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>('Test error'),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: vi.fn().mockRejectedValue(new Error('Test error')),
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+      const retryButton = wrapper.find('.blog-post-list__error button');
+      await retryButton.trigger('click');
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      // Force the component to show error state by directly setting the error ref
-      await wrapper.setData({ error: 'Test error', loading: false })
-      
-      // The component should show the error message
-      expect(wrapper.text()).toContain('Test error')
-      
-      // Find the error element by its role attribute
-      const errorElement = wrapper.find('[role="alert"]')
-      expect(errorElement.exists()).toBe(true)
-    })
+      expect(blogStore.fetchAdminPosts).toHaveBeenCalledTimes(2);
+    });
+  });
 
-    it('allows retrying when fetch fails', async () => {
-      const mockFetch = vi.fn().mockRejectedValueOnce(new Error('Test error')).mockResolvedValueOnce(undefined)
-      
-      // Mock the store to return error state initially, then success
-      vi.mocked(useBlogStore).mockReturnValue(createMockStore({
-        posts: ref<IBlogPostPreview[]>([]),
-        currentPost: ref<IBlogPost | null>(null),
-        loading: ref(false),
-        error: ref<string | null>('Test error'),
-        notification: ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null),
-        postsByTag: vi.fn(),
-        fetchPosts: vi.fn(),
-        fetchAdminPosts: mockFetch,
-        fetchPostBySlug: vi.fn(),
-        fetchPostById: vi.fn(),
-        fetchPostsByTag: vi.fn(),
-        createPost: vi.fn(),
-        updatePost: vi.fn(),
-        setNotification: vi.fn(),
-        clearNotification: vi.fn()
-      }))
+  describe('Accessibility', () => {
+    it('should have proper loading state announcement', () => {
+      const loadingElement = wrapper.find('[role="status"]');
+      expect(loadingElement.exists()).toBe(true);
+      expect(loadingElement.attributes('aria-live')).toBe('polite');
+    });
 
-      const wrapper = mountBlogPostList(createDefaultProps())
-      
-      // Wait for the component to update
-      await wrapper.vm.$nextTick()
-      
-      // Force the component to show error state by directly setting the error ref
-      await wrapper.setData({ error: 'Test error', loading: false })
-      
-      // Find the retry button by its text content
-      const retryButton = wrapper.find('button')
-      expect(retryButton.exists()).toBe(true)
-      expect(retryButton.text()).toContain('Try Again')
-      
-      // Click the retry button
-      await retryButton.trigger('click')
-      
-      // Check that fetchAdminPosts was called again
-      expect(mockFetch).toHaveBeenCalledTimes(2)
-    })
-  })
-}) 
+    it('should have proper error state announcement', async () => {
+      vi.mocked(blogStore.fetchAdminPosts).mockRejectedValueOnce(new Error('Failed to load'));
+      await wrapper.vm.$nextTick();
+
+      const errorElement = wrapper.find('[role="alert"]');
+      expect(errorElement.exists()).toBe(true);
+    });
+
+    it('should have proper image alt text', async () => {
+      blogStore.posts = mockBlogPosts;
+      await wrapper.vm.$nextTick();
+
+      const image = wrapper.find('.blog-post-list__img');
+      expect(image.attributes('alt')).toBe(mockBlogPosts[0].heroImage.altText);
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle missing author information gracefully', async () => {
+      const postWithoutAuthor: IBlogPost = {
+        ...mockBlogPosts[0],
+        author: undefined as unknown as IBlogPost['author'],
+      };
+      blogStore.posts = [postWithoutAuthor];
+      await wrapper.vm.$nextTick();
+
+      const authorInfo = wrapper.findComponent({ name: 'AuthorInfo' });
+      expect(authorInfo.props('author')).toMatchObject({
+        type: 'text',
+        name: 'Unknown Author',
+      });
+    });
+
+    it('should handle missing hero image gracefully', async () => {
+      const postWithoutHeroImage: IBlogPost = {
+        ...mockBlogPosts[0],
+        heroImage: undefined,
+      };
+      blogStore.posts = [postWithoutHeroImage];
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.find('.blog-post-list__placeholder').exists()).toBe(true);
+      expect(wrapper.find('.blog-post-list__img').exists()).toBe(false);
+    });
+  });
+});

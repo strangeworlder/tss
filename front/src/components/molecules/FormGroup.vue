@@ -61,18 +61,30 @@ Usage:
 </template>
 
 <script setup lang="ts">
-import InputField from '@/components/atoms/InputField.vue'
-import type { IFormFieldProps } from '@/types/form'
+import InputField from '@/components/atoms/InputField.vue';
+import type { IFormFieldProps } from '@/types/form';
 
-withDefaults(defineProps<IFormFieldProps>(), {
+interface Props {
+  id: string;
+  label: string;
+  type?: string;
+  modelValue: string;
+  error?: string | null;
+  required?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+}
+
+withDefaults(defineProps<Props>(), {
   type: 'text',
   required: false,
   placeholder: '',
   disabled: false,
   className: '',
-})
+});
 
-defineEmits<(e: 'update:modelValue', value: string) => void>()
+defineEmits<(e: 'update:modelValue', value: string) => void>();
 </script>
 
 <style scoped>

@@ -18,20 +18,20 @@
   - No redundant ARIA attributes
 -->
 <script setup lang="ts">
-import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
-import TagPill from '@/components/atoms/TagPill.vue'
-import BackButton from '@/components/atoms/BackButton.vue'
-import type { IBlogPost, Author } from '@/types/blog'
-import type { IUser } from '@/types/user'
+import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
+import TagPill from '@/components/atoms/TagPill.vue';
+import BackButton from '@/components/atoms/BackButton.vue';
+import type { IBlogPost, Author } from '@/types/blog';
+import type { IUser } from '@/types/user';
 
 interface Props {
-  post: IBlogPost
-  showBackButton?: boolean
+  post: IBlogPost;
+  showBackButton?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
   showBackButton: true,
-})
+});
 
 /**
  * Maps an IUser to an Author
@@ -44,8 +44,8 @@ const mapUserToAuthor = (user: IUser): Author => {
     id: user.id,
     name: `${user.firstName} ${user.lastName}`,
     avatar: user.avatar,
-  }
-}
+  };
+};
 </script>
 
 <template>

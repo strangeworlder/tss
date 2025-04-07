@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import { computed } from 'vue';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
 
 /**
  * BlogPostTitle Component
@@ -33,27 +33,27 @@ interface IBlogPostTitleProps {
    * The title text to display
    * @required
    */
-  title: string
+  title: string;
   /**
    * The visual variant of the title (compact or full)
    * @default 'full'
    */
-  variant?: BlogPostTitleVariantEnum
+  variant?: BlogPostTitleVariantEnum;
 }
 
 const props = withDefaults(defineProps<IBlogPostTitleProps>(), {
   variant: BlogPostTitleVariantEnum.FULL,
-})
+});
 
 // Validate title is not empty
 if (!props.title.trim()) {
-  console.warn('BlogPostTitle: Title should not be empty')
+  console.warn('BlogPostTitle: Title should not be empty');
 }
 
 // Generate a unique ID for accessibility
 const titleId = computed(() => {
-  return `blog-title-${props.title.toLowerCase().replace(/\s+/g, '-')}`
-})
+  return `blog-title-${props.title.toLowerCase().replace(/\s+/g, '-')}`;
+});
 </script>
 
 <template>

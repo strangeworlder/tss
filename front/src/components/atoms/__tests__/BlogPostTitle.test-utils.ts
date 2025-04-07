@@ -1,14 +1,14 @@
-import { mount } from '@vue/test-utils'
-import BlogPostTitle from '../BlogPostTitle.vue'
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
-import { createBlogPostTitleProps } from './__fixtures__/BlogPostTitle.fixture'
+import { mount } from '@vue/test-utils';
+import BlogPostTitle from '../BlogPostTitle.vue';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import { createBlogPostTitleProps } from './__fixtures__/BlogPostTitle.fixture';
 
 /**
  * Interface for BlogPostTitle component props
  */
 interface IBlogPostTitleProps {
-  title: string
-  variant?: BlogPostTitleVariantEnum
+  title: string;
+  variant?: BlogPostTitleVariantEnum;
 }
 
 /**
@@ -22,7 +22,7 @@ export function mountBlogPostTitle(props: IBlogPostTitleProps = createBlogPostTi
     global: {
       stubs: {},
     },
-  })
+  });
 }
 
 /**
@@ -35,5 +35,5 @@ export function createDefaultBlogPostTitleProps(overrides: Partial<IBlogPostTitl
     title: 'Test Blog Post Title',
     variant: BlogPostTitleVariantEnum.FULL,
     ...overrides,
-  }
+  };
 }

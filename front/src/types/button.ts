@@ -8,13 +8,13 @@ export enum ButtonVariantEnum {
   SUCCESS = 'success',
   WARNING = 'warning',
   INFO = 'info',
-  TEXT = 'text'
+  TEXT = 'text',
 }
 
 export interface IButtonProps {
-  variant?: ButtonVariantEnum
-  disabled?: boolean
-  loading?: boolean
-  type?: 'button' | 'submit' | 'reset'
-  size?: 'small' | 'medium' | 'large'
+  variant?: ButtonVariantEnum;
+  disabled?: boolean;
+  loading?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  size?: 'small' | 'medium' | 'large';
 }

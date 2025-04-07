@@ -2,9 +2,9 @@
  * TagPill component props interface
  */
 interface TagPillProps {
-  tag: string
-  clickable?: boolean
-  variant?: 'primary' | 'secondary'
+  tag: string;
+  clickable?: boolean;
+  variant?: 'primary' | 'secondary';
 }
 
 /**
@@ -17,7 +17,7 @@ export function createTagPillProps(overrides: Partial<TagPillProps> = {}) {
     tag: 'test-tag',
     clickable: true,
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -39,4 +39,4 @@ export const mockTagPills = {
     tag: 'secondary-tag',
     variant: 'secondary',
   }),
-}
+};

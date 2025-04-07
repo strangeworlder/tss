@@ -5,8 +5,8 @@
  * This file is kept for backward compatibility but will be removed in future versions.
  */
 
-import { getImageUrl as getImageUrlFromService } from '@/api/imageService'
-import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
+import { getImageUrl as getImageUrlFromService } from '@/api/imageService';
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image';
 
 /**
  * Get a properly formatted image URL for the given filename and size
@@ -18,13 +18,13 @@ import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
  */
 export const getImageUrl = (filename: string, size?: string): string => {
   // Convert string to enum value if needed
-  const sizeEnum = size as ImageSizeEnum
-  return getImageUrlFromService(filename, sizeEnum, ImageFormatEnum.WEBP)
-}
+  const sizeEnum = size as ImageSizeEnum;
+  return getImageUrlFromService(filename, sizeEnum, ImageFormatEnum.WEBP);
+};
 
 // Constants for image sizes (for backward compatibility)
 export const IMAGE_SIZE = {
   THUMBNAIL: ImageSizeEnum.THUMBNAIL,
   MEDIUM: ImageSizeEnum.MEDIUM,
   FULL: ImageSizeEnum.FULL,
-}
+};

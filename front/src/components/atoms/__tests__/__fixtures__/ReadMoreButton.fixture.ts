@@ -2,7 +2,7 @@
  * ReadMoreButton component props interface
  */
 interface ReadMoreButtonProps {
-  to: string
+  to: string;
 }
 
 /**
@@ -14,7 +14,7 @@ export function createReadMoreButtonProps(overrides: Partial<ReadMoreButtonProps
   return {
     to: '/default-path',
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -28,4 +28,4 @@ export const mockReadMoreButtons = {
   article: createReadMoreButtonProps({
     to: '/articles/featured-article',
   }),
-}
+};

@@ -7,7 +7,7 @@ export const createBackButtonProps = (overrides = {}) => ({
   text: 'Back',
   to: '/',
   ...overrides,
-})
+});
 
 /**
  * BackButton test cases
@@ -29,4 +29,4 @@ export const mockBackButtons = {
     text: 'Go to Profile',
     to: '/profile',
   },
-}
+};

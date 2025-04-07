@@ -5,39 +5,39 @@ export interface IFormFieldProps {
   /**
    * Unique identifier for the input
    */
-  id: string
+  id: string;
   /**
    * Label text for the input
    */
-  label: string
+  label: string;
   /**
    * Input type (text, email, password, etc.)
    */
-  type?: string
+  type?: string;
   /**
    * v-model value
    */
-  modelValue: string
+  modelValue: string;
   /**
    * Error message to display
    */
-  error?: string
+  error?: string;
   /**
    * Whether the input is required
    */
-  required?: boolean
+  required?: boolean;
   /**
    * Placeholder text
    */
-  placeholder?: string
+  placeholder?: string;
   /**
    * Whether the input is disabled
    */
-  disabled?: boolean
+  disabled?: boolean;
   /**
    * Additional CSS classes
    */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -47,78 +47,78 @@ export interface IFormErrorProps {
   /**
    * Unique identifier for the error
    */
-  id: string
+  id: string;
   /**
    * Error message to display
    */
-  message?: string
+  message?: string;
   /**
    * Additional CSS classes
    */
-  className?: string
+  className?: string;
 }
 
 export interface ITextAreaProps {
-  id: string
-  modelValue: string
-  label: string
-  error?: string
-  rows?: number
-  placeholder?: string
+  id: string;
+  modelValue: string;
+  label: string;
+  error?: string;
+  rows?: number;
+  placeholder?: string;
 }
 
 export interface IInputFieldProps {
-  id: string
-  modelValue: string
-  label: string
-  error?: string
-  type?: string
-  placeholder?: string
+  id: string;
+  modelValue: string;
+  label: string;
+  error?: string;
+  type?: string;
+  placeholder?: string;
 }
 
-import type { CommentParentTypeEnum } from '@/types/comment'
+import type { CommentParentTypeEnum } from '@/types/comment';
 
 export interface ICommentFormProps {
-  parentId: string
-  parentType: CommentParentTypeEnum
-  isReply?: boolean
+  parentId: string;
+  parentType: CommentParentTypeEnum;
+  isReply?: boolean;
 }
 
 export interface IFormField {
-  name: string
-  label: string
-  type: string
-  required?: boolean
-  placeholder?: string
-  value?: string
-  error?: string
+  name: string;
+  label: string;
+  type: string;
+  required?: boolean;
+  placeholder?: string;
+  value?: string;
+  error?: string;
 }
 
 export interface IFormState {
-  fields: Record<string, IFormField>
-  isValid: boolean
-  isSubmitting: boolean
-  message?: string
+  fields: Record<string, IFormField>;
+  isValid: boolean;
+  isSubmitting: boolean;
+  message?: string;
 }
 
 export interface IFormValidation {
-  isValid: boolean
-  errors: Record<string, string>
+  isValid: boolean;
+  errors: Record<string, string>;
 }
 
 export interface IFormSubmitEvent {
-  isValid: boolean
-  data: Record<string, unknown>
-  message?: string
+  isValid: boolean;
+  data: Record<string, unknown>;
+  message?: string;
 }
 
 export interface IFormError {
-  field?: string
-  message?: string
-  code?: string
+  field?: string;
+  message?: string;
+  code?: string;
 }
 
 export interface IFormSuccess {
-  message?: string
-  data?: Record<string, unknown>
+  message?: string;
+  data?: Record<string, unknown>;
 }

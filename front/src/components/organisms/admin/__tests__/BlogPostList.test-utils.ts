@@ -1,36 +1,22 @@
-import { mount } from '@vue/test-utils'
-import BlogPostList from '../BlogPostList.vue'
-import type { IBlogPost } from '@/types/blog'
+import { mount, type VueWrapper } from '@vue/test-utils';
+import BlogPostList from '../BlogPostList.vue';
+import type { MountingOptions } from '@vue/test-utils';
 
 /**
- * Interface for BlogPostList component props
+ * Mounts the BlogPostList component with the given options
+ * @param options - Vue Test Utils mounting options
+ * @returns The mounted component wrapper
  */
-export interface IBlogPostListProps {
-  _dummy?: never;
-}
-
-/**
- * Mounts the BlogPostList component with the given props
- * @param props - Component props
- * @returns Vue Test Utils wrapper
- */
-export const mountBlogPostList = (props: IBlogPostListProps = {}) => {
+export function mountBlogPostList(options: MountingOptions<any> = {}): VueWrapper {
   return mount(BlogPostList, {
-    props,
     global: {
       stubs: {
         AppImage: true,
         AuthorInfo: true,
-        AppButton: true
-      }
-    }
-  })
+        AppButton: true,
+      },
+      ...options.global,
+    },
+    ...options,
+  });
 }
-
-/**
- * Creates default props for the BlogPostList component
- * @returns Default props object
- */
-export const createDefaultProps = (): IBlogPostListProps => {
-  return {}
-} 

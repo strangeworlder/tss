@@ -1,14 +1,14 @@
-import { mount } from '@vue/test-utils'
-import BlogHero from '../BlogHero.vue'
-import { ImageSizeEnum } from '@/types/image'
-import { createBlogHeroProps } from '@/components/molecules/__tests__/__fixtures__/BlogHero.fixture'
+import { mount } from '@vue/test-utils';
+import BlogHero from '../BlogHero.vue';
+import { ImageSizeEnum } from '@/types/image';
+import { createBlogHeroProps } from '@/components/molecules/__tests__/__fixtures__/BlogHero.fixture';
 
 /**
  * Interface for BlogHero component props
  */
 interface IBlogHeroProps {
-  heroImage: string
-  altText: string
+  heroImage: string;
+  altText: string;
 }
 
 /**
@@ -26,7 +26,7 @@ export function mountBlogHero(props = createBlogHeroProps(), options = {}) {
       },
     },
     ...options,
-  })
+  });
 }
 
 /**
@@ -39,5 +39,5 @@ export function createDefaultBlogHeroProps(overrides = {}) {
     heroImage: 'test-image.jpg',
     altText: 'Test hero image',
     ...overrides,
-  }
+  };
 }

@@ -1,14 +1,14 @@
-import { mount } from '@vue/test-utils'
-import BlogPostExcerpt from '../BlogPostExcerpt.vue'
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
-import { createBlogPostExcerptProps } from './__fixtures__/BlogPostExcerpt.fixture'
+import { mount } from '@vue/test-utils';
+import BlogPostExcerpt from '../BlogPostExcerpt.vue';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import { createBlogPostExcerptProps } from './__fixtures__/BlogPostExcerpt.fixture';
 
 /**
  * Interface for BlogPostExcerpt component props
  */
 interface IBlogPostExcerptProps {
-  content: string
-  variant?: BlogPostTitleVariantEnum
+  content: string;
+  variant?: BlogPostTitleVariantEnum;
 }
 
 /**
@@ -19,7 +19,7 @@ interface IBlogPostExcerptProps {
 export function mountBlogPostExcerpt(props: IBlogPostExcerptProps = createBlogPostExcerptProps()) {
   return mount(BlogPostExcerpt, {
     props,
-  })
+  });
 }
 
 /**
@@ -32,5 +32,5 @@ export function createDefaultBlogPostExcerptProps(overrides: Partial<IBlogPostEx
     content: 'This is a test blog post content that should be truncated.',
     variant: BlogPostTitleVariantEnum.FULL,
     ...overrides,
-  }
+  };
 }

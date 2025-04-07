@@ -1,4 +1,4 @@
-import { ImageSizeEnum } from '@/types/image'
+import { ImageSizeEnum } from '@/types/image';
 
 /**
  * Creates a default set of props for the BlogHero component
@@ -10,7 +10,7 @@ export function createBlogHeroProps(overrides = {}) {
     heroImage: 'test-image.jpg',
     altText: 'Test hero image',
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -24,4 +24,4 @@ export const mockBlogHeroes = {
   customImage: createBlogHeroProps({
     heroImage: 'custom-test-image.jpg',
   }),
-}
+};

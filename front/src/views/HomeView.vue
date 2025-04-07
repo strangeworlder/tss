@@ -1,74 +1,156 @@
+<!--
+@component HomeView
+@description Home page component that displays recent blog posts and a newsletter signup form
+
+@features
+- Displays hero section with call-to-action
+- Shows 3 most recent blog posts
+- Provides newsletter signup functionality
+- Handles loading, error, and empty states
+- Responsive layout
+
+@example
+<template>
+  <HomeView />
+</template>
+
+@accessibility
+- Uses semantic HTML structure with proper heading hierarchy
+- Form inputs have associated labels
+- Loading states are announced to screen readers
+- Error messages are properly associated with form controls
+-->
+
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useBlogStore } from '@/stores/blogStore'
-import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
-import { checkApiHealth } from '@/api/apiClient'
-import AppButton from '@/components/atoms/AppButton.vue'
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
-import { ButtonVariantEnum } from '@/types/button'
+import { ref, onMounted, computed } from 'vue';
+import { useBlogStore } from '@/stores/blogStore';
+import type { IBlogPost, Author } from '@/types/blog';
+import type { IUser } from '@/types/user';
+import BlogPostCard from '@/components/organisms/BlogPostCard.vue';
+import { checkApiHealth } from '@/api/apiClient';
+import AppButton from '@/components/atoms/AppButton.vue';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import { ButtonVariantEnum } from '@/types/button';
+import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue';
+import FormGroup from '@/components/molecules/FormGroup.vue';
+import HomeViewError from '@/components/molecules/HomeViewError.vue';
 
-// Get the blog store
-const blogStore = useBlogStore()
-const loading = ref(false)
-const error = ref<string | null>(null)
+// Store
+const blogStore = useBlogStore();
 
-// Get only 3 most recent posts for the homepage
-const recentPosts = computed(() => {
-  return blogStore.posts.slice(0, 3)
-})
+// State
+const loading = ref<boolean>(false);
+const error = ref<string | null>(null);
+const newsletterEmail = ref<string>('');
+const newsletterError = ref<string | null>(null);
+const newsletterSuccess = ref<boolean>(false);
 
-// Fetch recent blog posts from the API
-const fetchRecentPosts = async () => {
-  loading.value = true
-  error.value = null
+// Computed
+const recentPosts = computed<IBlogPost[]>(() => {
+  return blogStore.posts.slice(0, 3);
+});
+
+const errorMessage = computed<string>(() => {
+  return error.value || '';
+});
+
+// Methods
+const fetchRecentPosts = async (): Promise<void> => {
+  loading.value = true;
+  error.value = null;
 
   try {
-    // First check if the API is available
-    const isHealthy = await checkApiHealth()
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+    const API_BASE_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const isHealthy = await checkApiHealth();
 
     if (!isHealthy) {
-      error.value = `API server ${API_BASE_URL}/health is not available. Please make sure the backend server is running.`
-      return
+      error.value = `API server ${API_BASE_URL}/health is not available. Please make sure the backend server is running.`;
+      return;
     }
 
-    // Use the store action to fetch posts (limit to 3 for homepage)
-    await blogStore.fetchPosts(3)
+    await blogStore.fetchPosts(3);
   } catch (err) {
-    console.error('Error fetching recent posts:', err)
+    console.error('Error fetching recent posts:', err);
     error.value =
       err instanceof Error
         ? err.message
-        : 'Failed to load recent posts. Please make sure the backend server is running.'
+        : 'Failed to load recent posts. Please make sure the backend server is running.';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-// Format date (2023-10-15T14:30:00Z -> October 15, 2023)
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return ''
+const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return '';
 
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  })
-}
+  });
+};
+
+const getFormattedDate = (dateString: string | null | undefined): string | undefined => {
+  const formatted = formatDate(dateString);
+  return formatted || undefined;
+};
+
+const mapUserToAuthor = (user: IUser): Author => {
+  return {
+    type: 'user',
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    avatar: user.avatar,
+  };
+};
+
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const handleNewsletterSubmit = async (event: Event): Promise<void> => {
+  event.preventDefault();
+  newsletterError.value = null;
+  newsletterSuccess.value = false;
+
+  if (!newsletterEmail.value.trim()) {
+    newsletterError.value = 'Email address is required';
+    return;
+  }
+
+  if (!validateEmail(newsletterEmail.value)) {
+    newsletterError.value = 'Please enter a valid email address';
+    return;
+  }
+
+  try {
+    // TODO: Implement newsletter subscription API call
+    newsletterSuccess.value = true;
+    newsletterEmail.value = '';
+  } catch (err) {
+    newsletterError.value =
+      err instanceof Error ? err.message : 'Failed to subscribe to newsletter. Please try again.';
+  }
+};
 
 onMounted(() => {
-  fetchRecentPosts()
-})
+  fetchRecentPosts();
+});
 </script>
 
 <template>
-  <div class="home-view">
+  <main class="home-view">
     <section class="home-view__hero">
       <div class="container home-view__hero-container">
         <h1 class="home-view__hero-title">Welcome to Vue Blog</h1>
         <p class="home-view__hero-text">A modern blog built with Vue 3 and TypeScript.</p>
-        <AppButton to="/blog" :variant="ButtonVariantEnum.PRIMARY" class="home-view__cta">
+        <AppButton 
+          to="/blog" 
+          :variant="ButtonVariantEnum.PRIMARY" 
+          class="home-view__cta"
+        >
           Read All Blog Posts
         </AppButton>
       </div>
@@ -79,45 +161,59 @@ onMounted(() => {
         <h2 class="home-view__section-title">Recent Posts</h2>
 
         <!-- Loading state -->
-        <div v-if="loading" class="home-view__loading">
-          <div class="home-view__spinner"></div>
-          <p>Loading recent posts...</p>
-        </div>
+        <LoadingSpinner 
+          v-if="loading" 
+          text="Loading recent posts..."
+          size="lg"
+        />
 
         <!-- Error state -->
-        <div v-else-if="error" class="text-center py-8">
-          <p class="text-red-600 mb-4">{{ error }}</p>
-          <AppButton @click="fetchRecentPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </AppButton>
-        </div>
+        <HomeViewError
+          v-else-if="error"
+          :error="error"
+          @retry="fetchRecentPosts"
+        />
 
         <!-- Empty state -->
-        <div v-else-if="recentPosts.length === 0" class="text-center py-8">
-          <p class="text-gray-600 mb-4">No recent posts found.</p>
-          <AppButton to="/blog" :variant="ButtonVariantEnum.SECONDARY"> Check our blog &rarr; </AppButton>
+        <div 
+          v-else-if="recentPosts.length === 0" 
+          class="home-view__empty"
+        >
+          <p class="home-view__empty-message">No recent posts found.</p>
+          <AppButton 
+            to="/blog" 
+            :variant="ButtonVariantEnum.SECONDARY"
+          >
+            Check our blog &rarr;
+          </AppButton>
         </div>
 
         <!-- Recent posts -->
-        <div v-else class="home-view__recent-posts">
-          <h2 class="home-view__section-title">Recent Blog Posts</h2>
+        <div v-else class="home-view__posts">
           <div class="home-view__posts-grid">
             <BlogPostCard
               v-for="post in recentPosts"
               :key="post.id"
               :title="post.title"
-              :date="formatDate(post.publishedAt)"
-              :author="post.author"
+              :date="getFormattedDate(post.publishedAt)"
+              :author="mapUserToAuthor(post.author)"
               :content="post.excerpt"
-              :heroImageFilename="post.heroImage?.filename"
-              :heroImageAlt="post.heroImage?.altText"
-              :heroImageUrl="post.heroImageUrl"
+              :hero-image-filename="post.heroImage?.filename"
+              :hero-image-alt="post.heroImage?.altText"
+              :hero-image-url="post.heroImage?.url"
               :slug="post.slug"
               :tags="post.tags"
               :variant="BlogPostTitleVariantEnum.COMPACT"
               class="home-view__post"
             />
           </div>
-          <div class="home-view__more-link">
-            <AppButton to="/blog" :variant="ButtonVariantEnum.SECONDARY"> View All Blog Posts </AppButton>
+          <div class="home-view__more">
+            <AppButton 
+              to="/blog" 
+              :variant="ButtonVariantEnum.SECONDARY"
+            >
+              View All Blog Posts
+            </AppButton>
           </div>
         </div>
       </div>
@@ -129,30 +225,48 @@ onMounted(() => {
         <p class="home-view__newsletter-text">
           Get the latest blog posts and updates delivered to your inbox.
         </p>
-        <form class="home-view__newsletter-form">
-          <input
+        <form 
+          class="home-view__newsletter-form"
+          @submit="handleNewsletterSubmit"
+          aria-label="Newsletter signup form"
+          novalidate
+        >
+          <FormGroup
+            id="newsletter-email"
+            label="Email address"
             type="email"
-            placeholder="Your email address"
-            class="home-view__newsletter-input"
+            v-model="newsletterEmail"
+            :error="newsletterError"
             required
+            placeholder="Your email address"
+            className="home-view__newsletter-field"
           />
-          <AppButton type="submit" :variant="ButtonVariantEnum.PRIMARY"> Subscribe </AppButton>
+          <p 
+            v-if="newsletterSuccess" 
+            class="home-view__newsletter-success" 
+            role="status"
+          >
+            Thank you for subscribing to our newsletter!
+          </p>
+          <AppButton 
+            type="submit" 
+            :variant="ButtonVariantEnum.PRIMARY"
+          >
+            Subscribe
+          </AppButton>
         </form>
       </div>
     </section>
-  </div>
+  </main>
 </template>
 
 <style scoped>
 .home-view__hero {
-  background-color: var(--vt-c-indigo);
-  color: var(--vt-c-white);
-  padding-top: var(--spacing-16);
-  padding-bottom: var(--spacing-16);
-  padding-left: var(--spacing-4);
-  padding-right: var(--spacing-4);
+  background-color: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-xl) var(--spacing-md);
   border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-12);
+  margin-bottom: var(--spacing-xl);
 }
 
 .home-view__hero-container {
@@ -160,14 +274,14 @@ onMounted(() => {
 }
 
 .home-view__hero-title {
-  font-size: 2.25rem;
-  font-weight: bold;
-  margin-bottom: var(--spacing-4);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
 }
 
 .home-view__hero-text {
-  font-size: 1.25rem;
-  margin-bottom: var(--spacing-8);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-lg);
   max-width: 42rem;
   margin-left: auto;
   margin-right: auto;
@@ -175,34 +289,34 @@ onMounted(() => {
 
 .home-view__cta {
   display: inline-block;
-  background-color: var(--vt-c-white);
-  color: var(--vt-c-indigo);
-  padding: var(--spacing-3) var(--spacing-6);
+  background-color: var(--color-background);
+  color: var(--color-primary-600);
+  padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius);
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-fast);
 }
 
 .home-view__cta:hover {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--color-background-alt);
 }
 
 .home-view__recent-posts {
-  margin-bottom: var(--spacing-12);
+  margin-bottom: var(--spacing-xl);
 }
 
 .home-view__section-title {
-  font-size: 1.875rem;
-  font-weight: bold;
-  margin-bottom: var(--spacing-8);
-  color: var(--color-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text);
 }
 
 .home-view__posts-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-6);
-  margin-bottom: var(--spacing-6);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 @media (min-width: 768px) {
@@ -221,24 +335,20 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-background);
-  padding: var(--spacing-6);
+  background-color: var(--color-background-card);
+  padding: var(--spacing-md);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
-.home-view__more-link {
-  color: var(--vt-c-indigo);
-  font-weight: 500;
-}
-
-.home-view__more-link:hover {
-  color: var(--color-text);
+.home-view__more {
+  text-align: center;
+  margin-top: var(--spacing-lg);
 }
 
 .home-view__newsletter {
-  background-color: var(--color-background-soft);
-  padding: var(--spacing-12) var(--spacing-4);
+  background-color: var(--color-background-alt);
+  padding: var(--spacing-xl) var(--spacing-md);
   border-radius: var(--border-radius);
 }
 
@@ -248,86 +358,56 @@ onMounted(() => {
 }
 
 .home-view__newsletter-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: var(--spacing-4);
-  color: var(--color-heading);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
 }
 
 .home-view__newsletter-text {
-  margin-bottom: var(--spacing-6);
-  color: var(--color-text);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
 }
 
 .home-view__newsletter-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
+  gap: var(--spacing-md);
 }
 
-.home-view__newsletter-input {
-  flex-grow: 1;
-  padding: var(--spacing-3) var(--spacing-4);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-background);
-  color: var(--color-text);
+.home-view__newsletter-field {
+  flex: 1;
 }
 
-.home-view__newsletter-input:focus {
-  outline: none;
-  border-color: var(--vt-c-indigo);
+.home-view__newsletter-success {
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
 }
 
-.home-view__newsletter-button {
-  padding: var(--spacing-3) var(--spacing-6);
+.home-view__error,
+.home-view__empty {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.home-view__error-message {
+  color: var(--color-danger);
+  margin-bottom: var(--spacing-md);
+}
+
+.home-view__empty-message {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-md);
 }
 
 @media (min-width: 768px) {
   .home-view__hero-title {
-    font-size: 3rem;
+    font-size: var(--font-size-3xl);
   }
-}
 
-.home-view__retry-button {
-  display: inline-block;
-  background-color: var(--vt-c-red);
-  color: var(--vt-c-white);
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--border-radius);
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.home-view__retry-button:hover {
-  background-color: var(--vt-c-red-dark, #b91c1c);
-}
-
-.home-view__loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-8) 0;
-  text-align: center;
-}
-
-.home-view__spinner {
-  display: inline-block;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 0.25rem solid var(--color-border);
-  border-top-color: var(--vt-c-indigo);
-  animation: spin 1s linear infinite;
-  margin-bottom: var(--spacing-4);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+  .home-view__newsletter-form {
+    flex-direction: row;
+    align-items: flex-start;
   }
 }
 </style>

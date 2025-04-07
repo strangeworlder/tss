@@ -1,4 +1,4 @@
-import type { Author } from '@/types/blog'
+import type { Author } from '@/types/blog';
 
 /**
  * Creates a mock author object for testing
@@ -11,8 +11,8 @@ export const createMockAuthor = (overrides: Partial<Author> = {}): Author => {
     type: 'text',
     id: '123',
     ...overrides,
-  }
-}
+  };
+};
 
 /**
  * Creates default props for the BlogPostMeta component
@@ -24,8 +24,8 @@ export const createDefaultProps = (overrides = {}) => {
     date: '2023-01-15',
     author: createMockAuthor(),
     ...overrides,
-  }
-}
+  };
+};
 
 /**
  * Mock data for testing the BlogPostMeta component
@@ -46,4 +46,4 @@ export const mockData = {
     future: '2025-12-31',
     past: '2020-06-01',
   },
-}
+};

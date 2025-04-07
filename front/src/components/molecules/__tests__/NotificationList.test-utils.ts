@@ -1,17 +1,17 @@
-import { mount } from '@vue/test-utils'
-import NotificationList from '../NotificationList.vue'
-import type { INotification } from '@/types/notification'
-import { NotificationTypeEnum } from '@/types/notification'
+import { mount } from '@vue/test-utils';
+import NotificationList from '../NotificationList.vue';
+import type { INotification } from '@/types/notification';
+import { NotificationTypeEnum } from '@/types/notification';
 
 export interface INotificationListProps {
-  notifications: INotification[]
+  notifications: INotification[];
 }
 
 export const mountNotificationList = (props: INotificationListProps) => {
   return mount(NotificationList, {
     props,
-  })
-}
+  });
+};
 
 export const createDefaultNotificationListProps = (): INotificationListProps => {
   return {
@@ -27,5 +27,5 @@ export const createDefaultNotificationListProps = (): INotificationListProps => 
         message: 'Error message',
       },
     ],
-  }
-}
+  };
+};

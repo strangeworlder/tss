@@ -1,4 +1,4 @@
-import type { ILoadingSpinnerProps } from '../LoadingSpinner.test-utils'
+import type { ILoadingSpinnerProps } from '../LoadingSpinner.test-utils';
 
 /**
  * Create props for the LoadingSpinner component
@@ -6,13 +6,13 @@ import type { ILoadingSpinnerProps } from '../LoadingSpinner.test-utils'
  * @returns The props for the LoadingSpinner component
  */
 export function createLoadingSpinnerProps(
-  overrides: Partial<ILoadingSpinnerProps> = {},
+  overrides: Partial<ILoadingSpinnerProps> = {}
 ): ILoadingSpinnerProps {
   return {
     size: 'md',
     text: 'Loading...',
     ...overrides,
-  }
+  };
 }
 
 /**
@@ -25,4 +25,4 @@ export const mockLoadingSpinners = {
   large: createLoadingSpinnerProps({ size: 'lg' }),
   customText: createLoadingSpinnerProps({ text: 'Processing data...' }),
   noText: createLoadingSpinnerProps({ text: '' }),
-}
+};

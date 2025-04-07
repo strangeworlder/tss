@@ -85,81 +85,81 @@ Accessibility:
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { ComputedRef } from 'vue'
-import NavLink from '@/components/molecules/NavLink.vue'
-import UserMenu from '@/components/molecules/UserMenu.vue'
+import { computed, ref } from 'vue';
+import type { ComputedRef } from 'vue';
+import NavLink from '@/components/molecules/NavLink.vue';
+import UserMenu from '@/components/molecules/UserMenu.vue';
 
 interface INavItem {
-  to: string
-  text: string
-  variant?: 'default' | 'auth'
+  to: string;
+  text: string;
+  variant?: 'default' | 'auth';
 }
 
 const props = defineProps<{
-  isOpen: boolean
-  isAuthenticated: boolean
-  isAdmin: boolean
-  userName: string
-  isUserMenuOpen: boolean
-}>()
+  isOpen: boolean;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  userName: string;
+  isUserMenuOpen: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: 'toggleUserMenu'): void
-  (e: 'logout'): void
-}>()
+  (e: 'toggleUserMenu'): void;
+  (e: 'logout'): void;
+}>();
 
 // Keyboard navigation state
-const currentFocusIndex = ref<number>(0)
+const currentFocusIndex = ref<number>(0);
 
 const navItems: ComputedRef<INavItem[]> = computed(() => {
   const items: INavItem[] = [
     { to: '/', text: 'Home' },
     { to: '/blog', text: 'Blog' },
     { to: '/about', text: 'About' },
-  ]
+  ];
 
   if (props.isAdmin) {
-    items.push({ to: '/admin', text: 'Admin' })
+    items.push({ to: '/admin', text: 'Admin' });
   }
 
   if (!props.isAuthenticated) {
-    items.push({ to: '/auth', text: 'Login / Register', variant: 'auth' })
+    items.push({ to: '/auth', text: 'Login / Register', variant: 'auth' });
   }
 
-  return items
-})
+  return items;
+});
 
 const handleKeyDown = (event: KeyboardEvent): void => {
   if (event.key === 'Escape' && props.isOpen) {
-    emit('toggleUserMenu')
+    emit('toggleUserMenu');
   }
-}
+};
 
 const handleLeftKey = (currentIndex: number): void => {
-  const maxIndex = props.isAuthenticated ? navItems.value.length : navItems.value.length - 1
-  currentFocusIndex.value = currentIndex === 0 ? maxIndex : currentIndex - 1
-  focusCurrentItem()
-}
+  const maxIndex = props.isAuthenticated ? navItems.value.length : navItems.value.length - 1;
+  currentFocusIndex.value = currentIndex === 0 ? maxIndex : currentIndex - 1;
+  focusCurrentItem();
+};
 
 const handleRightKey = (currentIndex: number): void => {
-  const maxIndex = props.isAuthenticated ? navItems.value.length : navItems.value.length - 1
-  currentFocusIndex.value = currentIndex === maxIndex ? 0 : currentIndex + 1
-  focusCurrentItem()
-}
+  const maxIndex = props.isAuthenticated ? navItems.value.length : navItems.value.length - 1;
+  currentFocusIndex.value = currentIndex === maxIndex ? 0 : currentIndex + 1;
+  focusCurrentItem();
+};
 
 const focusCurrentItem = (): void => {
-  const menuItems = document.querySelectorAll('a, button')
-  ;(menuItems[currentFocusIndex.value] as HTMLElement)?.focus()
-}
+  const menuItems = document.querySelectorAll('a, button');
+  (menuItems[currentFocusIndex.value] as HTMLElement)?.focus();
+};
 
 const toggleUserMenu = (): void => {
-  emit('toggleUserMenu')
-}
+  emit('toggleUserMenu');
+};
 
 const handleLogout = (): void => {
-  emit('logout')
-}
+  emit('logout');
+};
 </script>
 
 <style scoped>
@@ -180,7 +180,7 @@ const handleLogout = (): void => {
   list-style: none;
 }
 
-@media (max-width: var(--breakpoint-md)) {
+@media (max-width: 768px) {
   .navigation {
     position: fixed;
     top: 0;

@@ -16,14 +16,14 @@ A molecular component that displays a collection of tags for a blog post.
 - Tags are rendered as a semantic group
 -->
 <script setup lang="ts">
-import TagPill from '@/components/atoms/TagPill.vue'
-import type { Props } from './BlogPostTags.types'
+import TagPill from '@/components/atoms/TagPill.vue';
+import type { Props } from './BlogPostTags.types';
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Validate that tags is an array
 if (!Array.isArray(props.tags)) {
-  console.error('BlogPostTags: tags prop must be an array')
+  console.error('BlogPostTags: tags prop must be an array');
 }
 </script>
 

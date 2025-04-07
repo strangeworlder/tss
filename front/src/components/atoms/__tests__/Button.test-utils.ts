@@ -1,16 +1,16 @@
-import { mount } from '@vue/test-utils'
-import AppButton from '../AppButton.vue'
-import { ButtonVariantEnum } from '@/types/button'
-import { createButtonProps } from './__fixtures__/Button.fixture'
+import { mount } from '@vue/test-utils';
+import AppButton from '../AppButton.vue';
+import { ButtonVariantEnum } from '@/types/button';
+import { createButtonProps } from './__fixtures__/Button.fixture';
 
 /**
  * Interface for Button component props
  */
 interface IButtonProps {
-  variant?: ButtonVariantEnum
-  disabled?: boolean
-  to?: string
-  ariaLabel?: string
+  variant?: ButtonVariantEnum;
+  disabled?: boolean;
+  to?: string;
+  ariaLabel?: string;
 }
 
 /**
@@ -26,7 +26,7 @@ export function mountButton(props: IButtonProps = createButtonProps()) {
         'router-link': true,
       },
     },
-  })
+  });
 }
 
 /**
@@ -41,5 +41,5 @@ export function createDefaultButtonProps(overrides: Partial<IButtonProps> = {}) 
     to: undefined,
     ariaLabel: undefined,
     ...overrides,
-  }
+  };
 }

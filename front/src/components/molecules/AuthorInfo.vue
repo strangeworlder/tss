@@ -37,30 +37,30 @@ Props:
 </template>
 
 <script setup lang="ts">
-import UserAvatar from '@/components/atoms/UserAvatar.vue'
-import type { Author } from '@/types/blog'
+import UserAvatar from '@/components/atoms/UserAvatar.vue';
+import type { Author } from '@/types/blog';
 
 interface Props {
   /** The author object containing name and optional avatar */
-  author?: Author
+  author?: Author;
   /** ISO date string for the content */
-  date?: string
+  date?: string;
   /** Size of the avatar image */
-  size: 'sm' | 'md' | 'lg'
+  size: 'sm' | 'md' | 'lg';
 }
 
 const { author, date, size } = withDefaults(defineProps<Props>(), {
   size: 'md',
-})
+});
 
 const formatDate = (dateString: string): string => {
-  if (!dateString) return ''
+  if (!dateString) return '';
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
-}
+  });
+};
 </script>
 
 <style scoped>

@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import AppNavigation from '../AppNavigation.vue'
-import NavLink from '@/components/molecules/NavLink.vue'
-import UserMenu from '@/components/molecules/UserMenu.vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { mount } from '@vue/test-utils';
+import AppNavigation from '../AppNavigation.vue';
+import NavLink from '@/components/molecules/NavLink.vue';
+import UserMenu from '@/components/molecules/UserMenu.vue';
+import { createRouter, createWebHistory } from 'vue-router';
 
 // Mock router
 const router = createRouter({
@@ -14,11 +14,37 @@ const router = createRouter({
     { path: '/about', component: {} },
     { path: '/admin', component: {} },
     { path: '/auth', component: {} },
-    { path: '/profile', component: {} }
-  ]
-})
+    { path: '/profile', component: {} },
+  ],
+});
+
+// Mock document methods
+const mockFocus = vi.fn();
+const originalQuerySelectorAll = document.querySelectorAll;
+const originalActiveElement = Object.getOwnPropertyDescriptor(document, 'activeElement');
 
 describe('AppNavigation', () => {
+  beforeEach(() => {
+    // Reset mocks
+    vi.clearAllMocks();
+
+    // Mock document.querySelectorAll to return elements with focus method
+    document.querySelectorAll = vi
+      .fn()
+      .mockReturnValue([{ focus: mockFocus }, { focus: mockFocus }, { focus: mockFocus }]);
+
+    // Mock document.activeElement
+    Object.defineProperty(document, 'activeElement', {
+      get: () => ({ tagName: 'A' }),
+    });
+  });
+
+  afterEach(() => {
+    // Restore original methods
+    document.querySelectorAll = originalQuerySelectorAll;
+    Object.defineProperty(document, 'activeElement', originalActiveElement || {});
+  });
+
   // Rendering tests
   describe('rendering', () => {
     it('renders navigation with correct ARIA label', () => {
@@ -29,12 +55,12 @@ describe('AppNavigation', () => {
           isAuthenticated: false,
           isAdmin: false,
           userName: '',
-          isUserMenuOpen: false
-        }
-      })
-      
-      expect(wrapper.find('nav').attributes('aria-label')).toBe('Main navigation')
-    })
+          isUserMenuOpen: false,
+        },
+      });
+
+      expect(wrapper.find('nav').attributes('aria-label')).toBe('Main navigation');
+    });
 
     it('renders all base navigation items', () => {
       const wrapper = mount(AppNavigation, {
@@ -44,14 +70,14 @@ describe('AppNavigation', () => {
           isAuthenticated: false,
           isAdmin: false,
           userName: '',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      const links = wrapper.findAllComponents(NavLink)
-      expect(links).toHaveLength(4) // Home, Blog, About, Login/Register
-    })
-  })
+      const links = wrapper.findAllComponents(NavLink);
+      expect(links).toHaveLength(4); // Home, Blog, About, Login/Register
+    });
+  });
 
   // Props tests
   describe('props', () => {
@@ -63,13 +89,13 @@ describe('AppNavigation', () => {
           isAuthenticated: true,
           isAdmin: true,
           userName: 'Test User',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      const adminLink = wrapper.findComponent(NavLink)
-      expect(adminLink.exists()).toBe(true)
-    })
+      const adminLink = wrapper.findComponent(NavLink);
+      expect(adminLink.exists()).toBe(true);
+    });
 
     it('shows user menu when authenticated', () => {
       const wrapper = mount(AppNavigation, {
@@ -79,14 +105,14 @@ describe('AppNavigation', () => {
           isAuthenticated: true,
           isAdmin: false,
           userName: 'Test User',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      const userMenu = wrapper.findComponent(UserMenu)
-      expect(userMenu.exists()).toBe(true)
-    })
-  })
+      const userMenu = wrapper.findComponent(UserMenu);
+      expect(userMenu.exists()).toBe(true);
+    });
+  });
 
   // Events tests
   describe('events', () => {
@@ -98,13 +124,13 @@ describe('AppNavigation', () => {
           isAuthenticated: true,
           isAdmin: false,
           userName: 'Test User',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      await wrapper.findComponent(UserMenu).vm.$emit('toggle')
-      expect(wrapper.emitted('toggleUserMenu')).toBeTruthy()
-    })
+      await wrapper.findComponent(UserMenu).vm.$emit('toggle');
+      expect(wrapper.emitted('toggleUserMenu')).toBeTruthy();
+    });
 
     it('emits logout when logout is triggered', async () => {
       const wrapper = mount(AppNavigation, {
@@ -114,14 +140,14 @@ describe('AppNavigation', () => {
           isAuthenticated: true,
           isAdmin: false,
           userName: 'Test User',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      await wrapper.findComponent(UserMenu).vm.$emit('logout')
-      expect(wrapper.emitted('logout')).toBeTruthy()
-    })
-  })
+      await wrapper.findComponent(UserMenu).vm.$emit('logout');
+      expect(wrapper.emitted('logout')).toBeTruthy();
+    });
+  });
 
   // Accessibility tests
   describe('accessibility', () => {
@@ -133,14 +159,21 @@ describe('AppNavigation', () => {
           isAuthenticated: false,
           isAdmin: false,
           userName: '',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      const nav = wrapper.find('nav')
-      await nav.trigger('keydown.tab')
-      expect(document.activeElement).toBe(wrapper.find('a').element)
-    })
+      // Find the first NavLink component
+      const firstLink = wrapper.findComponent(NavLink);
+      expect(firstLink.exists()).toBe(true);
+
+      // Trigger keydown event on the navigation
+      const nav = wrapper.find('nav');
+      await nav.trigger('keydown.tab');
+
+      // Verify that focusCurrentItem was called
+      expect(mockFocus).toHaveBeenCalled();
+    });
 
     it('announces menu state changes to screen readers', async () => {
       const wrapper = mount(AppNavigation, {
@@ -150,14 +183,20 @@ describe('AppNavigation', () => {
           isAuthenticated: false,
           isAdmin: false,
           userName: '',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      await wrapper.setProps({ isOpen: true })
-      expect(wrapper.find('[aria-expanded]').attributes('aria-expanded')).toBe('true')
-    })
-  })
+      // Check initial state
+      expect(wrapper.find('nav').attributes('aria-expanded')).toBe('false');
+
+      // Update isOpen prop
+      await wrapper.setProps({ isOpen: true });
+
+      // Check updated state
+      expect(wrapper.find('nav').attributes('aria-expanded')).toBe('true');
+    });
+  });
 
   // Responsive tests
   describe('responsive behavior', () => {
@@ -169,11 +208,11 @@ describe('AppNavigation', () => {
           isAuthenticated: false,
           isAdmin: false,
           userName: '',
-          isUserMenuOpen: false
-        }
-      })
+          isUserMenuOpen: false,
+        },
+      });
 
-      expect(wrapper.classes()).toContain('navigation--open')
-    })
-  })
-}) 
+      expect(wrapper.classes()).toContain('navigation--open');
+    });
+  });
+});

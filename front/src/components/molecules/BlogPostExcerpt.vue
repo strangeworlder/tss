@@ -28,26 +28,26 @@
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import { computed } from 'vue';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
 
 interface Props {
-  content: string
-  variant?: BlogPostTitleVariantEnum
+  content: string;
+  variant?: BlogPostTitleVariantEnum;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: BlogPostTitleVariantEnum.FULL,
-})
+});
 
 const excerptLength = computed(() => {
-  return props.variant === BlogPostTitleVariantEnum.COMPACT ? 100 : 150
-})
+  return props.variant === BlogPostTitleVariantEnum.COMPACT ? 100 : 150;
+});
 
 const excerpt = computed(() => {
-  const truncated = props.content.substring(0, excerptLength.value)
-  return props.content.length > excerptLength.value ? `${truncated}...` : truncated
-})
+  const truncated = props.content.substring(0, excerptLength.value);
+  return props.content.length > excerptLength.value ? `${truncated}...` : truncated;
+});
 </script>
 
 <template>

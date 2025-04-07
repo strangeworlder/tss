@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import { useAuthStore } from '@/stores/authStore'
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import { useAuthStore } from '@/stores/authStore';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,11 +46,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
   ],
-})
+});
 
 // Navigation guard
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+  const authStore = useAuthStore();
 
   // Check if route requires authentication
   if (to.matched.some((record) => record.meta.requiresAuth)) {
@@ -59,21 +59,21 @@ router.beforeEach((to, from, next) => {
       next({
         path: '/auth',
         query: { redirect: to.fullPath },
-      })
-      return
+      });
+      return;
     }
 
     // Check if route requires admin role
     if (to.matched.some((record) => record.meta.requiresAdmin)) {
       // Check if user is admin
       if (!authStore.isAdmin) {
-        next({ path: '/' })
-        return
+        next({ path: '/' });
+        return;
       }
     }
   }
 
-  next()
-})
+  next();
+});
 
-export default router
+export default router;

@@ -94,59 +94,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { createComment } from '@/api/commentService'
-import type { ICommentFormProps } from '@/types/form'
+import { ref, reactive } from 'vue';
+import { createComment } from '@/api/commentService';
+import type { ICommentFormProps } from '@/types/form';
 
 interface IFormData {
-  title: string
-  content: string
+  title: string;
+  content: string;
 }
 
 interface IFormErrors {
-  title?: string
-  content?: string
+  title?: string;
+  content?: string;
 }
 
 const props = withDefaults(defineProps<ICommentFormProps>(), {
   isReply: false,
-})
+});
 
 const emit = defineEmits<{
-  (e: 'submit'): void
-  (e: 'cancel'): void
-  (e: 'error', message: string): void
-}>()
+  (e: 'submit'): void;
+  (e: 'cancel'): void;
+  (e: 'error', message: string): void;
+}>();
 
 const formData = reactive<IFormData>({
   title: '',
   content: '',
-})
+});
 
-const errors = reactive<IFormErrors>({})
-const isSubmitting = ref<boolean>(false)
+const errors = reactive<IFormErrors>({});
+const isSubmitting = ref<boolean>(false);
 
 const validateForm = (): boolean => {
   if (!formData.content?.trim()) {
-    errors.content = 'Content is required'
-    return false
+    errors.content = 'Content is required';
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 const handleSubmit = async (): Promise<void> => {
-  errors.title = undefined
-  errors.content = undefined
+  errors.title = undefined;
+  errors.content = undefined;
 
   if (!validateForm()) {
-    return
+    return;
   }
 
   try {
-    isSubmitting.value = true
+    isSubmitting.value = true;
 
     if (!props.parentId || !props.parentType) {
-      throw new Error('Missing required parent information')
+      throw new Error('Missing required parent information');
     }
 
     await createComment({
@@ -154,20 +154,20 @@ const handleSubmit = async (): Promise<void> => {
       content: formData.content?.trim() || '',
       parentId: props.parentId,
       parentType: props.parentType,
-    })
+    });
 
-    emit('submit')
+    emit('submit');
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Failed to submit comment'
-    emit('error', errorMessage)
+    const errorMessage = err instanceof Error ? err.message : 'Failed to submit comment';
+    emit('error', errorMessage);
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
-}
+};
 
 const handleCancel = (): void => {
-  emit('cancel')
-}
+  emit('cancel');
+};
 </script>
 
 <style scoped>
