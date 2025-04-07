@@ -5,6 +5,7 @@ import BlogPostList from '@/components/organisms/admin/BlogPostList.vue';
 import BlogPostEditor from '@/components/organisms/admin/BlogPostEditor.vue';
 import { useBlogStore } from '@/stores/blogStore';
 import { useAuthStore } from '@/stores/authStore';
+import BaseView from '@/components/templates/BaseView.vue';
 
 const router = useRouter();
 const blogStore = useBlogStore();
@@ -38,43 +39,37 @@ const handleBackToList = () => {
 </script>
 
 <template>
-  <div v-if="isAuthorized" class="admin-view">
-    <!-- Notification -->
-    <div
-      v-if="blogStore.notification"
-      :class="[
-        'admin-view__notification',
-        `admin-view__notification--${blogStore.notification.type}`,
-      ]"
-    >
-      {{ blogStore.notification.message }}
-    </div>
-
-    <header class="admin-view__header">
-      <h1 class="admin-view__title">Blog Admin</h1>
-      <div class="admin-view__tabs">
-        <button
-          class="admin-view__tab"
-          :class="{ 'admin-view__tab--active': activeTab === 'list' }"
-          @click="activeTab = 'list'"
-        >
-          Posts
-        </button>
-        <button
-          class="admin-view__tab"
-          :class="{ 'admin-view__tab--active': activeTab === 'editor' }"
-          @click="handleCreatePost"
-        >
-          New Post
-        </button>
+  <BaseView 
+    title="Blog Admin" 
+    variant="narrow"
+  >
+    <template #header>
+      <div class="admin-view__header">
+        <h1 class="admin-view__title">Blog Admin</h1>
+        <div class="admin-view__tabs">
+          <button
+            class="admin-view__tab"
+            :class="{ 'admin-view__tab--active': activeTab === 'list' }"
+            @click="activeTab = 'list'"
+          >
+            Posts
+          </button>
+          <button
+            class="admin-view__tab"
+            :class="{ 'admin-view__tab--active': activeTab === 'editor' }"
+            @click="handleCreatePost"
+          >
+            New Post
+          </button>
+        </div>
       </div>
-    </header>
-
+    </template>
+    
     <main class="admin-view__content">
       <BlogPostList v-if="activeTab === 'list'" @edit-post="handleEditPost" />
       <BlogPostEditor v-else :post-id="editingPostId" @back="handleBackToList" />
     </main>
-  </div>
+  </BaseView>
 </template>
 
 <style scoped>

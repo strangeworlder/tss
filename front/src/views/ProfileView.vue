@@ -1,36 +1,42 @@
 <!--
-  ProfileView
-  A page component that displays and allows editing of the user's profile information.
+  @component ProfileView
+  @description A page component that displays and allows editing of the user's profile information.
   
-  Features:
+  @features
   - Displays user profile information (name, email, role)
   - Allows uploading and changing profile picture
   - Shows success/error messages for avatar upload
   - Responsive design for different screen sizes
   
-  Accessibility:
+  @accessibility
   - Uses semantic HTML elements
   - Proper heading hierarchy
   - Keyboard accessible file upload
   - Clear success/error messaging
+  - Proper focus management
 -->
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
+import BaseView from '@/components/templates/BaseView.vue';
+import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue';
 import AppButton from '@/components/atoms/AppButton.vue';
 import { ButtonVariantEnum } from '@/types/button';
 import UserAvatar from '@/components/atoms/UserAvatar.vue';
 import { UserRole } from '@/types/user';
 
+// State
 const authStore = useAuthStore();
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const error = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const avatarPreview = ref<string | null>(null);
 
+// Computed
 const user = computed(() => authStore.user);
+const hasUser = computed<boolean>(() => user.value !== null);
 
 const userLevel = computed((): string => {
   if (!user.value) return 'User';
@@ -44,6 +50,7 @@ const userLevel = computed((): string => {
   }
 });
 
+// Methods
 const handleAvatarChange = async (event: Event): Promise<void> => {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -88,15 +95,73 @@ const handleAvatarChange = async (event: Event): Promise<void> => {
 const triggerFileInput = (): void => {
   fileInput.value?.click();
 };
+
+// Lifecycle hooks
+onMounted(() => {
+  if (!hasUser.value) {
+    authStore.fetchUserData();
+  }
+});
 </script>
 
 <template>
-  <div class="profile-view">
-    <div class="profile-view__container">
-      <h1 class="profile-view__title">My Profile</h1>
-
+  <BaseView 
+    title="My Profile" 
+    variant="narrow"
+  >
+    <template #header>
+      <div class="profile-view__header">
+        <h1 class="profile-view__title">My Profile</h1>
+        <p class="profile-view__subtitle">Manage your account information and preferences</p>
+      </div>
+    </template>
+    
+    <!-- Loading state -->
+    <LoadingSpinner 
+      v-if="loading" 
+      size="lg" 
+      text="Updating profile..." 
+    />
+    
+    <!-- Error state -->
+    <div 
+      v-else-if="error" 
+      class="profile-view__error"
+    >
+      <p class="profile-view__error-text">{{ error }}</p>
+      <div class="profile-view__actions">
+        <AppButton 
+          @click="triggerFileInput" 
+          :variant="ButtonVariantEnum.PRIMARY"
+        >
+          Try Again
+        </AppButton>
+      </div>
+    </div>
+    
+    <!-- Empty state -->
+    <div 
+      v-else-if="!hasUser" 
+      class="profile-view__empty"
+    >
+      <p class="profile-view__empty-text">No profile data available</p>
+      <AppButton 
+        @click="authStore.fetchUserData" 
+        :variant="ButtonVariantEnum.SECONDARY"
+      >
+        Load Profile
+      </AppButton>
+    </div>
+    
+    <!-- Content -->
+    <div 
+      v-else 
+      class="profile-view__content"
+    >
       <!-- User info section -->
-      <div class="profile-view__section">
+      <section class="profile-view__section">
+        <h2 class="profile-view__section-title">Profile Information</h2>
+        
         <div class="profile-view__avatar-container">
           <UserAvatar
             :src="user?.avatar?.filename"
@@ -111,6 +176,7 @@ const triggerFileInput = (): void => {
             accept="image/*"
             class="profile-view__file-input"
             @change="handleAvatarChange"
+            aria-label="Upload profile picture"
           />
 
           <AppButton
@@ -148,35 +214,74 @@ const triggerFileInput = (): void => {
             <p class="profile-view__value">{{ userLevel }}</p>
           </div>
         </div>
-      </div>
+      </section>
     </div>
-  </div>
+  </BaseView>
 </template>
 
 <style scoped>
-.profile-view {
-  padding: var(--spacing-xl) var(--spacing-md);
-  min-height: 100vh;
-  background-color: var(--color-background);
-}
-
-.profile-view__container {
-  max-width: 45rem;
-  margin: 0 auto;
+.profile-view__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .profile-view__title {
   font-size: var(--font-size-2xl);
-  color: var(--color-heading);
-  margin-bottom: var(--spacing-8);
   font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.profile-view__subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.profile-view__error,
+.profile-view__empty {
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+}
+
+.profile-view__error-text,
+.profile-view__empty-text {
+  margin-bottom: var(--spacing-md);
+}
+
+.profile-view__error-text {
+  color: var(--color-danger);
+}
+
+.profile-view__empty-text {
+  color: var(--color-text-muted);
+}
+
+.profile-view__actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.profile-view__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
 
 .profile-view__section {
-  background-color: var(--color-background-soft);
+  background-color: var(--color-background-card);
   border-radius: var(--border-radius);
-  padding: var(--spacing-6);
+  padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
+}
+
+.profile-view__section-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--spacing-md);
 }
 
 .profile-view__avatar-container {
@@ -201,49 +306,46 @@ const triggerFileInput = (): void => {
 
 .profile-view__message {
   text-align: center;
-  margin: var(--spacing-4) 0;
-  padding: var(--spacing-2) var(--spacing-4);
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius);
 }
 
 .profile-view__message--success {
-  background-color: var(--color-success-bg);
+  background-color: var(--color-success-light);
   color: var(--color-success);
 }
 
 .profile-view__message--error {
-  background-color: var(--color-error-bg);
-  color: var(--color-error);
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
 }
 
 .profile-view__details {
-  margin-top: var(--spacing-6);
+  margin-top: var(--spacing-lg);
 }
 
 .profile-view__detail-group {
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-md);
 }
 
 .profile-view__label {
   font-size: var(--font-size-sm);
-  color: var(--color-text);
-  margin-bottom: var(--spacing-1);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
   display: block;
 }
 
 .profile-view__value {
   font-size: var(--font-size-base);
-  color: var(--color-heading);
+  color: var(--color-text);
   font-weight: var(--font-weight-medium);
 }
 
+/* Responsive styles */
 @media (max-width: 640px) {
-  .profile-view {
-    padding: var(--spacing-4) var(--spacing-2);
-  }
-
   .profile-view__section {
-    padding: var(--spacing-4);
+    padding: var(--spacing-md);
   }
 
   .profile-view__avatar {

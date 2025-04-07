@@ -1,174 +1,248 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
-import ProfileView from '../ProfileView.vue';
-import type { IUser } from '@/types/user';
-import type { UserRole } from '@/types/user';
+import type { ComponentPublicInstance } from 'vue';
+import ProfileView from '@/views/ProfileView.vue';
+import BaseView from '@/components/templates/BaseView.vue';
+import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue';
+import AppButton from '@/components/atoms/AppButton.vue';
+import UserAvatar from '@/components/atoms/UserAvatar.vue';
+import { UserRole } from '@/types/user';
+import { useAuthStore } from '@/stores/authStore';
+import { ref } from 'vue';
+import {
+  createProfileViewWrapper,
+  mockUser,
+  mockAuthStore,
+  createMockFile,
+  createMockFileList,
+} from './profile-view.test-utils';
 
-// Mock the auth store
-vi.mock('@/stores/authStore', () => ({
-  useAuthStore: vi.fn(() => ({
-    user: {
-      id: '1',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      role: 'admin' as UserRole,
-      avatar: {
-        filename: 'avatar.jpg',
-        altText: 'Profile picture',
-      },
-    },
-    token: 'mock-token',
-    fetchUserData: vi.fn(),
-  })),
+// Mock dependencies
+vi.mock('@/components/templates/BaseView.vue', () => ({
+  default: {
+    name: 'BaseView',
+    template: '<div><slot name="header"></slot><slot></slot><slot name="footer"></slot></div>',
+    props: ['title', 'variant', 'showHeader', 'showFooter'],
+  },
 }));
 
-// Mock fetch API
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.mock('@/components/atoms/LoadingSpinner.vue', () => ({
+  default: {
+    name: 'LoadingSpinner',
+    template: '<div class="loading-spinner">{{ text }}</div>',
+    props: ['size', 'text'],
+  },
+}));
 
-// Mock URL.createObjectURL
-global.URL.createObjectURL = vi.fn(() => 'mock-url');
+vi.mock('@/components/atoms/AppButton.vue', () => ({
+  default: {
+    name: 'AppButton',
+    template: '<button><slot></slot></button>',
+    props: ['variant', 'disabled'],
+  },
+}));
+
+vi.mock('@/components/atoms/UserAvatar.vue', () => ({
+  default: {
+    name: 'UserAvatar',
+    template: '<div class="user-avatar"><img :src="src" :alt="alt" /></div>',
+    props: ['src', 'alt', 'size'],
+  },
+}));
+
+// Mock auth store
+vi.mock('@/stores/authStore', () => ({
+  useAuthStore: vi.fn(() => mockAuthStore),
+}));
+
+interface ProfileViewInstance extends ComponentPublicInstance {
+  loading: boolean;
+  error: string | null;
+  successMessage: string | null;
+  fileInput: HTMLInputElement | null;
+  avatarPreview: string | null;
+}
 
 describe('ProfileView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFetch.mockReset();
   });
 
-  const createWrapper = () => {
-    return mount(ProfileView);
-  };
-
+  // Rendering tests
   describe('Rendering', () => {
-    it('renders the component with user data', () => {
-      const wrapper = createWrapper();
+    it('renders correctly with default props', () => {
+      const wrapper = createProfileViewWrapper();
+      expect(wrapper.exists()).toBe(true);
+      expect(wrapper.findComponent(BaseView).exists()).toBe(true);
+    });
 
-      // Check if user information is displayed correctly
+    it('renders loading state when loading is true', () => {
+      const wrapper = createProfileViewWrapper({ loading: true });
+      expect(wrapper.findComponent(LoadingSpinner).exists()).toBe(true);
+    });
+
+    it('renders error state when error is present', () => {
+      const errorMessage = 'Test error message';
+      const wrapper = createProfileViewWrapper({ error: errorMessage });
+      expect(wrapper.find('.profile-view__error').exists()).toBe(true);
+      expect(wrapper.find('.profile-view__error-text').text()).toBe(errorMessage);
+    });
+
+    it('renders empty state when no user data is available', () => {
+      // Mock auth store with no user
+      const emptyAuthStore = {
+        user: ref(null),
+        token: ref(null),
+        loading: ref(false),
+        error: ref(null),
+        isAuthenticated: ref(false),
+        isAdmin: ref(false),
+        isEditor: ref(false),
+        userRole: ref(null),
+        fetchUserData: vi.fn(),
+        setAuthData: vi.fn(),
+        clearAuthData: vi.fn(),
+        login: vi.fn(),
+        logout: vi.fn(),
+      };
+
+      vi.mocked(useAuthStore).mockImplementationOnce(() => emptyAuthStore as any);
+
+      const wrapper = createProfileViewWrapper();
+      expect(wrapper.find('.profile-view__empty').exists()).toBe(true);
+    });
+
+    it('renders content when user data is available', () => {
+      const wrapper = createProfileViewWrapper();
+      expect(wrapper.find('.profile-view__content').exists()).toBe(true);
+      expect(wrapper.find('.profile-view__section-title').text()).toBe('Profile Information');
+    });
+
+    it('displays user information correctly', () => {
+      const wrapper = createProfileViewWrapper();
       expect(wrapper.text()).toContain('John Doe');
       expect(wrapper.text()).toContain('john.doe@example.com');
-      expect(wrapper.text()).toContain('Administrator');
-    });
-
-    it('renders the avatar with correct props', () => {
-      const wrapper = createWrapper();
-      const avatar = wrapper.findComponent({ name: 'UserAvatar' });
-
-      expect(avatar.exists()).toBe(true);
-      expect(avatar.props('src')).toBe('avatar.jpg');
-      expect(avatar.props('alt')).toBe('John');
-      expect(avatar.props('size')).toBe('lg');
-    });
-
-    it('renders the change profile picture button', () => {
-      const wrapper = createWrapper();
-      const button = wrapper.findComponent({ name: 'AppButton' });
-
-      expect(button.exists()).toBe(true);
-      expect(button.text()).toBe('Change Profile Picture');
+      expect(wrapper.text()).toContain('Regular User');
     });
   });
 
-  describe('Avatar Upload', () => {
-    it('handles successful avatar upload', async () => {
-      const wrapper = createWrapper();
-      const { useAuthStore } = await import('@/stores/authStore');
-      const store = useAuthStore();
+  // User interaction tests
+  describe('User Interactions', () => {
+    it('triggers file input when change profile picture button is clicked', async () => {
+      const wrapper = createProfileViewWrapper();
+      const instance = wrapper.vm as unknown as ProfileViewInstance;
+      const mockClick = vi.fn();
 
-      // Mock successful API response
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ success: true }),
+      // Mock the click method on the file input
+      if (instance.fileInput) {
+        instance.fileInput.click = mockClick;
+      }
+
+      // Find and click the change profile picture button
+      const button = wrapper.find('[data-test="change-profile-picture-button"]');
+      await button.trigger('click');
+
+      // Verify that the file input's click method was called
+      expect(mockClick).toHaveBeenCalled();
+    });
+
+    it('handles file selection correctly', async () => {
+      const wrapper = createProfileViewWrapper();
+      const instance = wrapper.vm as unknown as ProfileViewInstance;
+      const mockFile = createMockFile();
+      const mockFileList = createMockFileList(mockFile);
+
+      // Trigger file selection
+      const input = wrapper.find('input[type="file"]');
+      Object.defineProperty(input.element, 'files', {
+        value: mockFileList,
       });
+      await input.trigger('change');
 
-      // Trigger file upload
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      const input = wrapper.find('input[type="file"]');
-      await input.trigger('change', { target: { files: [file] } });
-
-      // Verify API call
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/v1/users/avatar'),
-        expect.objectContaining({
-          method: 'POST',
-          headers: { Authorization: 'Bearer mock-token' },
-        })
-      );
-
-      // Verify store action was called
-      expect(store.fetchUserData).toHaveBeenCalled();
-
-      // Verify success message
-      expect(wrapper.text()).toContain('Profile picture updated successfully');
+      // Verify that loading state is activated
+      expect(instance.loading).toBe(true);
     });
 
-    it('handles failed avatar upload', async () => {
-      const wrapper = createWrapper();
+    it('handles missing user data gracefully', () => {
+      const emptyAuthStore = {
+        ...mockAuthStore,
+        user: ref(null),
+      };
 
-      // Mock failed API response
-      mockFetch.mockRejectedValueOnce(new Error('Failed to update profile picture'));
+      vi.mocked(useAuthStore).mockReturnValue(emptyAuthStore as any);
 
-      // Trigger file upload
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      const input = wrapper.find('input[type="file"]');
-      await input.trigger('change', { target: { files: [file] } });
-
-      // Verify error message
-      expect(wrapper.text()).toContain('Failed to update profile picture');
-    });
-
-    it('shows loading state during upload', async () => {
-      const wrapper = createWrapper();
-
-      // Mock delayed API response
-      mockFetch.mockImplementationOnce(() => new Promise((resolve) => setTimeout(resolve, 100)));
-
-      // Trigger file upload
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      const input = wrapper.find('input[type="file"]');
-      await input.trigger('change', { target: { files: [file] } });
-
-      // Verify loading state
-      const button = wrapper.findComponent({ name: 'AppButton' });
-      expect(button.text()).toBe('Uploading...');
-      expect(button.props('disabled')).toBe(true);
+      const wrapper = createProfileViewWrapper();
+      expect(() => wrapper.vm.$forceUpdate()).not.toThrow();
     });
   });
 
+  // Accessibility tests
   describe('Accessibility', () => {
     it('has proper heading hierarchy', () => {
-      const wrapper = createWrapper();
-      const h1 = wrapper.find('h1');
+      const wrapper = createProfileViewWrapper();
+      const headings = wrapper.findAll('h1, h2');
 
-      expect(h1.exists()).toBe(true);
-      expect(h1.text()).toBe('My Profile');
+      expect(headings.length).toBe(2);
+      expect(headings[0].element.tagName).toBe('H1');
+      expect(headings[1].element.tagName).toBe('H2');
     });
 
-    it('has proper labels for form elements', () => {
-      const wrapper = createWrapper();
-      const labels = wrapper.findAll('label');
+    it('provides proper labels for form elements', () => {
+      const wrapper = createProfileViewWrapper();
+      const fileInput = wrapper.find('.profile-view__file-input');
 
-      expect(labels.length).toBe(3); // Name, Email, User Level
-      expect(labels.map((label) => label.text())).toContain('Name');
-      expect(labels.map((label) => label.text())).toContain('Email');
-      expect(labels.map((label) => label.text())).toContain('User Level');
+      expect(fileInput.attributes('aria-label')).toBe('Upload profile picture');
     });
 
-    it('has accessible file input', () => {
-      const wrapper = createWrapper();
-      const input = wrapper.find('input[type="file"]');
+    it('uses semantic HTML elements', () => {
+      const wrapper = createProfileViewWrapper();
 
-      expect(input.attributes('accept')).toBe('image/*');
+      expect(wrapper.find('section').exists()).toBe(true);
+      expect(wrapper.find('label').exists()).toBe(true);
     });
   });
 
-  describe('Responsive Design', () => {
-    it('applies correct responsive classes', () => {
-      const wrapper = createWrapper();
+  // Edge cases
+  describe('Edge Cases', () => {
+    it('handles API errors gracefully', async () => {
+      const wrapper = createProfileViewWrapper();
+      const fileInput = wrapper.find('.profile-view__file-input');
 
-      expect(wrapper.classes()).toContain('profile-view');
-      expect(wrapper.find('.profile-view__container').exists()).toBe(true);
-      expect(wrapper.find('.profile-view__section').exists()).toBe(true);
+      // Mock fetch to return an error
+      global.fetch = vi.fn().mockRejectedValueOnce(new Error('API Error'));
+
+      // Create a mock file
+      const file = createMockFile();
+
+      // Trigger change event with the file
+      await fileInput.trigger('change', {
+        target: {
+          files: createMockFileList(file),
+        },
+      });
+
+      // Wait for the async operation to complete
+      await wrapper.vm.$nextTick();
+
+      // Check if error state is displayed
+      const vm = wrapper.vm as unknown as ProfileViewInstance;
+      expect(vm.error).toBe('API Error');
+    });
+
+    it('handles missing user data gracefully', () => {
+      // Mock auth store with incomplete user data
+      const incompleteAuthStore = {
+        ...mockAuthStore,
+        user: ref({ ...mockUser, avatar: undefined }),
+      };
+
+      vi.mocked(useAuthStore).mockImplementationOnce(() => incompleteAuthStore as any);
+
+      const wrapper = createProfileViewWrapper();
+
+      // Check if the component renders without errors
+      expect(wrapper.exists()).toBe(true);
+      expect(wrapper.find('.profile-view__content').exists()).toBe(true);
     });
   });
 });

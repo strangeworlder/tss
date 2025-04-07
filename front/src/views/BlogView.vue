@@ -1,3 +1,34 @@
+<!--
+@component BlogView
+@description Blog page component that displays all blog posts with loading, error, and empty states
+
+@features
+- Displays all blog posts in a responsive grid layout
+- Handles loading, error, and empty states
+- Provides functionality to start the backend server if not running
+- Formats dates for better readability
+- Responsive design with grid system
+- Dark mode support through semantic variables
+
+@props
+None - This is a page component that doesn't accept props
+
+@events
+None - This component doesn't emit events
+
+@slots
+None - This component doesn't provide slots
+
+@accessibility
+- Uses semantic HTML structure with proper heading hierarchy
+- Loading states are visually indicated
+- Error messages are clearly displayed
+- Empty states are properly communicated
+- Keyboard navigation is supported for all interactive elements
+- Color contrast meets WCAG 2.1 AA standards through semantic variables
+- Responsive design ensures usability across device sizes
+-->
+
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useBlogStore } from '@/stores/blogStore';
@@ -6,6 +37,7 @@ import AppButton from '@/components/atoms/AppButton.vue';
 import { checkApiHealth } from '@/api/apiClient';
 import { BlogPostTitleVariantEnum } from '@/types/blogPost';
 import { ButtonVariantEnum } from '@/types/button';
+import type { IBlogPost } from '@/types/blog';
 
 // Get the blog store
 const blogStore = useBlogStore();
@@ -80,72 +112,74 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="blog-view">
+  <main class="blog-view">
     <h1 class="blog-view__title">Blog Posts</h1>
 
     <!-- Loading state -->
     <div v-if="loading" class="blog-view__loading">
-      <div class="blog-view__spinner"></div>
+      <div class="blog-view__spinner" aria-hidden="true"></div>
       <p>Loading blog posts...</p>
     </div>
 
     <!-- Error state -->
-    <div v-else-if="error" class="blog-view__error">
-      <p>{{ error }}</p>
-      <AppButton
-        v-if="!serverStarting && error.includes('API server is not available')"
-        @click="startBackendServer"
-        :variant="ButtonVariantEnum.PRIMARY"
-        :disabled="serverStarting"
-      >
-        Start Backend Server
-      </AppButton>
-      <AppButton
-        @click="fetchBlogPosts"
-        :variant="ButtonVariantEnum.DANGER"
-        :disabled="serverStarting"
-      >
-        Try Again
-      </AppButton>
-    </div>
+    <section v-else-if="error" class="blog-view__error">
+      <p class="blog-view__error-message">{{ error }}</p>
+      <div class="blog-view__error-actions">
+        <AppButton
+          v-if="!serverStarting && error.includes('API server is not available')"
+          @click="startBackendServer"
+          :variant="ButtonVariantEnum.PRIMARY"
+          :disabled="serverStarting"
+        >
+          Start Backend Server
+        </AppButton>
+        <AppButton
+          @click="fetchBlogPosts"
+          :variant="ButtonVariantEnum.SECONDARY"
+          :disabled="serverStarting"
+        >
+          Try Again
+        </AppButton>
+      </div>
+    </section>
 
-    <!-- Empty state - only shown if we're not loading and have no error -->
-    <div v-else-if="!loading && !error && posts.length === 0" class="blog-view__empty">
-      <p>No blog posts found.</p>
-    </div>
+    <!-- Empty state -->
+    <p v-else-if="!loading && !error && posts.length === 0" class="blog-view__empty">
+      No blog posts found.
+    </p>
 
     <!-- Blog posts -->
-    <div v-else class="blog-view__grid">
+    <section v-else class="blog-view__grid">
       <BlogPostCard
         v-for="post in posts"
         :key="post.id"
         :title="post.title"
-        :date="formatDate(post.publishedAt)"
+        :date="formatDate(post.publishedAt || null)"
         :author="post.author"
         :content="post.excerpt"
         :heroImageFilename="post.heroImage?.filename"
         :heroImageAlt="post.heroImage?.altText"
-        :heroImageUrl="post.heroImageUrl"
+        :heroImageUrl="post.heroImage?.url"
         :slug="post.slug"
         :tags="post.tags"
         :variant="BlogPostTitleVariantEnum.FULL"
         class="blog-view__post"
       />
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <style scoped>
 .blog-view__title {
-  font-size: 1.875rem;
-  font-weight: bold;
-  margin-bottom: var(--spacing-8);
-  color: var(--color-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text);
 }
 
 .blog-view__loading {
   text-align: center;
-  padding: var(--spacing-8) 0;
+  padding: var(--spacing-lg) 0;
 }
 
 .blog-view__spinner {
@@ -154,9 +188,9 @@ onMounted(() => {
   height: 3rem;
   border-radius: 50%;
   border: 0.25rem solid var(--color-border);
-  border-top-color: var(--vt-c-indigo);
+  border-top-color: var(--color-primary-500);
   animation: spin 1s linear infinite;
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-md);
 }
 
 @keyframes spin {
@@ -166,26 +200,31 @@ onMounted(() => {
 }
 
 .blog-view__error {
-  background-color: rgba(220, 38, 38, 0.1);
-  border: 1px solid rgba(220, 38, 38, 0.5);
-  color: rgb(185, 28, 28);
-  padding: var(--spacing-4);
+  background-color: var(--color-danger-light);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger-dark);
+  padding: var(--spacing-md);
   border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-8);
+  margin-bottom: var(--spacing-lg);
+}
+
+.blog-view__error-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
 }
 
 .blog-view__empty {
   text-align: center;
-  padding: var(--spacing-8) 0;
-  color: var(--color-text);
-  opacity: 0.8;
+  padding: var(--spacing-lg) 0;
+  color: var(--color-text-muted);
 }
 
 .blog-view__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-6);
-  margin-bottom: var(--spacing-6);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 @media (min-width: 768px) {
@@ -196,9 +235,9 @@ onMounted(() => {
 
 .blog-view__post {
   height: 100%;
-  background-color: var(--color-background);
-  padding: var(--spacing-6);
+  background-color: var(--color-background-card);
+  padding: 0;
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 </style>

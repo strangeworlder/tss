@@ -7,18 +7,31 @@
 - Shows 3 most recent blog posts
 - Provides newsletter signup functionality
 - Handles loading, error, and empty states
-- Responsive layout
+- Responsive layout with grid system
+- Dark mode support through semantic variables
+
+@props
+None - This is a page component that doesn't accept props
+
+@events
+None - This component doesn't emit events
+
+@slots
+None - This component doesn't provide slots
+
+@accessibility
+- Uses semantic HTML structure with proper heading hierarchy (h1, h2)
+- Form inputs have associated labels
+- Loading states are announced to screen readers
+- Error messages are properly associated with form controls
+- Keyboard navigation is supported for all interactive elements
+- Color contrast meets WCAG 2.1 AA standards through semantic variables
+- Responsive design ensures usability across device sizes
 
 @example
 <template>
   <HomeView />
 </template>
-
-@accessibility
-- Uses semantic HTML structure with proper heading hierarchy
-- Form inputs have associated labels
-- Loading states are announced to screen readers
-- Error messages are properly associated with form controls
 -->
 
 <script setup lang="ts">
@@ -46,8 +59,8 @@ const newsletterError = ref<string | null>(null);
 const newsletterSuccess = ref<boolean>(false);
 
 // Computed
-const recentPosts = computed<IBlogPost[]>(() => {
-  return blogStore.posts.slice(0, 3);
+const recentPosts = computed(() => {
+  return blogStore.posts.slice(0, 3) as IBlogPost[];
 });
 
 const errorMessage = computed<string>(() => {

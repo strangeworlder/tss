@@ -192,6 +192,7 @@ const formattedAuthor = computed<Author>(() => {
   flex-direction: column;
 }
 
+/* On desktop screens (48rem/768px and above), apply the full variant layout */
 @media (min-width: 48rem) {
   .blog-post-card--full {
     flex-direction: row;

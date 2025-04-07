@@ -151,6 +151,8 @@ const handleImageError = () => {
 .blog-post-image {
   margin-bottom: var(--spacing-lg);
   position: relative;
+  width: 100%;
+  height: var(--blog-image-height-compact);
 }
 
 .blog-post-image__img {
@@ -159,8 +161,8 @@ const handleImageError = () => {
   object-fit: cover;
 }
 
-.blog-post-image--compact .blog-post-image__img {
-  height: var(--blog-image-height-compact);
+.blog-post-image--full {
+  height: var(--blog-image-height-full);
 }
 
 .blog-post-image--error {
@@ -198,6 +200,7 @@ const handleImageError = () => {
   .blog-post-image--full {
     flex: 0 0 40%;
     margin-bottom: 0;
+    height: 100%;
   }
 
   .blog-post-image--full .blog-post-image__img {
