@@ -31,8 +31,8 @@ export interface IBlogPost {
   slug: string;
   content: string;
   excerpt: string;
-  author: IUser;
-  heroImage?: IImage;
+  author: Author;
+  heroImage?: HeroImage;
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -48,8 +48,8 @@ export interface IBlogPostPreview {
   title: string;
   slug: string;
   excerpt: string;
-  author: IUser;
-  heroImage?: IImage;
+  author: Author;
+  heroImage?: HeroImage;
   tags: string[];
   publishedAt?: string;
   isPublished: boolean;

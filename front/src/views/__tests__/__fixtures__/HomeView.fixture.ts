@@ -15,11 +15,9 @@ export function createMockBlogPosts(count = 3): IBlogPost[] {
     excerpt: `This is the excerpt of test blog post ${index + 1}.`,
     publishedAt: new Date(2023, 0, index + 1).toISOString(),
     author: {
+      type: 'user',
       id: `author-${index + 1}`,
-      firstName: 'Test',
-      lastName: `Author ${index + 1}`,
-      email: `author${index + 1}@example.com`,
-      role: UserRole.USER,
+      name: `Test Author ${index + 1}`,
       avatar: {
         filename: `avatar-${index + 1}.jpg`,
         altText: `Avatar of Test Author ${index + 1}`,

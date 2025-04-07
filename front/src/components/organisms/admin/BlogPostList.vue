@@ -122,7 +122,7 @@ onMounted(() => {
         <div class="blog-post-list__content">
           <h2 class="blog-post-list__title">{{ post.title }}</h2>
           <div class="blog-post-list__meta">
-            <AuthorInfo :author="mapUserToAuthor(post.author)" :date="post.publishedAt" size="sm" />
+            <AuthorInfo :author="post.author" :date="post.publishedAt" size="sm" />
             <span
               :class="[
                 'blog-post-list__status',

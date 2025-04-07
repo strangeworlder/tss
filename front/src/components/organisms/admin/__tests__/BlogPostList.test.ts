@@ -66,7 +66,7 @@ describe('BlogPostList', () => {
       expect(authorInfo.props('author')).toMatchObject({
         type: 'user',
         id: mockBlogPosts[0].author.id,
-        name: `${mockBlogPosts[0].author.firstName} ${mockBlogPosts[0].author.lastName}`,
+        name: mockBlogPosts[0].author.name,
       });
     });
 

@@ -279,7 +279,12 @@ const createInitialPost = (user: IUser): IBlogPost => {
     slug: '',
     content: '',
     excerpt: '',
-    author: user,
+    author: {
+      type: 'user' as const,
+      id: user.id,
+      name: `${user.firstName} ${user.lastName}`,
+      avatar: user.avatar,
+    },
     tags: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

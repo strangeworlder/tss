@@ -1,4 +1,4 @@
-import type { IBlogPost } from '@/types/blog';
+import type { IBlogPost, Author } from '@/types/blog';
 import type { IUser } from '@/types/user';
 import { UserRole } from '@/types/user';
 
@@ -15,6 +15,20 @@ const mockUser: IUser = {
 };
 
 /**
+ * Converts an IUser to an Author
+ * @param user - The user to convert
+ * @returns An Author object
+ */
+const userToAuthor = (user: IUser): Author => {
+  return {
+    type: 'user' as const,
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    avatar: user.avatar,
+  };
+};
+
+/**
  * Mock blog posts for testing
  */
 export const mockBlogPosts: IBlogPost[] = [
@@ -28,7 +42,7 @@ export const mockBlogPosts: IBlogPost[] = [
       filename: 'hero1.jpg',
       altText: 'Hero image 1',
     },
-    author: mockUser,
+    author: userToAuthor(mockUser),
     publishedAt: '2024-04-07T10:00:00Z',
     isPublished: true,
     tags: ['test', 'blog'],
@@ -45,7 +59,7 @@ export const mockBlogPosts: IBlogPost[] = [
       filename: 'hero2.jpg',
       altText: 'Hero image 2',
     },
-    author: mockUser,
+    author: userToAuthor(mockUser),
     publishedAt: '2024-04-07T11:00:00Z',
     isPublished: false,
     tags: ['test', 'blog'],

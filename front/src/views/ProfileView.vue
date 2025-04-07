@@ -110,10 +110,10 @@ onMounted(() => {
     variant="narrow"
   >
     <template #header>
-      <div class="profile-view__header">
+      <header class="profile-view__header">
         <h1 class="profile-view__title">My Profile</h1>
         <p class="profile-view__subtitle">Manage your account information and preferences</p>
-      </div>
+      </header>
     </template>
     
     <!-- Loading state -->
@@ -124,9 +124,10 @@ onMounted(() => {
     />
     
     <!-- Error state -->
-    <div 
+    <section 
       v-else-if="error" 
       class="profile-view__error"
+      aria-live="assertive"
     >
       <p class="profile-view__error-text">{{ error }}</p>
       <div class="profile-view__actions">
@@ -137,10 +138,10 @@ onMounted(() => {
           Try Again
         </AppButton>
       </div>
-    </div>
+    </section>
     
     <!-- Empty state -->
-    <div 
+    <section 
       v-else-if="!hasUser" 
       class="profile-view__empty"
     >
@@ -151,10 +152,10 @@ onMounted(() => {
       >
         Load Profile
       </AppButton>
-    </div>
+    </section>
     
     <!-- Content -->
-    <div 
+    <main 
       v-else 
       class="profile-view__content"
     >
@@ -163,12 +164,15 @@ onMounted(() => {
         <h2 class="profile-view__section-title">Profile Information</h2>
         
         <div class="profile-view__avatar-container">
-          <UserAvatar
-            :src="user?.avatar?.filename"
-            :alt="user?.firstName || 'User avatar'"
-            size="lg"
-            class="profile-view__avatar"
-          />
+          <figure>
+            <UserAvatar
+              :src="user?.avatar?.filename"
+              :alt="user?.firstName || 'User avatar'"
+              size="lg"
+              class="profile-view__avatar"
+            />
+            <figcaption class="visually-hidden">Profile picture</figcaption>
+          </figure>
 
           <input
             ref="fileInput"
@@ -184,38 +188,39 @@ onMounted(() => {
             :disabled="loading"
             :variant="ButtonVariantEnum.SECONDARY"
             class="profile-view__avatar-button"
+            data-test="change-profile-picture-button"
           >
             {{ loading ? 'Uploading...' : 'Change Profile Picture' }}
           </AppButton>
         </div>
 
         <!-- Success/Error messages -->
-        <p v-if="successMessage" class="profile-view__message profile-view__message--success">
+        <div v-if="successMessage" class="profile-view__message profile-view__message--success" role="status">
           {{ successMessage }}
-        </p>
-        <p v-if="error" class="profile-view__message profile-view__message--error">
+        </div>
+        <div v-if="error" class="profile-view__message profile-view__message--error" role="alert">
           {{ error }}
-        </p>
+        </div>
 
         <!-- User details -->
-        <div class="profile-view__details">
+        <dl class="profile-view__details">
           <div class="profile-view__detail-group">
-            <label class="profile-view__label">Name</label>
-            <p class="profile-view__value">{{ user?.firstName }} {{ user?.lastName }}</p>
+            <dt class="profile-view__label">Name</dt>
+            <dd class="profile-view__value">{{ user?.firstName }} {{ user?.lastName }}</dd>
           </div>
 
           <div class="profile-view__detail-group">
-            <label class="profile-view__label">Email</label>
-            <p class="profile-view__value">{{ user?.email }}</p>
+            <dt class="profile-view__label">Email</dt>
+            <dd class="profile-view__value">{{ user?.email }}</dd>
           </div>
 
           <div class="profile-view__detail-group">
-            <label class="profile-view__label">User Level</label>
-            <p class="profile-view__value">{{ userLevel }}</p>
+            <dt class="profile-view__label">User Level</dt>
+            <dd class="profile-view__value">{{ userLevel }}</dd>
           </div>
-        </div>
+        </dl>
       </section>
-    </div>
+    </main>
   </BaseView>
 </template>
 

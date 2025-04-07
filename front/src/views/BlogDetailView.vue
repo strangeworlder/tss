@@ -1,3 +1,27 @@
+<!--
+ * BlogDetailView
+ * 
+ * A view component that displays a detailed blog post with its content, hero image, and comments.
+ * 
+ * Features:
+ * - Displays blog post content with markdown rendering
+ * - Shows hero image if available
+ * - Handles loading, error, and not found states
+ * - Displays comments section
+ * - Provides navigation back to blog listing
+ * 
+ * Props: None (uses route parameters)
+ * 
+ * Events: None
+ * 
+ * Accessibility:
+ * - Uses semantic HTML elements (article, div)
+ * - Provides meaningful alt text for images
+ * - Maintains proper heading hierarchy
+ * - Supports keyboard navigation
+ * - Provides clear error messages
+ */
+-->
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -7,6 +31,7 @@ import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue';
 import BackButton from '@/components/atoms/BackButton.vue';
 import BlogPostHeader from '@/components/molecules/BlogPostHeader.vue';
 import CommentList from '@/components/organisms/CommentList.vue';
+import BlogHero from '@/components/molecules/BlogHero.vue';
 import { ImageSizeEnum } from '@/types/image';
 import { checkApiHealth } from '@/api/apiClient';
 import { marked } from 'marked';
@@ -14,11 +39,11 @@ import { CommentParentTypeEnum } from '@/types/comment';
 
 const route = useRoute();
 const router = useRouter();
-const slug = computed(() => route.params.slug as string);
+const slug = computed((): string => route.params.slug as string);
 
 // Get the blog store
 const blogStore = useBlogStore();
-const loading = ref(true);
+const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 
 // Get the current post from the store
@@ -28,19 +53,16 @@ const post = computed(() => blogStore.currentPost);
 marked.setOptions({
   gfm: true,
   breaks: true,
-  headerIds: true,
-  mangle: false,
-  sanitize: true,
 });
 
 // Parse content to HTML using marked
-const parsedContent = computed(() => {
+const parsedContent = computed((): string => {
   if (!post.value?.content) return '';
-  return marked(post.value.content);
+  return marked(post.value.content) as string;
 });
 
 // Fetch the blog post when the component mounts or when the slug changes
-const fetchBlogPost = async () => {
+const fetchBlogPost = async (): Promise<void> => {
   if (!slug.value) {
     error.value = 'Blog post slug is missing';
     loading.value = false;
@@ -90,6 +112,7 @@ onMounted(() => {
 
     <!-- Error state -->
     <div v-else-if="error" class="blog-detail-view__error">
+      <h2 class="blog-detail-view__error-heading">Error</h2>
       <p class="blog-detail-view__error-text">{{ error }}</p>
       <div class="blog-detail-view__actions">
         <BackButton
@@ -105,33 +128,35 @@ onMounted(() => {
         />
       </div>
     </div>
-
     <!-- Blog post content -->
-    <article v-else-if="post" class="blog-detail-view__article">
-      <BlogPostHeader :post="post" />
-
+    <template v-else-if="post">
+      
       <!-- Hero image -->
-      <div v-if="post.heroImage" class="blog-detail-view__hero">
-        <AppImage
-          :filename="post.heroImage.filename"
-          :size="ImageSizeEnum.FULL"
-          :alt="post.heroImage.altText || post.title"
-          class="blog-detail-view__hero-img"
-        />
-      </div>
+      <BlogHero
+        v-if="post.heroImage"
+        :hero-image="post.heroImage.filename"
+        :alt-text="post.heroImage.altText || post.title"
+      >
+        <h2 class="blog-detail-view__hero-title">{{ post.title }}</h2>
+      </BlogHero>
 
-      <!-- Content -->
-      <div class="blog-detail-view__content markdown-body" v-html="parsedContent"></div>
+      <article class="blog-detail-view__article">
+        <BlogPostHeader :post="post" />
 
-      <!-- Comments section -->
-      <div class="blog-detail-view__comments">
-        <CommentList :parent-id="post.id" :parent-type="CommentParentTypeEnum.POST" />
-      </div>
-    </article>
+        <!-- Content -->
+        <div class="blog-detail-view__content markdown-body" v-html="parsedContent"></div>
 
+        <!-- Comments section -->
+        <section class="blog-detail-view__comments">
+          <h2 class="blog-detail-view__comments-heading">Comments</h2>
+          <CommentList :parent-id="post.id" :parent-type="CommentParentTypeEnum.POST" />
+        </section>
+      </article>
+    </template>
     <!-- Not found state -->
     <div v-else class="blog-detail-view__not-found">
-      <p>Blog post not found.</p>
+      <h2 class="blog-detail-view__not-found-heading">Blog Post Not Found</h2>
+      <p class="blog-detail-view__not-found-text">The requested blog post could not be found.</p>
       <BackButton
         text="Back to Blog Listing"
         to="/blog"
@@ -144,64 +169,165 @@ onMounted(() => {
 
 <style scoped>
 .blog-detail-view {
-  min-height: 100vh;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  padding: var(--spacing-4);
+  max-width: 48rem; /* 768px */
+  margin: 0 auto;
+  padding: var(--spacing-xl);
 }
 
 .blog-detail-view__error {
   text-align: center;
-  padding: var(--spacing-8);
+  padding: var(--spacing-xl);
+}
+
+.blog-detail-view__error-heading {
+  color: var(--color-danger);
+  margin-bottom: var(--spacing-md);
 }
 
 .blog-detail-view__error-text {
-  color: var(--color-error);
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-lg);
 }
 
 .blog-detail-view__actions {
   display: flex;
-  gap: var(--spacing-4);
+  gap: var(--spacing-md);
   justify-content: center;
 }
 
-.blog-detail-view__article {
-  max-width: var(--content-width);
-  margin: 0 auto;
+.blog-detail-view__button {
+  min-width: 8rem;
 }
 
-.blog-detail-view__hero {
-  margin-bottom: var(--spacing-8);
+.blog-detail-view__article {
+  background-color: var(--color-background);
   border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
-.blog-detail-view__hero-img {
-  width: 100%;
-  height: auto;
-  display: block;
+.blog-detail-view__hero-title {
+  color: var(--color-background);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  text-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
+  margin: 0;
 }
 
 .blog-detail-view__content {
-  margin-bottom: var(--spacing-8);
-  line-height: 1.6;
+  padding: var(--spacing-xl);
 }
 
 .blog-detail-view__comments {
-  margin-top: var(--spacing-8);
-  padding-top: var(--spacing-8);
-  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-xl);
+  border-top: 0.0625rem solid var(--color-border);
 }
 
-.blog-detail-view__not-found {
-  text-align: center;
-  padding: var(--spacing-8);
+.blog-detail-view__comments-heading {
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
 }
 
-@media (min-width: 768px) {
-  .blog-detail-view {
-    padding: var(--spacing-8);
-  }
+:deep(.markdown-body) {
+  font-family: var(--font-family-body);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+:deep(.markdown-body h1),
+:deep(.markdown-body h2),
+:deep(.markdown-body h3),
+:deep(.markdown-body h4),
+:deep(.markdown-body h5),
+:deep(.markdown-body h6) {
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+:deep(.markdown-body p) {
+  margin-bottom: var(--spacing-md);
+}
+
+:deep(.markdown-body img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-lg) 0;
+}
+
+:deep(.markdown-body code) {
+  background-color: var(--color-background-muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: 0.875em;
+}
+
+:deep(.markdown-body pre) {
+  background-color: var(--color-background-muted);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  overflow-x: auto;
+  margin: var(--spacing-lg) 0;
+}
+
+:deep(.markdown-body pre code) {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+:deep(.markdown-body blockquote) {
+  border-left: 0.25rem solid var(--color-primary-500);
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-background-muted);
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+}
+
+:deep(.markdown-body ul),
+:deep(.markdown-body ol) {
+  margin: var(--spacing-md) 0;
+  padding-left: var(--spacing-xl);
+}
+
+:deep(.markdown-body li) {
+  margin-bottom: var(--spacing-xs);
+}
+
+:deep(.markdown-body a) {
+  color: var(--color-primary-500);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+:deep(.markdown-body a:hover) {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+:deep(.markdown-body table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--spacing-lg) 0;
+}
+
+:deep(.markdown-body th),
+:deep(.markdown-body td) {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 0.0625rem solid var(--color-border);
+  text-align: left;
+}
+
+:deep(.markdown-body th) {
+  background-color: var(--color-background-muted);
+  font-weight: var(--font-weight-bold);
+}
+
+:deep(.markdown-body tr:nth-child(even)) {
+  background-color: var(--color-background-muted);
 }
 </style>
