@@ -1,4 +1,4 @@
-import { createClient, RedisClientType } from 'redis';
+import { createClient, type RedisClientType } from 'redis';
 import { REDIS } from '../../config/config';
 
 // Create Redis client
@@ -11,7 +11,7 @@ export const redisClient: RedisClientType = createClient({
         return new Error('Max reconnection attempts reached');
       }
       return Math.min(retries * 100, 3000);
-    }
+    },
   },
 });
 
@@ -65,4 +65,4 @@ export default {
   connectRedis,
   disconnectRedis,
   redisClient,
-}; 
+};

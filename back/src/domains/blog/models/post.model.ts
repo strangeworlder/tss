@@ -88,8 +88,8 @@ Start building with Vue 3 today to take advantage of these improvements!`,
       name: 'Jane Smith',
       avatar: {
         filename: 'placeholder1.webp',
-        altText: 'Jane Smith profile picture'
-      }
+        altText: 'Jane Smith profile picture',
+      },
     },
     tags: ['vue', 'javascript', 'frontend', 'composition-api'],
     createdAt: new Date('2025-03-22T09:00:00Z'),
@@ -98,8 +98,8 @@ Start building with Vue 3 today to take advantage of these improvements!`,
     isPublished: true,
     heroImage: {
       filename: 'placeholder2.webp',
-      altText: 'Vue 3 logo and code'
-    }
+      altText: 'Vue 3 logo and code',
+    },
   },
   {
     id: '1',
@@ -144,13 +144,14 @@ app.listen(PORT, () => {
 4. **Future Compatibility**: Easier to adapt to changes in the API
 
 Start building your robust API today!`,
-    excerpt: 'Learn how to set up a Node.js project with TypeScript and Express for better type safety and development experience.',
+    excerpt:
+      'Learn how to set up a Node.js project with TypeScript and Express for better type safety and development experience.',
     author: {
       name: 'Jane Developer',
       avatar: {
         filename: 'placeholder1.webp',
-        altText: 'Jane Developer profile picture'
-      }
+        altText: 'Jane Developer profile picture',
+      },
     },
     tags: ['typescript', 'express', 'nodejs', 'backend'],
     createdAt: new Date('2023-10-10T10:00:00Z'),
@@ -159,8 +160,8 @@ Start building your robust API today!`,
     isPublished: true,
     heroImage: {
       filename: 'placeholder2.webp',
-      altText: 'TypeScript and Express code on a computer screen'
-    }
+      altText: 'TypeScript and Express code on a computer screen',
+    },
   },
   {
     id: '2',
@@ -222,13 +223,14 @@ export const createUser = async (req: Request, res: Response) => {
 5. **Documentation**: Use Swagger/OpenAPI
 
 Following these practices will help you build a production-ready API!`,
-    excerpt: 'A comprehensive guide to building robust REST APIs with Node.js, Express, and best practices for production.',
+    excerpt:
+      'A comprehensive guide to building robust REST APIs with Node.js, Express, and best practices for production.',
     author: {
       name: 'John Backend',
       avatar: {
         filename: 'placeholder2.webp',
-        altText: 'John Backend profile picture'
-      }
+        altText: 'John Backend profile picture',
+      },
     },
     tags: ['nodejs', 'express', 'rest', 'api', 'backend'],
     createdAt: new Date('2023-09-15T14:30:00Z'),
@@ -237,8 +239,8 @@ Following these practices will help you build a production-ready API!`,
     isPublished: true,
     heroImage: {
       filename: 'placeholder1.webp',
-      altText: 'REST API concept diagram with Node.js logo'
-    }
+      altText: 'REST API concept diagram with Node.js logo',
+    },
   },
   {
     id: '3',
@@ -325,13 +327,14 @@ export function useCounter(initialValue = 0) {
 4. Document your composables
 
 Start leveraging the power of the Composition API in your Vue 3 projects today!`,
-    excerpt: 'Learn how to use Vue 3\'s Composition API to write more maintainable and reusable component logic.',
+    excerpt:
+      "Learn how to use Vue 3's Composition API to write more maintainable and reusable component logic.",
     author: {
       name: 'Sarah Frontend',
       avatar: {
         filename: 'sarah-frontend.jpg',
-        altText: 'Sarah Frontend profile picture'
-      }
+        altText: 'Sarah Frontend profile picture',
+      },
     },
     tags: ['vue', 'javascript', 'frontend', 'composition-api'],
     createdAt: new Date('2023-11-05T09:45:00Z'),
@@ -340,8 +343,8 @@ Start leveraging the power of the Composition API in your Vue 3 projects today!`
     isPublished: true,
     heroImage: {
       filename: 'vue3-composition-api-hero.jpg',
-      altText: 'Vue 3 Composition API code example on screen'
-    }
+      altText: 'Vue 3 Composition API code example on screen',
+    },
   },
   {
     id: '4',
@@ -428,13 +431,14 @@ Many modern applications use both types of databases:
 - MongoDB for content and user-generated data
 
 Choose the right tool for the specific requirements of your project!`,
-    excerpt: 'An in-depth comparison of MongoDB and PostgreSQL to help you choose the right database for your next project.',
+    excerpt:
+      'An in-depth comparison of MongoDB and PostgreSQL to help you choose the right database for your next project.',
     author: {
       name: 'Alex DBAdmin',
       avatar: {
         filename: 'alex-dbadmin.jpg',
-        altText: 'Alex DBAdmin profile picture'
-      }
+        altText: 'Alex DBAdmin profile picture',
+      },
     },
     tags: ['database', 'mongodb', 'postgresql', 'nosql', 'sql'],
     createdAt: new Date('2023-08-20T16:15:00Z'),
@@ -443,8 +447,8 @@ Choose the right tool for the specific requirements of your project!`,
     isPublished: true,
     heroImage: {
       filename: 'mongodb-nodejs-hero.jpg',
-      altText: 'MongoDB and Node.js integration diagram'
-    }
+      altText: 'MongoDB and Node.js integration diagram',
+    },
   },
   {
     id: '5',
@@ -596,13 +600,14 @@ For optimal layouts, use both:
 5. **Use modern CSS features** like clamp(), min(), and max()
 
 By mastering these tools, you can create maintainable, responsive layouts that work across all devices!`,
-    excerpt: 'Master modern responsive web design using the power of CSS Grid and Flexbox for flexible, maintainable layouts.',
+    excerpt:
+      'Master modern responsive web design using the power of CSS Grid and Flexbox for flexible, maintainable layouts.',
     author: {
       name: 'Olivia Designer',
       avatar: {
         filename: 'olivia-designer.jpg',
-        altText: 'Olivia Designer profile picture'
-      }
+        altText: 'Olivia Designer profile picture',
+      },
     },
     tags: ['css', 'responsive-design', 'frontend', 'flexbox', 'css-grid'],
     createdAt: new Date('2023-09-30T13:15:00Z'),
@@ -611,16 +616,16 @@ By mastering these tools, you can create maintainable, responsive layouts that w
     isPublished: true,
     heroImage: {
       filename: 'css-grid-hero.jpg',
-      altText: 'CSS Grid layout example with colorful grid cells'
-    }
-  }
+      altText: 'CSS Grid layout example with colorful grid cells',
+    },
+  },
 ];
 
 // Get all posts (optionally limited)
-export const getPosts = (limit: number = 10): BlogPost[] => {
+export const getPosts = (limit = 10): BlogPost[] => {
   // Sort posts by publishedAt date (newest first) and filter only published posts
   return blogPosts
-    .filter(post => post.isPublished)
+    .filter((post) => post.isPublished)
     .sort((a, b) => {
       // Handle null publishedAt dates
       if (!a.publishedAt) return 1;
@@ -635,10 +640,10 @@ export const getPosts = (limit: number = 10): BlogPost[] => {
  * @param slug The post slug to find
  */
 export const getPostBySlug = (slug: string): BlogPost | undefined => {
-  return blogPosts.find(post => post.slug === slug);
+  return blogPosts.find((post) => post.slug === slug);
 };
 
 // Get total post count
 export const getPostCount = (): number => {
-  return blogPosts.filter(post => post.isPublished).length;
-}; 
+  return blogPosts.filter((post) => post.isPublished).length;
+};

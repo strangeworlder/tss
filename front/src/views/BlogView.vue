@@ -1,82 +1,82 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import { useBlogStore } from '@/stores/blogStore'
-import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
-import Button from '@/components/atoms/Button.vue'
-import { checkApiHealth } from '@/api/apiClient'
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
-import { ButtonVariantEnum } from '@/types/button'
+import { onMounted, ref, computed } from 'vue';
+import { useBlogStore } from '@/stores/blogStore';
+import BlogPostCard from '@/components/organisms/BlogPostCard.vue';
+import Button from '@/components/atoms/Button.vue';
+import { checkApiHealth } from '@/api/apiClient';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import { ButtonVariantEnum } from '@/types/button';
 
 // Get the blog store
-const blogStore = useBlogStore()
+const blogStore = useBlogStore();
 // Use computed properties to ensure reactivity with store changes
-const posts = computed(() => blogStore.posts)
-const loading = computed(() => blogStore.loading)
-const error = computed(() => blogStore.error)
-const serverStarting = ref(false)
+const posts = computed(() => blogStore.posts);
+const loading = computed(() => blogStore.loading);
+const error = computed(() => blogStore.error);
+const serverStarting = ref(false);
 
 // Start the backend server
 const startBackendServer = async () => {
-  if (serverStarting.value) return
+  if (serverStarting.value) return;
 
-  serverStarting.value = true
+  serverStarting.value = true;
 
   try {
     // Using a simple fetch to a service worker that starts the server
     // In a real app, this would be a more sophisticated approach
     // This is just a mock implementation
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Check if server is now running
-    const isHealthy = await checkApiHealth()
+    const isHealthy = await checkApiHealth();
 
     if (isHealthy) {
-      fetchBlogPosts()
+      fetchBlogPosts();
     } else {
       // Set error directly in the store
-      blogStore.error = 'Failed to start the backend server. Please start it manually.'
+      blogStore.error = 'Failed to start the backend server. Please start it manually.';
     }
   } catch (err) {
-    blogStore.error = 'Failed to start the backend server. Please start it manually.'
-    console.error('Error starting backend server:', err)
+    blogStore.error = 'Failed to start the backend server. Please start it manually.';
+    console.error('Error starting backend server:', err);
   } finally {
-    serverStarting.value = false
+    serverStarting.value = false;
   }
-}
+};
 
 // Fetch blog posts using the store
 const fetchBlogPosts = async () => {
   try {
     // First check if the API is available
-    const isHealthy = await checkApiHealth()
+    const isHealthy = await checkApiHealth();
 
     if (!isHealthy) {
-      blogStore.error = 'API server is not available'
-      return
+      blogStore.error = 'API server is not available';
+      return;
     }
 
     // Use the store action to fetch posts
-    await blogStore.fetchPosts()
+    await blogStore.fetchPosts();
   } catch (err) {
-    console.error('Error in fetchBlogPosts:', err)
+    console.error('Error in fetchBlogPosts:', err);
   }
-}
+};
 
 // Format date (2023-10-15T14:30:00Z -> October 15, 2023)
 const formatDate = (dateString: string | null) => {
-  if (!dateString) return ''
+  if (!dateString) return '';
 
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  })
-}
+  });
+};
 
 onMounted(() => {
-  fetchBlogPosts()
-})
+  fetchBlogPosts();
+});
 </script>
 
 <template>

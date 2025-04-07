@@ -1,12 +1,12 @@
-import { mount, VueWrapper } from '@vue/test-utils'
-import LoadingSpinner from '../LoadingSpinner.vue'
+import { mount, type VueWrapper } from '@vue/test-utils';
+import LoadingSpinner from '../LoadingSpinner.vue';
 
 /**
  * Interface for LoadingSpinner component props
  */
 export interface ILoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg'
-  text?: string
+  size?: 'sm' | 'md' | 'lg';
+  text?: string;
 }
 
 /**
@@ -14,10 +14,12 @@ export interface ILoadingSpinnerProps {
  * @param props - The props to pass to the component
  * @returns The mounted component
  */
-export function mountLoadingSpinner(props: ILoadingSpinnerProps = createDefaultLoadingSpinnerProps()): VueWrapper {
+export function mountLoadingSpinner(
+  props: ILoadingSpinnerProps = createDefaultLoadingSpinnerProps()
+): VueWrapper {
   return mount(LoadingSpinner, {
-    props
-  })
+    props,
+  });
 }
 
 /**
@@ -25,10 +27,12 @@ export function mountLoadingSpinner(props: ILoadingSpinnerProps = createDefaultL
  * @param overrides - Props to override the defaults
  * @returns The props for the LoadingSpinner component
  */
-export function createDefaultLoadingSpinnerProps(overrides: Partial<ILoadingSpinnerProps> = {}): ILoadingSpinnerProps {
+export function createDefaultLoadingSpinnerProps(
+  overrides: Partial<ILoadingSpinnerProps> = {}
+): ILoadingSpinnerProps {
   return {
     size: 'md' as 'sm' | 'md' | 'lg',
     text: 'Loading...',
-    ...overrides
-  }
-} 
+    ...overrides,
+  };
+}

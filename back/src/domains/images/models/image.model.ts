@@ -20,7 +20,7 @@ export interface Image {
 export enum ImageSize {
   THUMBNAIL = 'thumbnail',
   MEDIUM = 'medium',
-  FULL = 'full'
+  FULL = 'full',
 }
 
 // Available image formats
@@ -28,5 +28,5 @@ export enum ImageFormat {
   ORIGINAL = 'original',
   WEBP = 'webp',
   JPEG = 'jpeg',
-  PNG = 'png'
-} 
+  PNG = 'png',
+}

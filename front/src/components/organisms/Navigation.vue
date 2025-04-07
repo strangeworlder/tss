@@ -20,58 +20,58 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import NavLink from '@/components/molecules/NavLink.vue'
-import UserMenu from '@/components/molecules/UserMenu.vue'
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import NavLink from '@/components/molecules/NavLink.vue';
+import UserMenu from '@/components/molecules/UserMenu.vue';
 
 // Define the type for navigation items
 interface NavItem {
-  to: string
-  text: string
-  variant?: 'default' | 'auth'
+  to: string;
+  text: string;
+  variant?: 'default' | 'auth';
 }
 
 const props = defineProps<{
-  isOpen: boolean
-  isAuthenticated: boolean
-  isAdmin: boolean
-  userName: string
-  isUserMenuOpen: boolean
-}>()
+  isOpen: boolean;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  userName: string;
+  isUserMenuOpen: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: 'toggleUserMenu'): void
-  (e: 'logout'): void
-}>()
+  (e: 'toggleUserMenu'): void;
+  (e: 'logout'): void;
+}>();
 
-const route = useRoute()
+const route = useRoute();
 
 const navItems = computed<NavItem[]>(() => {
   const items: NavItem[] = [
     { to: '/', text: 'Home' },
     { to: '/blog', text: 'Blog' },
     { to: '/about', text: 'About' },
-  ]
+  ];
 
   if (props.isAdmin) {
-    items.push({ to: '/admin', text: 'Admin' })
+    items.push({ to: '/admin', text: 'Admin' });
   }
 
   if (!props.isAuthenticated) {
-    items.push({ to: '/auth', text: 'Login / Register', variant: 'auth' })
+    items.push({ to: '/auth', text: 'Login / Register', variant: 'auth' });
   }
 
-  return items
-})
+  return items;
+});
 
 const toggleUserMenu = () => {
-  emit('toggleUserMenu')
-}
+  emit('toggleUserMenu');
+};
 
 const handleLogout = () => {
-  emit('logout')
-}
+  emit('logout');
+};
 </script>
 
 <style scoped>

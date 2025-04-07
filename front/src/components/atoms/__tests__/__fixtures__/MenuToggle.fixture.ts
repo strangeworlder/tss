@@ -6,8 +6,8 @@
 export function createMenuToggleProps(overrides: Record<string, any> = {}) {
   return {
     isOpen: false,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 /**
@@ -16,6 +16,6 @@ export function createMenuToggleProps(overrides: Record<string, any> = {}) {
 export const mockMenuToggles = {
   default: createMenuToggleProps(),
   open: createMenuToggleProps({
-    isOpen: true
-  })
-} 
+    isOpen: true,
+  }),
+};

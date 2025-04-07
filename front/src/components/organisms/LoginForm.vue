@@ -49,99 +49,99 @@ Usage:
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
-import Button from '@/components/atoms/Button.vue'
-import FormGroup from '@/components/molecules/FormGroup.vue'
-import FormError from '@/components/atoms/FormError.vue'
-import { ButtonVariantEnum } from '@/types/button'
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
+import Button from '@/components/atoms/Button.vue';
+import FormGroup from '@/components/molecules/FormGroup.vue';
+import FormError from '@/components/atoms/FormError.vue';
+import { ButtonVariantEnum } from '@/types/button';
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
 // Form data
 const formData = reactive({
   email: '',
   password: '',
-})
+});
 
 // Form state
-const isLoading = ref(false)
+const isLoading = ref(false);
 const errors = reactive({
   email: '',
   password: '',
-})
-const errorMessage = ref('')
+});
+const errorMessage = ref('');
 
 // Validation function
 const validateForm = (): boolean => {
-  let isValid = true
+  let isValid = true;
 
   // Reset errors
-  errors.email = ''
-  errors.password = ''
-  errorMessage.value = ''
+  errors.email = '';
+  errors.password = '';
+  errorMessage.value = '';
 
   // Validate email
   if (!formData.email.trim()) {
-    errors.email = 'Email is required'
-    isValid = false
+    errors.email = 'Email is required';
+    isValid = false;
   } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-    errors.email = 'Please enter a valid email address'
-    isValid = false
+    errors.email = 'Please enter a valid email address';
+    isValid = false;
   }
 
   // Validate password
   if (!formData.password.trim()) {
-    errors.password = 'Password is required'
-    isValid = false
+    errors.password = 'Password is required';
+    isValid = false;
   }
 
-  return isValid
-}
+  return isValid;
+};
 
 // Submit handler
 const handleSubmit = async (): Promise<void> => {
   // Validate form
   if (!validateForm()) {
-    return
+    return;
   }
 
   // Start loading
-  isLoading.value = true
-  errorMessage.value = ''
+  isLoading.value = true;
+  errorMessage.value = '';
 
   try {
     // Call API
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
     const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(formData),
-    })
+    });
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to login')
+      throw new Error(data.message || 'Failed to login');
     }
 
     // Store token and user data
-    authStore.setAuthData(data.user, data.token)
+    authStore.setAuthData(data.user, data.token);
 
     // Redirect to home
-    router.push('/')
+    router.push('/');
   } catch (error) {
     // Show error message
-    errorMessage.value = error instanceof Error ? error.message : 'An error occurred'
+    errorMessage.value = error instanceof Error ? error.message : 'An error occurred';
   } finally {
     // End loading
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>

@@ -1,4 +1,4 @@
-import type { Author } from '@/types/blog'
+import type { Author } from '@/types/blog';
 
 /**
  * Creates a mock author object for testing
@@ -10,9 +10,9 @@ export const createMockAuthor = (overrides: Partial<Author> = {}): Author => {
     name: 'John Doe',
     type: 'text',
     id: '123',
-    ...overrides
-  }
-}
+    ...overrides,
+  };
+};
 
 /**
  * Creates default props for the BlogPostMeta component
@@ -23,9 +23,9 @@ export const createDefaultProps = (overrides = {}) => {
   return {
     date: '2023-01-15',
     author: createMockAuthor(),
-    ...overrides
-  }
-}
+    ...overrides,
+  };
+};
 
 /**
  * Mock data for testing the BlogPostMeta component
@@ -34,16 +34,16 @@ export const mockData = {
   authors: {
     default: createMockAuthor(),
     anonymous: createMockAuthor({ name: 'Anonymous', id: undefined }),
-    withAvatar: createMockAuthor({ 
+    withAvatar: createMockAuthor({
       name: 'Jane Smith',
       id: '456',
-      avatar: { filename: 'avatar.jpg', altText: 'Jane Smith avatar' }
-    })
+      avatar: { filename: 'avatar.jpg', altText: 'Jane Smith avatar' },
+    }),
   },
   dates: {
     default: '2023-01-15',
     empty: '',
     future: '2025-12-31',
-    past: '2020-06-01'
-  }
-} 
+    past: '2020-06-01',
+  },
+};

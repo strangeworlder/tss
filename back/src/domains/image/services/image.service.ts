@@ -1,4 +1,4 @@
-import { ImageSize, ImageFormat } from '../models/image.model';
+import type { ImageSize, ImageFormat } from '../models/image.model';
 
 export interface ImageUrlResponse {
   url: string;
@@ -7,10 +7,10 @@ export interface ImageUrlResponse {
 }
 
 export const getImageUrl = (
-  filename: string, 
-  size: ImageSize = 'LARGE', 
+  filename: string,
+  size: ImageSize = 'LARGE',
   format: ImageFormat = 'WEBP',
-  quality: number = 85
+  quality = 85
 ): ImageUrlResponse => {
   // This would normally call the actual image processing service
   // For now, we'll return a mock URL
@@ -18,11 +18,11 @@ export const getImageUrl = (
   return {
     url: `${baseUrl}/${filename}?size=${size.toLowerCase()}&format=${format.toLowerCase()}&quality=${quality}`,
     size: size,
-    format: format
+    format: format,
   };
 };
 
 export const getHeroImageUrl = (filename: string): string => {
   const response = getImageUrl(filename, 'LARGE', 'WEBP', 90);
   return response.url;
-}; 
+};

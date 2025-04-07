@@ -20,24 +20,24 @@ export enum ImageFormatEnum {
 
 // Image metadata structure
 export interface ImageMetadata {
-  id: string
-  filename: string
-  originalFilename?: string
-  path?: string
-  url: string
-  size: number // size in bytes
-  width: number
-  height: number
-  mimeType: string
-  altText: string
-  createdAt: string
-  updatedAt: string
-  metadata?: Record<string, any>
+  id: string;
+  filename: string;
+  originalFilename?: string;
+  path?: string;
+  url: string;
+  size: number; // size in bytes
+  width: number;
+  height: number;
+  mimeType: string;
+  altText: string;
+  createdAt: string;
+  updatedAt: string;
+  metadata?: Record<string, any>;
 }
 
 // Image URL response from API
 export interface ImageUrlResponse {
-  url: string
-  size: string
-  format: string
+  url: string;
+  size: string;
+  format: string;
 }

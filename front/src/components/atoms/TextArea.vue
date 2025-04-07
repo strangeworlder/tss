@@ -49,18 +49,16 @@
 </template>
 
 <script setup lang="ts">
-import type { ITextAreaProps } from '@/types/form'
-import FormError from '@/components/atoms/FormError.vue'
+import type { ITextAreaProps } from '@/types/form';
+import FormError from '@/components/atoms/FormError.vue';
 
 const props = withDefaults(defineProps<ITextAreaProps>(), {
   rows: 4,
   error: '',
-  placeholder: ''
-})
+  placeholder: '',
+});
 
-defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
+defineEmits<(e: 'update:modelValue', value: string) => void>();
 </script>
 
 <style scoped>

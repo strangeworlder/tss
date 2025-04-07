@@ -1,5 +1,5 @@
-import type { Author } from '@/types/blog'
-import type { Props } from '../../AuthorInfo.types'
+import type { Author } from '@/types/blog';
+import type { Props } from '../../AuthorInfo.types';
 
 /**
  * Creates a default set of props for the AuthorInfo component
@@ -14,13 +14,13 @@ export function createAuthorInfoProps(overrides: Partial<Props> = {}) {
       name: 'John Doe',
       avatar: {
         filename: 'avatar.jpg',
-        altText: 'John Doe'
-      }
+        altText: 'John Doe',
+      },
     },
     date: '2024-03-20',
     size: 'md' as const,
-    ...overrides
-  } as Props
+    ...overrides,
+  } as Props;
 }
 
 /**
@@ -29,23 +29,23 @@ export function createAuthorInfoProps(overrides: Partial<Props> = {}) {
 export const mockAuthorInfos = {
   default: createAuthorInfoProps(),
   noAuthor: createAuthorInfoProps({
-    author: undefined
+    author: undefined,
   }),
   noDate: createAuthorInfoProps({
-    date: undefined
+    date: undefined,
   }),
   smallSize: createAuthorInfoProps({
-    size: 'sm' as const
+    size: 'sm' as const,
   }),
   largeSize: createAuthorInfoProps({
-    size: 'lg' as const
+    size: 'lg' as const,
   }),
   authorWithoutAvatar: createAuthorInfoProps({
     author: {
       type: 'user' as const,
       id: '1',
-      name: 'John Doe'
-    }
+      name: 'John Doe',
+    },
   }),
   authorWithoutName: createAuthorInfoProps({
     author: {
@@ -54,11 +54,11 @@ export const mockAuthorInfos = {
       name: '',
       avatar: {
         filename: 'avatar.jpg',
-        altText: ''
-      }
-    }
+        altText: '',
+      },
+    },
   }),
   invalidDate: createAuthorInfoProps({
-    date: 'invalid-date'
-  })
-} 
+    date: 'invalid-date',
+  }),
+};

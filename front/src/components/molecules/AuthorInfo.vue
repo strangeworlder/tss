@@ -45,31 +45,31 @@ Props:
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import Avatar from '@/components/atoms/Avatar.vue'
-import type { Author } from '@/types/blog'
+import { computed } from 'vue';
+import Avatar from '@/components/atoms/Avatar.vue';
+import type { Author } from '@/types/blog';
 
 interface Props {
   /** The author object containing name and optional avatar */
-  author?: Author
+  author?: Author;
   /** ISO date string for the content */
-  date?: string
+  date?: string;
   /** Size of the avatar image */
-  size: 'sm' | 'md' | 'lg'
+  size: 'sm' | 'md' | 'lg';
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  size: 'md'
-})
+  size: 'md',
+});
 
 const formatDate = (dateString: string): string => {
-  if (!dateString) return ''
+  if (!dateString) return '';
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
-  })
-}
+    day: 'numeric',
+  });
+};
 </script>
 
 <style scoped>

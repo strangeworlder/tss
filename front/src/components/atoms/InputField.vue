@@ -77,7 +77,7 @@ Usage:
 </template>
 
 <script setup lang="ts">
-import type { IFormFieldProps } from '@/types/form'
+import type { IFormFieldProps } from '@/types/form';
 
 const props = withDefaults(defineProps<IFormFieldProps>(), {
   type: 'text',
@@ -85,11 +85,9 @@ const props = withDefaults(defineProps<IFormFieldProps>(), {
   placeholder: '',
   disabled: false,
   className: '',
-})
+});
 
-defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
+defineEmits<(e: 'update:modelValue', value: string) => void>();
 </script>
 
 <style scoped>

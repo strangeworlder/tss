@@ -1,4 +1,4 @@
-import { MiddlewareFn } from 'type-graphql';
+import type { MiddlewareFn } from 'type-graphql';
 import jwt from 'jsonwebtoken';
 import { JWT } from '../config/config';
 import { redisClient } from '../db/redis/connection';
@@ -13,7 +13,7 @@ export const AuthMiddleware: MiddlewareFn<any> = async ({ context }, next) => {
     }
 
     const token = authorization.split(' ')[1];
-    
+
     // Verify token
     const decoded = jwt.verify(token, JWT.SECRET) as {
       id: string;
@@ -34,4 +34,4 @@ export const AuthMiddleware: MiddlewareFn<any> = async ({ context }, next) => {
   } catch (error) {
     throw new Error('Not authenticated');
   }
-}; 
+};

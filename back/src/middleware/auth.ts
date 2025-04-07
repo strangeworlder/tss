@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../domains/users/models/user.model';
 import { JwtPayload } from 'jsonwebtoken';
@@ -7,7 +7,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
   try {
     console.log('Auth middleware: Processing request');
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = authHeader?.split(' ')[1];
 
     console.log('Auth middleware: Token present:', !!token);
 
@@ -15,14 +15,23 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       console.log('Auth middleware: No token provided');
       return res.status(401).json({
         success: false,
-        message: 'Authentication required'
+        message: 'Authentication required',
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string; role: string };
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error('Auth middleware: JWT_SECRET not set in environment');
+      return res.status(500).json({
+        success: false,
+        message: 'Server configuration error',
+      });
+    }
+
+    const decoded = jwt.verify(token, jwtSecret) as { id: string; email: string; role: string };
     console.log('Auth middleware: Token decoded:', {
       id: decoded.id,
-      role: decoded.role
+      role: decoded.role,
     });
 
     const user = await User.findById(decoded.id);
@@ -32,7 +41,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       console.log('Auth middleware: User not found');
       return res.status(401).json({
         success: false,
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
@@ -43,12 +52,12 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       lastName: user.lastName,
       email: user.email,
       role: user.role,
-      avatar: user.avatar
+      avatar: user.avatar,
     };
 
     console.log('Auth middleware: User added to request:', {
       id: user._id,
-      role: user.role
+      role: user.role,
     });
 
     next();
@@ -56,7 +65,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     console.error('Auth middleware: Error:', error);
     return res.status(401).json({
       success: false,
-      message: 'Token is not valid'
+      message: 'Token is not valid',
     });
   }
-}; 
+};

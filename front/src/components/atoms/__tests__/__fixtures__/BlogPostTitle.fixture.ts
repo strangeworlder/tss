@@ -1,4 +1,4 @@
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
 
 /**
  * Creates a default set of props for the BlogPostTitle component
@@ -9,8 +9,8 @@ export function createBlogPostTitleProps(overrides: Record<string, any> = {}) {
   return {
     title: 'Test Blog Post Title',
     variant: BlogPostTitleVariantEnum.FULL,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 /**
@@ -19,15 +19,15 @@ export function createBlogPostTitleProps(overrides: Record<string, any> = {}) {
 export const mockBlogPostTitles = {
   default: createBlogPostTitleProps(),
   compact: createBlogPostTitleProps({
-    variant: BlogPostTitleVariantEnum.COMPACT
+    variant: BlogPostTitleVariantEnum.COMPACT,
   }),
   longTitle: createBlogPostTitleProps({
-    title: 'This is a very long blog post title that should be properly displayed'
+    title: 'This is a very long blog post title that should be properly displayed',
   }),
   emptyTitle: createBlogPostTitleProps({
-    title: ''
+    title: '',
   }),
   specialCharacters: createBlogPostTitleProps({
-    title: 'Special & Characters < > " \' /'
-  })
-} 
+    title: 'Special & Characters < > " \' /',
+  }),
+};

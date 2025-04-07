@@ -1,42 +1,43 @@
 <script setup lang="ts">
-import BlogPostTitle from '@/components/atoms/BlogPostTitle.vue'
-import BlogPostImage from '@/components/atoms/BlogPostImage.vue'
-import BlogPostMeta from '@/components/molecules/BlogPostMeta.vue'
-import BlogPostTags from '@/components/molecules/BlogPostTags.vue'
-import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue'
-import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue'
-import { BlogPostTitleVariantEnum } from '@/types/blogPost'
-import type { Author } from '@/types/blog'
+import BlogPostTitle from '@/components/atoms/BlogPostTitle.vue';
+import BlogPostImage from '@/components/atoms/BlogPostImage.vue';
+import BlogPostMeta from '@/components/molecules/BlogPostMeta.vue';
+import BlogPostTags from '@/components/molecules/BlogPostTags.vue';
+import BlogPostExcerpt from '@/components/molecules/BlogPostExcerpt.vue';
+import ReadMoreButton from '@/components/atoms/ReadMoreButton.vue';
+import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import type { Author } from '@/types/blog';
 
 interface Props {
-  title: string
-  date: string
-  author: Author
-  content: string
-  heroImageFilename?: string
-  heroImageAlt?: string
-  heroImageUrl?: string
-  slug: string
-  variant?: BlogPostTitleVariantEnum // compact for homepage, full for blog listing
-  tags?: string[]
+  title: string;
+  date: string;
+  author: Author;
+  content: string;
+  heroImageFilename?: string;
+  heroImageAlt?: string;
+  heroImageUrl?: string;
+  slug: string;
+  variant?: BlogPostTitleVariantEnum; // compact for homepage, full for blog listing
+  tags?: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: BlogPostTitleVariantEnum.FULL,
   tags: () => [],
   date: '',
-  author: () => ({ 
-    name: 'Anonymous',
-    type: 'text',
-    id: undefined
-  } as Author),
+  author: () =>
+    ({
+      name: 'Anonymous',
+      type: 'text',
+      id: undefined,
+    }) as Author,
   slug: '',
   content: '',
-})
+});
 
 // Temporary debugging
-console.log('BlogPostCard props:', props)
-console.log('Tags:', props.tags)
+console.log('BlogPostCard props:', props);
+console.log('Tags:', props.tags);
 </script>
 
 <template>

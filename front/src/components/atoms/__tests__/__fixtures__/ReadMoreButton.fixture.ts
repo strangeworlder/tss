@@ -6,8 +6,8 @@
 export function createReadMoreButtonProps(overrides: Record<string, any> = {}) {
   return {
     to: '/default-path',
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 /**
@@ -16,9 +16,9 @@ export function createReadMoreButtonProps(overrides: Record<string, any> = {}) {
 export const mockReadMoreButtons = {
   default: createReadMoreButtonProps(),
   blogPost: createReadMoreButtonProps({
-    to: '/blog/post-1'
+    to: '/blog/post-1',
   }),
   article: createReadMoreButtonProps({
-    to: '/articles/featured-article'
-  })
-} 
+    to: '/articles/featured-article',
+  }),
+};

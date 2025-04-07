@@ -1,6 +1,6 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, '../../public/uploads/images');
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
     const timestamp = Date.now();
     const ext = path.extname(file.originalname);
     cb(null, `avatar-${userId}-${timestamp}${ext}`);
-  }
+  },
 });
 
 // File filter
@@ -37,8 +37,8 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
 });
 
-export default upload; 
+export default upload;

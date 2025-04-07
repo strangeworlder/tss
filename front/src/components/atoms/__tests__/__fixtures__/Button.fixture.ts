@@ -1,4 +1,4 @@
-import { ButtonVariantEnum } from '@/types/button'
+import { ButtonVariantEnum } from '@/types/button';
 
 /**
  * Creates a default set of props for the Button component
@@ -11,8 +11,8 @@ export function createButtonProps(overrides: Record<string, any> = {}) {
     disabled: false,
     to: undefined,
     ariaLabel: undefined,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 /**
@@ -21,21 +21,21 @@ export function createButtonProps(overrides: Record<string, any> = {}) {
 export const mockButtons = {
   default: createButtonProps(),
   secondary: createButtonProps({
-    variant: ButtonVariantEnum.SECONDARY
+    variant: ButtonVariantEnum.SECONDARY,
   }),
   danger: createButtonProps({
-    variant: ButtonVariantEnum.DANGER
+    variant: ButtonVariantEnum.DANGER,
   }),
   text: createButtonProps({
-    variant: ButtonVariantEnum.TEXT
+    variant: ButtonVariantEnum.TEXT,
   }),
   disabled: createButtonProps({
-    disabled: true
+    disabled: true,
   }),
   withTo: createButtonProps({
-    to: '/some-path'
+    to: '/some-path',
   }),
   withAriaLabel: createButtonProps({
-    ariaLabel: 'Accessible Button'
-  })
-} 
+    ariaLabel: 'Accessible Button',
+  }),
+};

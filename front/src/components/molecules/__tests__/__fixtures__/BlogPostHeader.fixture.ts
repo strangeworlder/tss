@@ -1,4 +1,4 @@
-import type { BlogPost } from '@/types/blog'
+import type { BlogPost } from '@/types/blog';
 
 /**
  * Creates a default set of props for the BlogPostHeader component
@@ -19,18 +19,18 @@ export function createBlogPostHeaderProps(overrides: Record<string, any> = {}) {
         name: 'Test Author',
         avatar: {
           filename: 'avatar.jpg',
-          altText: 'Test Author Avatar'
-        }
+          altText: 'Test Author Avatar',
+        },
       },
       tags: ['Vue', 'TypeScript', 'Testing'],
       createdAt: '2023-01-01T00:00:00Z',
       updatedAt: '2023-01-02T00:00:00Z',
       publishedAt: '2023-01-01T00:00:00Z',
-      isPublished: true
+      isPublished: true,
     },
     showBackButton: true,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 /**
@@ -39,24 +39,25 @@ export function createBlogPostHeaderProps(overrides: Record<string, any> = {}) {
 export const mockBlogPostHeaders = {
   default: createBlogPostHeaderProps(),
   noBackButton: createBlogPostHeaderProps({
-    showBackButton: false
+    showBackButton: false,
   }),
   noTags: createBlogPostHeaderProps({
     post: {
       ...createBlogPostHeaderProps().post,
-      tags: []
-    }
+      tags: [],
+    },
   }),
   noPublishedDate: createBlogPostHeaderProps({
     post: {
       ...createBlogPostHeaderProps().post,
-      publishedAt: null
-    }
+      publishedAt: null,
+    },
   }),
   longTitle: createBlogPostHeaderProps({
     post: {
       ...createBlogPostHeaderProps().post,
-      title: 'This is a very long blog post title that should wrap to multiple lines on smaller screens'
-    }
-  })
-} 
+      title:
+        'This is a very long blog post title that should wrap to multiple lines on smaller screens',
+    },
+  }),
+};

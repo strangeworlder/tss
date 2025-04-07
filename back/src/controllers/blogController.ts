@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import BlogPost from '../models/BlogPost';
 import upload from '../config/multer';
 
@@ -22,7 +22,7 @@ export const updatePost = async (req: Request, res: Response) => {
         .replace(/(^-|-$)/g, '');
       console.log('Backend: Title and slug update:', {
         title: updateData.title,
-        slug: updateData.slug
+        slug: updateData.slug,
       });
     }
 
@@ -31,8 +31,8 @@ export const updatePost = async (req: Request, res: Response) => {
       // Generate excerpt if not provided
       updateData.excerpt = req.body.excerpt || req.body.content.substring(0, 200);
       console.log('Backend: Content and excerpt update:', {
-        content: req.body.content.substring(0, 50) + '...',
-        excerpt: updateData.excerpt
+        content: `${req.body.content.substring(0, 50)}...`,
+        excerpt: updateData.excerpt,
       });
     }
 
@@ -54,14 +54,14 @@ export const updatePost = async (req: Request, res: Response) => {
     // Ensure author is set
     updateData.author = {
       name: 'Admin',
-      avatar: null
+      avatar: null,
     };
 
     // Handle hero image if uploaded
     if (req.file) {
       updateData.heroImage = {
         url: `/uploads/${req.file.filename}`,
-        alt: req.body.title || 'Blog post hero image'
+        alt: req.body.title || 'Blog post hero image',
       };
       console.log('Backend: Hero image update:', updateData.heroImage);
     }
@@ -76,7 +76,7 @@ export const updatePost = async (req: Request, res: Response) => {
       console.log('Backend: Post not found');
       return res.status(404).json({
         success: false,
-        message: 'Blog post not found'
+        message: 'Blog post not found',
       });
     }
 
@@ -94,7 +94,7 @@ export const updatePost = async (req: Request, res: Response) => {
       console.log('Backend: Update failed - no post returned');
       return res.status(500).json({
         success: false,
-        message: 'Failed to update post'
+        message: 'Failed to update post',
       });
     }
 
@@ -104,14 +104,14 @@ export const updatePost = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: post
+      data: post,
     });
   } catch (error) {
     console.error('Backend: Error updating blog post:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating blog post',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -123,13 +123,13 @@ export const createPost = async (req: Request, res: Response) => {
     console.log('Controller: Request file:', req.file);
 
     const { title, content, excerpt, tags, publishDate } = req.body;
-    
+
     // Validate required fields
     if (!title || !content) {
       console.log('Controller: Missing required fields');
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Title and content are required' 
+      return res.status(400).json({
+        success: false,
+        message: 'Title and content are required',
       });
     }
 
@@ -143,9 +143,9 @@ export const createPost = async (req: Request, res: Response) => {
     const existingPost = await BlogPost.findOne({ slug });
     if (existingPost) {
       console.log('Controller: Slug already exists');
-      return res.status(400).json({ 
-        success: false, 
-        message: 'A post with this title already exists' 
+      return res.status(400).json({
+        success: false,
+        message: 'A post with this title already exists',
       });
     }
 
@@ -159,12 +159,14 @@ export const createPost = async (req: Request, res: Response) => {
       publishDate: publishDate ? new Date(publishDate) : new Date(),
       author: {
         name: 'Admin', // Default author name
-        avatar: null
+        avatar: null,
       },
-      heroImage: req.file ? {
-        url: `/uploads/${req.file.filename}`,
-        alt: title
-      } : null
+      heroImage: req.file
+        ? {
+            url: `/uploads/${req.file.filename}`,
+            alt: title,
+          }
+        : null,
     });
 
     console.log('Controller: Saving new post to database:', newPost);
@@ -173,33 +175,31 @@ export const createPost = async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      data: savedPost
+      data: savedPost,
     });
   } catch (error) {
     console.error('Controller: Error creating post:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Error creating post',
-      error: error.message 
+      error: error.message,
     });
   }
 };
 
 export const getPosts = async (req: Request, res: Response) => {
   try {
-    const posts = await BlogPost.find()
-      .sort({ publishDate: -1 })
-      .exec();
+    const posts = await BlogPost.find().sort({ publishDate: -1 }).exec();
 
     res.json({
       success: true,
-      data: posts
+      data: posts,
     });
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching blog posts'
+      message: 'Error fetching blog posts',
     });
   }
 };
@@ -212,19 +212,19 @@ export const getPostBySlug = async (req: Request, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        message: 'Blog post not found'
+        message: 'Blog post not found',
       });
     }
 
     res.json({
       success: true,
-      data: post
+      data: post,
     });
   } catch (error) {
     console.error('Error fetching blog post:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching blog post'
+      message: 'Error fetching blog post',
     });
   }
 };
@@ -237,19 +237,19 @@ export const getPostById = async (req: Request, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        message: 'Blog post not found'
+        message: 'Blog post not found',
       });
     }
 
     res.json({
       success: true,
-      data: post
+      data: post,
     });
   } catch (error) {
     console.error('Error fetching blog post:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching blog post'
+      message: 'Error fetching blog post',
     });
   }
-}; 
+};

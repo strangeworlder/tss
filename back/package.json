@@ -9,6 +9,8 @@
     "build": "tsc",
     "test": "jest",
     "lint": "eslint . --ext .ts",
+    "lint:biome": "biome lint . --write --unsafe",
+    "format:biome": "biome format . --write",
     "seed:blog": "ts-node src/domains/blog/seed.ts"
   },
   "keywords": [],
@@ -42,6 +44,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@faker-js/faker": "^7.6.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",

@@ -44,17 +44,20 @@ Usage:
 </template>
 
 <script setup lang="ts">
-import type { IFormErrorProps } from '@/types/form'
+import type { IFormErrorProps } from '@/types/form';
 
-const props = withDefaults(defineProps<{
-  message?: string
-  className?: string
-  id?: string
-}>(), {
-  message: '',
-  className: '',
-  id: undefined
-})
+const props = withDefaults(
+  defineProps<{
+    message?: string;
+    className?: string;
+    id?: string;
+  }>(),
+  {
+    message: '',
+    className: '',
+    id: undefined,
+  }
+);
 </script>
 
 <style scoped>

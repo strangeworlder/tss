@@ -1,0 +1,15 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running pre-commit hooks..."
+
+# Run linting for frontend
+echo "Running frontend linters..."
+cd front && npm run lint && npm run lint:biome
+
+# Run linting for backend
+echo "Running backend linters..."
+cd ../back && npm run lint && npm run lint:biome
+
+# If all checks pass
+echo "All linting checks passed!" 

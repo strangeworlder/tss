@@ -1,215 +1,213 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
-import { useBlogStore } from '@/stores/blogStore'
-import { useAuthStore } from '@/stores/authStore'
-import { useUserStore } from '@/stores/userStore'
-import AppImage from '@/components/atoms/AppImage.vue'
-import { ImageSizeEnum } from '@/types/image'
-import { deleteBlogPost } from '@/api/blogService'
-import { useRouter } from 'vue-router'
-import type { BlogPost } from '@/types/blog'
-import type { IUser } from '@/types/user'
-import Button from '@/components/atoms/Button.vue'
-import { ButtonVariantEnum } from '@/types/button'
+import { ref, onMounted, watch, computed } from 'vue';
+import { useBlogStore } from '@/stores/blogStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useUserStore } from '@/stores/userStore';
+import AppImage from '@/components/atoms/AppImage.vue';
+import { ImageSizeEnum } from '@/types/image';
+import { deleteBlogPost } from '@/api/blogService';
+import { useRouter } from 'vue-router';
+import type { BlogPost } from '@/types/blog';
+import type { IUser } from '@/types/user';
+import Button from '@/components/atoms/Button.vue';
+import { ButtonVariantEnum } from '@/types/button';
 
 const props = defineProps<{
-  postId: string | null
-}>()
+  postId: string | null;
+}>();
 
-const emit = defineEmits<{
-  (e: 'back'): void
-}>()
+const emit = defineEmits<(e: 'back') => void>();
 
-const blogStore = useBlogStore()
-const authStore = useAuthStore()
-const userStore = useUserStore()
-const loading = ref(true)
-const error = ref<string | null>(null)
-const saving = ref(false)
+const blogStore = useBlogStore();
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const loading = ref(true);
+const error = ref<string | null>(null);
+const saving = ref(false);
 
 // Form data
-const title = ref('')
-const content = ref('')
-const excerpt = ref('')
-const publishedAt = ref('')
-const isPublished = ref(true)
-const authorType = ref<'user' | 'text'>('user')
-const selectedUserId = ref<string>('')
-const authorName = ref('')
-const tags = ref<string[]>([])
-const newTag = ref('')
-const heroImage = ref<File | null>(null)
-const heroImagePreview = ref<string | null>(null)
+const title = ref('');
+const content = ref('');
+const excerpt = ref('');
+const publishedAt = ref('');
+const isPublished = ref(true);
+const authorType = ref<'user' | 'text'>('user');
+const selectedUserId = ref<string>('');
+const authorName = ref('');
+const tags = ref<string[]>([]);
+const newTag = ref('');
+const heroImage = ref<File | null>(null);
+const heroImagePreview = ref<string | null>(null);
 
-const router = useRouter()
-const showDeleteConfirm = ref(false)
+const router = useRouter();
+const showDeleteConfirm = ref(false);
 
-const isAdmin = computed(() => authStore.isAdmin)
-const currentUser = computed(() => authStore.user)
-const users = ref<IUser[]>([])
+const isAdmin = computed(() => authStore.isAdmin);
+const currentUser = computed(() => authStore.user);
+const users = ref<IUser[]>([]);
 
 // Load users for admin selection
 onMounted(async () => {
   if (isAdmin.value) {
     try {
-      console.log('Fetching users...')
-      const fetchedUsers = await userStore.fetchUsers()
+      console.log('Fetching users...');
+      const fetchedUsers = await userStore.fetchUsers();
       // Map the users to ensure we have the correct ID field
       users.value = fetchedUsers.map((user: IUser) => ({
         ...user,
         id: user._id || user.id, // Use _id if available, fallback to id
-      }))
-      console.log('Fetched users:', users.value)
-      console.log('First user ID:', users.value[0]?.id)
-      console.log('First user data:', users.value[0])
+      }));
+      console.log('Fetched users:', users.value);
+      console.log('First user ID:', users.value[0]?.id);
+      console.log('First user data:', users.value[0]);
     } catch (error) {
-      console.error('Failed to fetch users:', error)
+      console.error('Failed to fetch users:', error);
     }
   }
-})
+});
 
 // Watch for postId changes to load post data
 watch(
   () => props.postId,
   async (newId) => {
     if (newId) {
-      await loadPost(newId)
+      await loadPost(newId);
     } else {
-      loading.value = false
-      resetForm()
+      loading.value = false;
+      resetForm();
     }
-  },
-)
+  }
+);
 
 const loadPost = async (postId: string) => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
-    await blogStore.fetchPostById(postId)
-    const post = blogStore.currentPost
+    await blogStore.fetchPostById(postId);
+    const post = blogStore.currentPost;
 
     if (post) {
-      title.value = post.title
-      content.value = post.content
-      excerpt.value = post.excerpt
+      title.value = post.title;
+      content.value = post.content;
+      excerpt.value = post.excerpt;
       publishedAt.value = post.publishedAt
         ? new Date(post.publishedAt).toISOString().split('T')[0]
-        : ''
-      isPublished.value = post.isPublished
+        : '';
+      isPublished.value = post.isPublished;
 
       // Set author data based on type
       if (post.author.type === 'user') {
-        authorType.value = 'user'
-        selectedUserId.value = post.author.id || ''
-        authorName.value = post.author.name
+        authorType.value = 'user';
+        selectedUserId.value = post.author.id || '';
+        authorName.value = post.author.name;
       } else {
-        authorType.value = 'text'
-        authorName.value = post.author.name
+        authorType.value = 'text';
+        authorName.value = post.author.name;
       }
 
-      tags.value = [...(post.tags || [])]
+      tags.value = [...(post.tags || [])];
     }
   } catch (err) {
-    console.error('Error loading post:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to load post'
+    console.error('Error loading post:', err);
+    error.value = err instanceof Error ? err.message : 'Failed to load post';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const resetForm = () => {
-  title.value = ''
-  content.value = ''
-  excerpt.value = ''
-  publishedAt.value = new Date().toISOString().split('T')[0]
-  isPublished.value = true
-  authorName.value = ''
-  tags.value = []
-  heroImage.value = null
-  heroImagePreview.value = null
-}
+  title.value = '';
+  content.value = '';
+  excerpt.value = '';
+  publishedAt.value = new Date().toISOString().split('T')[0];
+  isPublished.value = true;
+  authorName.value = '';
+  tags.value = [];
+  heroImage.value = null;
+  heroImagePreview.value = null;
+};
 
 const handleImageChange = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  if (input.files && input.files[0]) {
-    heroImage.value = input.files[0]
-    heroImagePreview.value = URL.createObjectURL(input.files[0])
+  const input = event.target as HTMLInputElement;
+  if (input.files?.[0]) {
+    heroImage.value = input.files[0];
+    heroImagePreview.value = URL.createObjectURL(input.files[0]);
   }
-}
+};
 
 const addTag = () => {
   if (newTag.value.trim() && !tags.value.includes(newTag.value.trim())) {
-    tags.value.push(newTag.value.trim())
-    newTag.value = ''
+    tags.value.push(newTag.value.trim());
+    newTag.value = '';
   }
-}
+};
 
 const removeTag = (tagToRemove: string) => {
-  tags.value = tags.value.filter((tag) => tag !== tagToRemove)
-}
+  tags.value = tags.value.filter((tag) => tag !== tagToRemove);
+};
 
 const handleSubmit = async () => {
-  saving.value = true
-  error.value = null
+  saving.value = true;
+  error.value = null;
 
   try {
-    console.log('Starting form submission...')
-    console.log('Current authorType:', authorType.value)
-    console.log('Current selectedUserId:', selectedUserId.value)
-    console.log('Current selectedUserId type:', typeof selectedUserId.value)
-    console.log('Available users:', users.value)
-    console.log('Users array length:', users.value.length)
-    console.log('First user ID:', users.value[0]?.id)
-    console.log('First user ID type:', typeof users.value[0]?.id)
+    console.log('Starting form submission...');
+    console.log('Current authorType:', authorType.value);
+    console.log('Current selectedUserId:', selectedUserId.value);
+    console.log('Current selectedUserId type:', typeof selectedUserId.value);
+    console.log('Available users:', users.value);
+    console.log('Users array length:', users.value.length);
+    console.log('First user ID:', users.value[0]?.id);
+    console.log('First user ID type:', typeof users.value[0]?.id);
     console.log(
       'Selected user:',
-      users.value.find((u) => u.id === selectedUserId.value),
-    )
+      users.value.find((u) => u.id === selectedUserId.value)
+    );
 
-    const formData = new FormData()
-    formData.append('title', title.value)
-    formData.append('content', content.value)
-    formData.append('excerpt', excerpt.value)
+    const formData = new FormData();
+    formData.append('title', title.value);
+    formData.append('content', content.value);
+    formData.append('excerpt', excerpt.value);
     formData.append(
       'publishedAt',
-      publishedAt.value ? new Date(publishedAt.value).toISOString() : '',
-    )
-    formData.append('isPublished', isPublished.value.toString())
-    formData.append('tags', JSON.stringify(tags.value))
+      publishedAt.value ? new Date(publishedAt.value).toISOString() : ''
+    );
+    formData.append('isPublished', isPublished.value.toString());
+    formData.append('tags', JSON.stringify(tags.value));
 
     // Set author based on type and user role
     if (isAdmin.value) {
-      console.log('Processing admin author selection...')
-      console.log('Selected author type:', authorType.value)
+      console.log('Processing admin author selection...');
+      console.log('Selected author type:', authorType.value);
 
       if (authorType.value === 'user') {
-        console.log('User author selected, userId:', selectedUserId.value)
-        console.log('UserId type:', typeof selectedUserId.value)
-        console.log('Users array:', users.value)
-        console.log('Users array length:', users.value.length)
+        console.log('User author selected, userId:', selectedUserId.value);
+        console.log('UserId type:', typeof selectedUserId.value);
+        console.log('Users array:', users.value);
+        console.log('Users array length:', users.value.length);
 
         if (!selectedUserId.value) {
-          console.error('No user selected')
-          throw new Error('Please select a user')
+          console.error('No user selected');
+          throw new Error('Please select a user');
         }
 
         const selectedUser = users.value.find((user: IUser) => {
-          console.log('Comparing user ID:', user.id, 'with selected ID:', selectedUserId.value)
+          console.log('Comparing user ID:', user.id, 'with selected ID:', selectedUserId.value);
           console.log(
             'User ID type:',
             typeof user.id,
             'Selected ID type:',
-            typeof selectedUserId.value,
-          )
-          return user.id === selectedUserId.value
-        })
+            typeof selectedUserId.value
+          );
+          return user.id === selectedUserId.value;
+        });
 
-        console.log('Found selected user:', selectedUser)
+        console.log('Found selected user:', selectedUser);
 
         if (!selectedUser) {
-          console.error('Selected user not found')
-          throw new Error('Selected user not found')
+          console.error('Selected user not found');
+          throw new Error('Selected user not found');
         }
 
         const authorData = {
@@ -222,26 +220,26 @@ const handleSubmit = async () => {
                 altText: selectedUser.avatar.altText,
               }
             : undefined,
-        }
-        console.log('Setting author data:', authorData)
-        formData.append('author', JSON.stringify(authorData))
+        };
+        console.log('Setting author data:', authorData);
+        formData.append('author', JSON.stringify(authorData));
       } else if (authorType.value === 'text') {
-        console.log('Text author selected, name:', authorName.value)
+        console.log('Text author selected, name:', authorName.value);
         if (!authorName.value.trim()) {
-          throw new Error('Author name is required')
+          throw new Error('Author name is required');
         }
         const authorData = {
           type: 'text',
           name: authorName.value.trim(),
-        }
-        console.log('Setting author data:', authorData)
-        formData.append('author', JSON.stringify(authorData))
+        };
+        console.log('Setting author data:', authorData);
+        formData.append('author', JSON.stringify(authorData));
       } else {
-        console.error('Invalid author type:', authorType.value)
-        throw new Error('Invalid author type selected')
+        console.error('Invalid author type:', authorType.value);
+        throw new Error('Invalid author type selected');
       }
     } else if (currentUser.value) {
-      console.log('Processing non-admin author selection...')
+      console.log('Processing non-admin author selection...');
       const authorData = {
         type: 'user',
         id: currentUser.value.id,
@@ -252,64 +250,64 @@ const handleSubmit = async () => {
               altText: currentUser.value.avatar.altText,
             }
           : undefined,
-      }
-      console.log('Setting author data:', authorData)
-      formData.append('author', JSON.stringify(authorData))
+      };
+      console.log('Setting author data:', authorData);
+      formData.append('author', JSON.stringify(authorData));
     } else {
-      console.error('No current user found')
-      throw new Error('No user found for author')
+      console.error('No current user found');
+      throw new Error('No user found for author');
     }
 
     if (heroImage.value) {
-      formData.append('heroImage', heroImage.value)
+      formData.append('heroImage', heroImage.value);
     }
 
-    console.log('Submitting form data:', Object.fromEntries(formData.entries()))
+    console.log('Submitting form data:', Object.fromEntries(formData.entries()));
 
     if (props.postId) {
-      await blogStore.updatePost(props.postId, formData)
+      await blogStore.updatePost(props.postId, formData);
     } else {
-      await blogStore.createPost(formData)
+      await blogStore.createPost(formData);
     }
 
-    emit('back')
+    emit('back');
   } catch (err) {
-    console.error('Error saving post:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to save post'
+    console.error('Error saving post:', err);
+    error.value = err instanceof Error ? err.message : 'Failed to save post';
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const handleDelete = async () => {
-  if (!blogStore.currentPost?.id) return
+  if (!blogStore.currentPost?.id) return;
 
   try {
-    await deleteBlogPost(blogStore.currentPost.id)
+    await deleteBlogPost(blogStore.currentPost.id);
     // Show success message
     blogStore.setNotification({
       type: 'success',
       message: 'Post deleted successfully',
-    })
+    });
     // Emit back event to return to the list
-    emit('back')
+    emit('back');
   } catch (error) {
-    console.error('Error deleting post:', error)
+    console.error('Error deleting post:', error);
     blogStore.setNotification({
       type: 'error',
       message: error instanceof Error ? error.message : 'Failed to delete post',
-    })
+    });
   }
-}
+};
 
 onMounted(() => {
   if (props.postId) {
-    loadPost(props.postId)
+    loadPost(props.postId);
   } else {
-    loading.value = false
-    resetForm()
+    loading.value = false;
+    resetForm();
   }
-})
+});
 </script>
 
 <template>

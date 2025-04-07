@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
-import jwt, { SignOptions, Secret } from 'jsonwebtoken';
+import type { Request, Response } from 'express';
+import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import mongoose from 'mongoose';
-import User, { IUser, UserDocument } from '../../users/models/user.model';
+import User, { IUser, type UserDocument } from '../../users/models/user.model';
 import { JWT } from '../../../config/config';
 import { redisClient } from '../../../db/redis/connection';
 import { UserRole } from '../../users/models/user.model';
@@ -10,9 +10,7 @@ import { UserRole } from '../../users/models/user.model';
 // Validation rules
 export const registerValidation = [
   body('email').isEmail().withMessage('Please enter a valid email'),
-  body('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required'),
 ];
@@ -50,10 +48,10 @@ export const register = async (req: Request, res: Response) => {
       firstName,
       lastName,
       bio,
-      role: UserRole.USER
+      role: UserRole.USER,
     });
 
-    const savedUser = await user.save() as UserDocument;
+    const savedUser = (await user.save()) as UserDocument;
     console.log('User saved successfully:', savedUser._id);
 
     // Generate JWT token
@@ -84,14 +82,14 @@ export const register = async (req: Request, res: Response) => {
         lastName: savedUser.lastName,
         role: savedUser.role,
         bio: savedUser.bio,
-        avatar: savedUser.avatar
+        avatar: savedUser.avatar,
       },
     });
   } catch (error) {
     console.error('Register error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -111,7 +109,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Find user by email
-    const foundUser = await User.findOne({ email }) as UserDocument;
+    const foundUser = (await User.findOne({ email })) as UserDocument;
     if (!foundUser) {
       console.log('User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -156,17 +154,17 @@ export const login = async (req: Request, res: Response) => {
         lastName: foundUser.lastName,
         role: foundUser.role,
         bio: foundUser.bio,
-        avatar: foundUser.avatar
-      }
+        avatar: foundUser.avatar,
+      },
     };
 
     console.log('Sending successful login response for user:', foundUser._id);
     return res.json(response);
   } catch (error) {
     console.error('Login error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -175,7 +173,7 @@ export const login = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
+
     if (userId) {
       try {
         // Remove token from Redis
@@ -197,12 +195,12 @@ export const logout = async (req: Request, res: Response) => {
 export const getCurrentUser = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
 
-    const user = await User.findById(userId) as UserDocument;
+    const user = (await User.findById(userId)) as UserDocument;
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -215,8 +213,8 @@ export const getCurrentUser = async (req: Request, res: Response) => {
         lastName: user.lastName,
         role: user.role,
         bio: user.bio,
-        avatar: user.avatar
-      }
+        avatar: user.avatar,
+      },
     });
   } catch (error) {
     console.error('Get current user error:', error);
@@ -231,4 +229,4 @@ export default {
   getCurrentUser,
   registerValidation,
   loginValidation,
-}; 
+};

@@ -61,4 +61,4 @@ export const imageTypeDefs = gql`
       altText: String
     ): Image
   }
-`; 
+`;

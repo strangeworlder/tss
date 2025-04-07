@@ -16,9 +16,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { getImageUrl } from '@/api/imageService'
-import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
+import { computed, ref } from 'vue';
+import { getImageUrl } from '@/api/imageService';
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image';
 
 /**
  * AppImage Component
@@ -39,43 +39,43 @@ interface IProps {
   /**
    * The filename of the image to display
    */
-  filename: string
+  filename: string;
   /**
    * The size of the image to display (thumbnail, medium, full)
    */
-  size?: ImageSizeEnum
+  size?: ImageSizeEnum;
   /**
    * The format of the image (original, webp, jpeg, png)
    */
-  format?: ImageFormatEnum
+  format?: ImageFormatEnum;
   /**
    * Alternative text for the image (required for accessibility)
    */
-  alt: string
+  alt: string;
   /**
    * Additional CSS classes to apply to the image
    */
-  className?: string
+  className?: string;
   /**
    * Fallback image to display if the main image fails to load
    */
-  fallback?: string
+  fallback?: string;
   /**
    * Whether to lazy load the image
    */
-  lazy?: boolean
+  lazy?: boolean;
   /**
    * Width of the image in pixels (optional)
    */
-  width?: number | string
+  width?: number | string;
   /**
    * Height of the image in pixels (optional)
    */
-  height?: number | string
+  height?: number | string;
   /**
    * ARIA label for the image (falls back to alt if not provided)
    */
-  ariaLabel?: string
+  ariaLabel?: string;
 }
 
 const props = withDefaults(defineProps<IProps>(), {
@@ -87,20 +87,20 @@ const props = withDefaults(defineProps<IProps>(), {
   width: undefined,
   height: undefined,
   ariaLabel: '',
-})
+});
 
-const hasError = ref(false)
+const hasError = ref(false);
 
 const imageUrl = computed(() => {
   if (hasError.value) {
-    return getImageUrl(props.fallback, props.size, props.format)
+    return getImageUrl(props.fallback, props.size, props.format);
   }
-  return getImageUrl(props.filename, props.size, props.format)
-})
+  return getImageUrl(props.filename, props.size, props.format);
+});
 
 const handleImageError = () => {
-  hasError.value = true
-}
+  hasError.value = true;
+};
 </script>
 
 <style scoped>

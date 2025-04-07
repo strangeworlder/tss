@@ -1,12 +1,12 @@
-import { mount } from '@vue/test-utils'
-import ReadMoreButton from '../ReadMoreButton.vue'
-import { createReadMoreButtonProps } from './__fixtures__/ReadMoreButton.fixture'
+import { mount } from '@vue/test-utils';
+import ReadMoreButton from '../ReadMoreButton.vue';
+import { createReadMoreButtonProps } from './__fixtures__/ReadMoreButton.fixture';
 
 /**
  * Interface for ReadMoreButton component props
  */
 interface IReadMoreButtonProps {
-  to: string
+  to: string;
 }
 
 /**
@@ -19,10 +19,10 @@ export function mountReadMoreButton(props: IReadMoreButtonProps = createReadMore
     props,
     global: {
       stubs: {
-        Button: true
-      }
-    }
-  })
+        Button: true,
+      },
+    },
+  });
 }
 
 /**
@@ -33,6 +33,6 @@ export function mountReadMoreButton(props: IReadMoreButtonProps = createReadMore
 export function createDefaultReadMoreButtonProps(overrides: Partial<IReadMoreButtonProps> = {}) {
   return {
     to: '/default-path',
-    ...overrides
-  }
-} 
+    ...overrides,
+  };
+}

@@ -7,5 +7,5 @@ export const COMMENT_CONSTANTS = {
   REPLY_BUTTON_TEXT: 'Reply',
   DELETE_BUTTON_TEXT: 'Delete',
   SUBMIT_BUTTON_TEXT: 'Submit',
-  CANCEL_BUTTON_TEXT: 'Cancel'
-} as const 
+  CANCEL_BUTTON_TEXT: 'Cancel',
+} as const;

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { createApp, ref } from 'vue'
-import MenuToggle from '../MenuToggle.vue'
+import { describe, it, expect } from 'vitest';
+import { mount } from '@vue/test-utils';
+import { createApp, ref } from 'vue';
+import MenuToggle from '../MenuToggle.vue';
 
 describe('MenuToggle E2E', () => {
   it('toggles menu visibility when clicked', async () => {
@@ -19,35 +19,35 @@ describe('MenuToggle E2E', () => {
         </div>
       `,
       setup() {
-        const isMenuOpen = ref(false)
+        const isMenuOpen = ref(false);
         const toggleMenu = () => {
-          isMenuOpen.value = !isMenuOpen.value
-        }
-        return { isMenuOpen, toggleMenu }
-      }
-    })
-    
-    app.component('MenuToggle', MenuToggle)
-    
+          isMenuOpen.value = !isMenuOpen.value;
+        };
+        return { isMenuOpen, toggleMenu };
+      },
+    });
+
+    app.component('MenuToggle', MenuToggle);
+
     // Mount the app
-    const wrapper = mount(app)
-    
+    const wrapper = mount(app);
+
     // Check that the menu is initially hidden
-    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false)
-    
+    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false);
+
     // Click the menu toggle
-    await wrapper.find('.menu-toggle').trigger('click')
-    
+    await wrapper.find('.menu-toggle').trigger('click');
+
     // Check that the menu is now visible
-    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(true)
-    
+    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(true);
+
     // Click the menu toggle again
-    await wrapper.find('.menu-toggle').trigger('click')
-    
+    await wrapper.find('.menu-toggle').trigger('click');
+
     // Check that the menu is hidden again
-    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false)
-  })
-  
+    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false);
+  });
+
   it('toggles menu visibility when using keyboard navigation', async () => {
     // Create a test app with the MenuToggle component
     const app = createApp({
@@ -63,33 +63,33 @@ describe('MenuToggle E2E', () => {
         </div>
       `,
       setup() {
-        const isMenuOpen = ref(false)
+        const isMenuOpen = ref(false);
         const toggleMenu = () => {
-          isMenuOpen.value = !isMenuOpen.value
-        }
-        return { isMenuOpen, toggleMenu }
-      }
-    })
-    
-    app.component('MenuToggle', MenuToggle)
-    
+          isMenuOpen.value = !isMenuOpen.value;
+        };
+        return { isMenuOpen, toggleMenu };
+      },
+    });
+
+    app.component('MenuToggle', MenuToggle);
+
     // Mount the app
-    const wrapper = mount(app)
-    
+    const wrapper = mount(app);
+
     // Check that the menu is initially hidden
-    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false)
-    
+    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false);
+
     // Focus the menu toggle and press Enter
-    await wrapper.find('.menu-toggle').trigger('focus')
-    await wrapper.find('.menu-toggle').trigger('keydown.enter')
-    
+    await wrapper.find('.menu-toggle').trigger('focus');
+    await wrapper.find('.menu-toggle').trigger('keydown.enter');
+
     // Check that the menu is now visible
-    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(true)
-    
+    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(true);
+
     // Press Enter again
-    await wrapper.find('.menu-toggle').trigger('keydown.enter')
-    
+    await wrapper.find('.menu-toggle').trigger('keydown.enter');
+
     // Check that the menu is hidden again
-    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false)
-  })
-}) 
+    expect(wrapper.find('[data-testid="menu"]').isVisible()).toBe(false);
+  });
+});

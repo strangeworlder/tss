@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { type Document, Schema, type Types } from 'mongoose';
 import { IUser } from '../../users/models/user.model';
 
 // Blog post interface
@@ -29,33 +29,37 @@ export interface IBlogPost extends Document {
 }
 
 // Define the BlogPost Schema for MongoDB
-const blogPostSchema = new Schema<IBlogPost>({
-  title: { type: String, required: true },
-  slug: { type: String, required: true, unique: true },
-  content: { type: String, required: true },
-  excerpt: { type: String, required: true },
-  author: {
-    type: { type: String, enum: ['user', 'text'], required: true },
-    id: { type: Schema.Types.ObjectId, ref: 'User' },
-    name: { type: String, required: true },
-    avatar: {
+const blogPostSchema = new Schema<IBlogPost>(
+  {
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    content: { type: String, required: true },
+    excerpt: { type: String, required: true },
+    author: {
+      type: { type: String, enum: ['user', 'text'], required: true },
+      id: { type: Schema.Types.ObjectId, ref: 'User' },
+      name: { type: String, required: true },
+      avatar: {
+        filename: { type: String },
+        altText: { type: String },
+      },
+    },
+    heroImage: {
       filename: { type: String },
-      altText: { type: String }
-    }
+      altText: { type: String },
+    },
+    heroImageUrl: { type: String },
+    tags: [{ type: String }],
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+    publishedAt: { type: Date, default: null },
+    isPublished: { type: Boolean, default: false },
   },
-  heroImage: {
-    filename: { type: String },
-    altText: { type: String }
-  },
-  heroImageUrl: { type: String },
-  tags: [{ type: String }],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  publishedAt: { type: Date, default: null },
-  isPublished: { type: Boolean, default: false }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 // Create the model if it doesn't exist already
-export const BlogPostModel = mongoose.models.BlogPost || mongoose.model<IBlogPost>('BlogPost', blogPostSchema);
+export const BlogPostModel =
+  mongoose.models.BlogPost || mongoose.model<IBlogPost>('BlogPost', blogPostSchema);
 
-export default BlogPostModel; 
+export default BlogPostModel;

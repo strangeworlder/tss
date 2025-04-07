@@ -4,11 +4,7 @@ module.exports = {
     ecmaVersion: 2022,
     sourceType: 'module',
   },
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['plugin:@typescript-eslint/recommended', 'prettier', 'plugin:prettier/recommended'],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -19,4 +15,4 @@ module.exports = {
     node: true,
     jest: true,
   },
-}; 
+};

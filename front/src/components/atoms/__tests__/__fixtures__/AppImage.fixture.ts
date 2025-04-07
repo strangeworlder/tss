@@ -1,5 +1,5 @@
 // Test data for AppImage tests
-import { ImageSizeEnum, ImageFormatEnum } from '@/types/image'
+import { ImageSizeEnum, ImageFormatEnum } from '@/types/image';
 
 /**
  * Creates test props for the AppImage component
@@ -12,8 +12,8 @@ export const createImageProps = (overrides = {}) => ({
   size: ImageSizeEnum.MEDIUM,
   format: ImageFormatEnum.JPEG,
   lazy: true,
-  ...overrides
-})
+  ...overrides,
+});
 
 /**
  * Predefined test cases for AppImage component
@@ -43,5 +43,5 @@ export const mockImages = {
     filename: 'accessibility-image.jpg',
     alt: 'Accessibility test image',
     ariaLabel: 'Custom aria label for accessibility',
-  }
-} 
+  },
+};

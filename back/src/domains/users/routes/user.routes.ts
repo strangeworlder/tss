@@ -17,4 +17,4 @@ router.put('/profile', updateProfile);
 // Update user avatar
 router.post('/avatar', upload.single('avatar'), updateAvatar);
 
-export default router; 
+export default router;

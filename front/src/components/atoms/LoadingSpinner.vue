@@ -21,7 +21,7 @@ A flexible loading spinner component that indicates a loading state to users.
 </template>
 
 <script setup lang="ts">
-import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue'
+import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue';
 </script>
 ```
 

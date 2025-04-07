@@ -1,16 +1,16 @@
-import { mount } from '@vue/test-utils'
-import AuthorInfo from '../AuthorInfo.vue'
-import type { Author } from '@/types/blog'
-import { createAuthorInfoProps } from './__fixtures__/AuthorInfo.fixture'
-import type { Props } from '../AuthorInfo.types'
+import { mount } from '@vue/test-utils';
+import AuthorInfo from '../AuthorInfo.vue';
+import type { Author } from '@/types/blog';
+import { createAuthorInfoProps } from './__fixtures__/AuthorInfo.fixture';
+import type { Props } from '../AuthorInfo.types';
 
 /**
  * Interface for AuthorInfo component props
  */
 interface IAuthorInfoProps {
-  author?: Author
-  date?: string
-  size?: 'sm' | 'md' | 'lg'
+  author?: Author;
+  date?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 /**
@@ -24,11 +24,11 @@ export function mountAuthorInfo(props: Props = createAuthorInfoProps(), options 
     props,
     global: {
       stubs: {
-        'Avatar': true
-      }
+        Avatar: true,
+      },
     },
-    ...options
-  })
+    ...options,
+  });
 }
 
 /**
@@ -44,11 +44,11 @@ export function createDefaultAuthorInfoProps(overrides: Partial<Props> = {}) {
       name: 'John Doe',
       avatar: {
         filename: 'avatar.jpg',
-        altText: 'John Doe'
-      }
+        altText: 'John Doe',
+      },
     },
     date: '2024-03-20',
     size: 'md' as const,
-    ...overrides
-  } as Props
-} 
+    ...overrides,
+  } as Props;
+}
