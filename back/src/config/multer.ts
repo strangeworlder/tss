@@ -2,17 +2,18 @@ import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
 
-// Ensure upload directories exist
+// Define upload directories
 const uploadDirs = {
   avatars: path.join(__dirname, '../../public/uploads/avatars'),
   blogHeroes: path.join(__dirname, '../../public/uploads/blog-heroes'),
 };
 
-Object.values(uploadDirs).forEach(dir => {
+// Ensure upload directories exist
+for (const dir of Object.values(uploadDirs)) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-});
+}
 
 // Configure storage for avatars
 const avatarStorage = multer.diskStorage({
