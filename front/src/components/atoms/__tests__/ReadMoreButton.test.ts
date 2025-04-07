@@ -10,14 +10,14 @@ describe('ReadMoreButton', () => {
     expect(wrapper.text()).toContain('Read More')
   })
 
-  it('passes the correct to prop to the Button component', () => {
+  it('passes the correct to prop to the AppButton component', () => {
     const wrapper = mountReadMoreButton(mockReadMoreButtons.blogPost)
-    expect(wrapper.findComponent({ name: 'Button' }).props('to')).toBe('/blog/post-1')
+    expect(wrapper.findComponent({ name: 'AppButton' }).props('to')).toBe('/blog/post-1')
   })
 
-  it('uses the primary variant for the Button component', () => {
+  it('uses the primary variant for the AppButton component', () => {
     const wrapper = mountReadMoreButton()
-    expect(wrapper.findComponent({ name: 'Button' }).props('variant')).toBe(
+    expect(wrapper.findComponent({ name: 'AppButton' }).props('variant')).toBe(
       ButtonVariantEnum.PRIMARY,
     )
   })

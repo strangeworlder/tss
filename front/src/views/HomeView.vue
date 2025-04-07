@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useBlogStore } from '@/stores/blogStore'
 import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
 import { checkApiHealth } from '@/api/apiClient'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 import { ButtonVariantEnum } from '@/types/button'
 
@@ -68,9 +68,9 @@ onMounted(() => {
       <div class="container home-view__hero-container">
         <h1 class="home-view__hero-title">Welcome to Vue Blog</h1>
         <p class="home-view__hero-text">A modern blog built with Vue 3 and TypeScript.</p>
-        <Button to="/blog" :variant="ButtonVariantEnum.PRIMARY" class="home-view__cta">
+        <AppButton to="/blog" :variant="ButtonVariantEnum.PRIMARY" class="home-view__cta">
           Read All Blog Posts
-        </Button>
+        </AppButton>
       </div>
     </section>
 
@@ -87,13 +87,13 @@ onMounted(() => {
         <!-- Error state -->
         <div v-else-if="error" class="text-center py-8">
           <p class="text-red-600 mb-4">{{ error }}</p>
-          <Button @click="fetchRecentPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </Button>
+          <AppButton @click="fetchRecentPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </AppButton>
         </div>
 
         <!-- Empty state -->
         <div v-else-if="recentPosts.length === 0" class="text-center py-8">
           <p class="text-gray-600 mb-4">No recent posts found.</p>
-          <Button to="/blog" :variant="ButtonVariantEnum.SECONDARY"> Check our blog &rarr; </Button>
+          <AppButton to="/blog" :variant="ButtonVariantEnum.SECONDARY"> Check our blog &rarr; </AppButton>
         </div>
 
         <!-- Recent posts -->
@@ -117,7 +117,7 @@ onMounted(() => {
             />
           </div>
           <div class="home-view__more-link">
-            <Button to="/blog" :variant="ButtonVariantEnum.SECONDARY"> View All Blog Posts </Button>
+            <AppButton to="/blog" :variant="ButtonVariantEnum.SECONDARY"> View All Blog Posts </AppButton>
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ onMounted(() => {
             class="home-view__newsletter-input"
             required
           />
-          <Button type="submit" :variant="ButtonVariantEnum.PRIMARY"> Subscribe </Button>
+          <AppButton type="submit" :variant="ButtonVariantEnum.PRIMARY"> Subscribe </AppButton>
         </form>
       </div>
     </section>

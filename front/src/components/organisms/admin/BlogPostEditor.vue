@@ -7,7 +7,7 @@ import AppImage from '@/components/atoms/AppImage.vue'
 import { ImageSizeEnum } from '@/types/image'
 import { deleteBlogPost } from '@/api/blogService'
 import type { IUser } from '@/types/user'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 const props = defineProps<{
@@ -329,12 +329,12 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-editor__error">
       <p>{{ error }}</p>
-      <Button
+      <AppButton
         @click="props.postId ? loadPost(props.postId) : resetForm()"
         :variant="ButtonVariantEnum.DANGER"
       >
         Try Again
-      </Button>
+      </AppButton>
     </div>
 
     <!-- Editor form -->
@@ -343,9 +343,9 @@ onMounted(() => {
         <h2 class="blog-post-editor__title">
           {{ props.postId ? 'Edit Post' : 'New Post' }}
         </h2>
-        <Button type="button" @click="emit('back')" :variant="ButtonVariantEnum.SECONDARY">
+        <AppButton type="button" @click="emit('back')" :variant="ButtonVariantEnum.SECONDARY">
           Back to List
-        </Button>
+        </AppButton>
       </div>
 
       <div class="blog-post-editor__field">
@@ -405,14 +405,14 @@ onMounted(() => {
           <div class="blog-post-editor__tag-list">
             <span v-for="tag in tags" :key="tag" class="blog-post-editor__tag">
               {{ tag }}
-              <Button
+              <AppButton
                 type="button"
                 @click="removeTag(tag)"
                 :variant="ButtonVariantEnum.TEXT"
                 class="blog-post-editor__tag-remove"
               >
                 ×
-              </Button>
+              </AppButton>
             </span>
           </div>
           <div class="blog-post-editor__tag-input">
@@ -423,9 +423,9 @@ onMounted(() => {
               @keyup.enter.prevent="addTag"
               class="blog-post-editor__input"
             />
-            <Button type="button" @click="addTag" :variant="ButtonVariantEnum.SECONDARY">
+            <AppButton type="button" @click="addTag" :variant="ButtonVariantEnum.SECONDARY">
               Add
-            </Button>
+            </AppButton>
           </div>
         </div>
       </div>
@@ -514,11 +514,11 @@ onMounted(() => {
       </div>
 
       <div class="blog-post-editor__actions">
-        <Button type="submit" :disabled="saving" :variant="ButtonVariantEnum.PRIMARY">
+        <AppButton type="submit" :disabled="saving" :variant="ButtonVariantEnum.PRIMARY">
           {{ saving ? 'Saving...' : props.postId ? 'Update Post' : 'Create Post' }}
-        </Button>
+        </AppButton>
 
-        <Button
+        <AppButton
           v-if="props.postId"
           type="button"
           :variant="ButtonVariantEnum.DANGER"
@@ -526,7 +526,7 @@ onMounted(() => {
           :disabled="loading"
         >
           Delete Post
-        </Button>
+        </AppButton>
       </div>
     </form>
 
@@ -536,10 +536,10 @@ onMounted(() => {
         <h3>Delete Post</h3>
         <p>Are you sure you want to delete this post? This action cannot be undone.</p>
         <div class="blog-post-editor__delete-confirm-actions">
-          <Button :variant="ButtonVariantEnum.SECONDARY" @click="showDeleteConfirm = false">
+          <AppButton :variant="ButtonVariantEnum.SECONDARY" @click="showDeleteConfirm = false">
             Cancel
-          </Button>
-          <Button :variant="ButtonVariantEnum.DANGER" @click="handleDelete"> Delete </Button>
+          </AppButton>
+          <AppButton :variant="ButtonVariantEnum.DANGER" @click="handleDelete"> Delete </AppButton>
         </div>
       </div>
     </div>

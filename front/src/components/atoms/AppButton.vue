@@ -137,14 +137,14 @@ const handleClick = (event: MouseEvent | KeyboardEvent) => {
   display: inline-block;
 }
 
-/* Primary button uses base variables for its specific color needs */
+/* Primary button uses semantic variables for its specific color needs */
 .button--primary {
-  background-color: var(--color-primary-500);
-  color: var(--color-text-inverse);
+  background-color: var(--color-info);
+  color: var(--color-text-on-info);
 }
 
 .button--primary:hover:not(:disabled) {
-  background-color: var(--color-primary-600);
+  background-color: var(--color-info-dark);
 }
 
 /* Secondary button uses semantic variables for its background and text */
@@ -161,7 +161,7 @@ const handleClick = (event: MouseEvent | KeyboardEvent) => {
 /* Danger button uses semantic variables for its specific purpose */
 .button--danger {
   background-color: var(--color-danger);
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-danger);
 }
 
 .button--danger:hover:not(:disabled) {

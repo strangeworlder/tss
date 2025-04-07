@@ -3,6 +3,7 @@ import { mountNotificationList } from './NotificationList.test-utils'
 import { mockNotificationLists } from '@/components/molecules/__tests__/__fixtures__/NotificationList.fixture'
 import { useNotificationStore } from '@/stores/notification'
 import { NotificationTypeEnum } from '@/types/notification'
+import type { NotificationStore } from '@/types/pinia'
 
 // Mock the notification store
 vi.mock('@/stores/notification')
@@ -14,7 +15,11 @@ describe('NotificationList', () => {
     vi.mocked(useNotificationStore).mockReturnValue({
       notifications: mockNotificationLists.default.notifications,
       removeNotification: vi.fn(),
-    } as unknown)
+      addNotification: vi.fn(),
+      success: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+    } as unknown as ReturnType<typeof useNotificationStore>)
   })
 
   // 1. Rendering tests
@@ -67,7 +72,11 @@ describe('NotificationList', () => {
     vi.mocked(useNotificationStore).mockReturnValue({
       notifications: mockNotificationLists.default.notifications,
       removeNotification: mockRemoveNotification,
-    } as unknown)
+      addNotification: vi.fn(),
+      success: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+    } as unknown as ReturnType<typeof useNotificationStore>)
 
     const wrapper = mountNotificationList(mockNotificationLists.default)
 
@@ -114,7 +123,11 @@ describe('NotificationList', () => {
     vi.mocked(useNotificationStore).mockReturnValue({
       notifications: newNotifications,
       removeNotification: vi.fn(),
-    } as unknown)
+      addNotification: vi.fn(),
+      success: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+    } as unknown as ReturnType<typeof useNotificationStore>)
 
     await wrapper.vm.$nextTick()
 

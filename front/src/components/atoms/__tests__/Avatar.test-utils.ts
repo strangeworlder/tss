@@ -1,5 +1,5 @@
 import { mount, type VueWrapper } from '@vue/test-utils'
-import Avatar from '../Avatar.vue'
+import UserAvatar from '../UserAvatar.vue'
 import { createAvatarProps } from './__fixtures__/Avatar.fixture'
 
 type AvatarSize = 'sm' | 'md' | 'lg'
@@ -12,12 +12,12 @@ interface AvatarProps {
 }
 
 /**
- * Mounts the Avatar component with the given props
+ * Mounts the UserAvatar component with the given props
  * @param props - Props to pass to the component
  * @returns VueWrapper instance
  */
 export const mountAvatar = (props = {}): VueWrapper => {
-  return mount(Avatar, {
+  return mount(UserAvatar, {
     props: createAvatarProps(props) as AvatarProps,
   })
 }

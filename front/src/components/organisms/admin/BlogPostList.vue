@@ -4,7 +4,7 @@ import { useBlogStore } from '@/stores/blogStore'
 import AppImage from '@/components/atoms/AppImage.vue'
 import { ImageSizeEnum } from '@/types/image'
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 const emit = defineEmits<(e: 'edit-post', postId: string) => void>()
@@ -47,7 +47,7 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-post-list__error">
       <p>{{ error }}</p>
-      <Button @click="fetchPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </Button>
+      <AppButton @click="fetchPosts" :variant="ButtonVariantEnum.DANGER"> Try Again </AppButton>
     </div>
 
     <!-- Posts list -->
@@ -80,9 +80,9 @@ onMounted(() => {
             </span>
           </div>
           <div class="blog-post-list__actions">
-            <Button @click="handleEditPost(post.id)" :variant="ButtonVariantEnum.PRIMARY">
+            <AppButton @click="handleEditPost(post.id)" :variant="ButtonVariantEnum.PRIMARY">
               Edit
-            </Button>
+            </AppButton>
           </div>
         </div>
       </div>

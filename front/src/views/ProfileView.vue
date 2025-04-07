@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 import AppImage from '@/components/atoms/AppImage.vue'
 import { ImageSizeEnum } from '@/types/image'
+import UserAvatar from '@/components/atoms/UserAvatar.vue'
 
 const authStore = useAuthStore()
 const loading = ref(false)
@@ -81,24 +82,12 @@ const triggerFileInput = () => {
       <!-- User info section -->
       <div class="profile-view__section">
         <div class="profile-view__avatar-container">
-          <div class="profile-view__avatar">
-            <AppImage
-              v-if="user?.avatar?.filename && !avatarPreview"
-              :filename="user.avatar.filename"
-              :alt="user.avatar.altText || user.firstName"
-              :size="ImageSizeEnum.MEDIUM"
-              class="profile-view__avatar-img"
-            />
-            <img
-              v-else-if="avatarPreview"
-              :src="avatarPreview"
-              :alt="user?.firstName"
-              class="profile-view__avatar-img"
-            />
-            <div v-else class="profile-view__avatar-placeholder">
-              {{ user?.firstName?.[0]?.toUpperCase() }}
-            </div>
-          </div>
+          <UserAvatar
+            :src="user?.avatar?.filename"
+            :alt="user?.firstName || 'User avatar'"
+            size="lg"
+            class="profile-view__avatar"
+          />
 
           <input
             ref="fileInput"
@@ -108,14 +97,14 @@ const triggerFileInput = () => {
             @change="handleAvatarChange"
           />
 
-          <Button
+          <AppButton
             @click="triggerFileInput"
             :disabled="loading"
             :variant="ButtonVariantEnum.SECONDARY"
             class="profile-view__avatar-button"
           >
             {{ loading ? 'Uploading...' : 'Change Profile Picture' }}
-          </Button>
+          </AppButton>
         </div>
 
         <!-- Success/Error messages -->
@@ -150,13 +139,13 @@ const triggerFileInput = () => {
 
 <style scoped>
 .profile-view {
-  padding: var(--spacing-8) var(--spacing-4);
+  padding: var(--spacing-xl) var(--spacing-md);
   min-height: 100vh;
   background-color: var(--color-background);
 }
 
 .profile-view__container {
-  max-width: 720px;
+  max-width: 45rem;
   margin: 0 auto;
 }
 
@@ -178,52 +167,15 @@ const triggerFileInput = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: var(--spacing-6);
+  margin-bottom: var(--spacing-md);
 }
 
 .profile-view__avatar {
-  width: 128px;
-  height: 128px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-bottom: var(--spacing-4);
-  background-color: var(--color-background-mute);
-}
-
-.profile-view__avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.profile-view__avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-2xl);
-  color: var(--color-text);
-  background-color: var(--color-background-mute);
+  margin-bottom: var(--spacing-sm);
 }
 
 .profile-view__file-input {
   display: none;
-}
-
-.profile-view__avatar-button {
-  padding: var(--spacing-2) var(--spacing-4);
-  background-color: var(--color-heading);
-  color: var(--color-background);
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  transition: background-color var(--transition-fast);
-}
-
-.profile-view__avatar-button:hover:not(:disabled) {
-  background-color: var(--color-text);
 }
 
 .profile-view__avatar-button:disabled {

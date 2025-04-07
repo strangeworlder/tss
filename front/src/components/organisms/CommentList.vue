@@ -92,16 +92,16 @@
           </div>
           <div class="comment-list__content" v-html="formatContent(comment?.content || '')" />
           <div class="comment-list__actions">
-            <Button :variant="ButtonVariantEnum.TEXT" @click="showReplyForm(comment?._id)">
+            <AppButton :variant="ButtonVariantEnum.TEXT" @click="showReplyForm(comment?._id)">
               Reply
-            </Button>
-            <Button
+            </AppButton>
+            <AppButton
               v-if="canDelete(comment)"
               :variant="ButtonVariantEnum.TEXT"
               @click="deleteComment(comment?._id)"
             >
               Delete
-            </Button>
+            </AppButton>
           </div>
           <div v-if="replyingTo === comment?._id" class="comment-list__form--reply">
             <Suspense>
@@ -135,7 +135,7 @@ import { CommentParentTypeEnum } from '@/types/comment'
 import { useNotificationStore } from '@/stores/notification'
 import { COMMENT_CONSTANTS } from '@/constants/comment'
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 import type { Author } from '@/types/blog'
 

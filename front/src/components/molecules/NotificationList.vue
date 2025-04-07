@@ -34,14 +34,14 @@ None - communicates with the notification store directly
         <div class="notification-list__content">
           {{ notification.message }}
         </div>
-        <Button
+        <AppButton
           :variant="ButtonVariantEnum.TEXT"
           class="notification-list__close"
           @click="removeNotification(notification.id)"
           aria-label="Close notification"
         >
           ×
-        </Button>
+        </AppButton>
       </div>
     </TransitionGroup>
   </div>
@@ -51,7 +51,7 @@ None - communicates with the notification store directly
 import { computed } from 'vue'
 import { useNotificationStore } from '@/stores/notification'
 import type { Notification } from '@/stores/notification'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 const notificationStore = useNotificationStore()

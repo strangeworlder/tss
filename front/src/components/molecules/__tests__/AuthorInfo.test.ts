@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mountAuthorInfo } from './AuthorInfo.test-utils'
 import { mockAuthorInfos } from '@/components/molecules/__tests__/__fixtures__/AuthorInfo.fixture'
-import Avatar from '@/components/atoms/Avatar.vue'
+import UserAvatar from '@/components/atoms/UserAvatar.vue'
 import type { Props } from '../AuthorInfo.types'
 
 describe('AuthorInfo', () => {
@@ -10,7 +10,7 @@ describe('AuthorInfo', () => {
     const wrapper = mountAuthorInfo(mockAuthorInfos.default)
 
     expect(wrapper.find('.author-info__name').text()).toBe('John Doe')
-    const avatar = wrapper.findComponent(Avatar)
+    const avatar = wrapper.findComponent(UserAvatar)
     expect(avatar.exists()).toBe(true)
     expect(avatar.props('src')).toBe('avatar.jpg')
     expect(avatar.props('alt')).toBe('John Doe')
@@ -40,14 +40,14 @@ describe('AuthorInfo', () => {
   it('applies correct size class to avatar', () => {
     const wrapper = mountAuthorInfo(mockAuthorInfos.largeSize)
 
-    const avatar = wrapper.findComponent(Avatar)
+    const avatar = wrapper.findComponent(UserAvatar)
     expect(avatar.props('size')).toBe('lg')
   })
 
   it('uses default size when not provided', () => {
     const wrapper = mountAuthorInfo(mockAuthorInfos.default)
 
-    const avatar = wrapper.findComponent(Avatar)
+    const avatar = wrapper.findComponent(UserAvatar)
     expect(avatar.props('size')).toBe('md')
   })
 
@@ -60,7 +60,7 @@ describe('AuthorInfo', () => {
         size,
       }
       const wrapper = mountAuthorInfo(props)
-      const avatar = wrapper.findComponent(Avatar)
+      const avatar = wrapper.findComponent(UserAvatar)
       expect(avatar.props('size')).toBe(size)
     }
   })
@@ -69,7 +69,7 @@ describe('AuthorInfo', () => {
     const wrapper = mountAuthorInfo(mockAuthorInfos.authorWithoutAvatar)
 
     expect(wrapper.find('.author-info__name').text()).toBe('John Doe')
-    const avatar = wrapper.findComponent(Avatar)
+    const avatar = wrapper.findComponent(UserAvatar)
     expect(avatar.exists()).toBe(true)
   })
 
@@ -85,14 +85,14 @@ describe('AuthorInfo', () => {
   it('provides meaningful alt text for avatar', () => {
     const wrapper = mountAuthorInfo(mockAuthorInfos.default)
 
-    const avatar = wrapper.findComponent(Avatar)
+    const avatar = wrapper.findComponent(UserAvatar)
     expect(avatar.props('alt')).toBe('John Doe')
   })
 
   it('provides fallback alt text when author name is missing', () => {
     const wrapper = mountAuthorInfo(mockAuthorInfos.authorWithoutName)
 
-    const avatar = wrapper.findComponent(Avatar)
+    const avatar = wrapper.findComponent(UserAvatar)
     expect(avatar.props('alt')).toBe('Anonymous')
   })
 

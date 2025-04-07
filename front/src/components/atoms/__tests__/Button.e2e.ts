@@ -1,16 +1,16 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Button from '../Button.vue'
+import AppButton from '../AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 /**
  * E2E tests for the Button component
  * These tests verify that the component works correctly in a real-world scenario
  */
-describe('Button E2E', () => {
+describe('AppButton E2E', () => {
   it('renders correctly in a real-world scenario', () => {
     // Mount the component with real-world props
-    const wrapper = mount(Button, {
+    const wrapper = mount(AppButton, {
       props: {
         variant: ButtonVariantEnum.PRIMARY,
         disabled: false,
@@ -32,7 +32,7 @@ describe('Button E2E', () => {
 
   it('works correctly with keyboard navigation', async () => {
     // Mount the component
-    const wrapper = mount(Button, {
+    const wrapper = mount(AppButton, {
       props: {
         variant: ButtonVariantEnum.PRIMARY,
         disabled: false,
@@ -53,7 +53,7 @@ describe('Button E2E', () => {
 
   it('is accessible to screen readers', () => {
     // Mount the component
-    const wrapper = mount(Button, {
+    const wrapper = mount(AppButton, {
       props: {
         variant: ButtonVariantEnum.PRIMARY,
         disabled: false,
@@ -68,7 +68,7 @@ describe('Button E2E', () => {
 
   it('works correctly as a router link', () => {
     // Mount the component as a router link
-    const wrapper = mount(Button, {
+    const wrapper = mount(AppButton, {
       props: {
         variant: ButtonVariantEnum.SECONDARY,
         to: '/test-path',

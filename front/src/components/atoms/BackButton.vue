@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 /**
@@ -49,9 +49,9 @@ const handleNavigation = () => {
 </script>
 
 <template>
-  <Button @click="handleNavigation" class="back-button" :variant="ButtonVariantEnum.TEXT">
+  <AppButton @click="handleNavigation" class="back-button" :variant="ButtonVariantEnum.TEXT">
     &larr; {{ text }}
-  </Button>
+  </AppButton>
 </template>
 
 <style scoped>

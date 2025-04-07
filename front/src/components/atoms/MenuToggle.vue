@@ -42,7 +42,7 @@
  * - Includes aria-label for clear purpose indication
  -->
 <template>
-  <Button
+  <AppButton
     :variant="ButtonVariantEnum.TEXT"
     class="menu-toggle"
     @click="$emit('toggle')"
@@ -50,11 +50,11 @@
     :aria-label="'Toggle menu'"
   >
     <span class="menu-toggle__icon"></span>
-  </Button>
+  </AppButton>
 </template>
 
 <script setup lang="ts">
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 interface IMenuToggleProps {

@@ -2,22 +2,22 @@
   <div class="auth-view">
     <div class="auth-view__container">
       <div class="auth-view__tabs">
-        <Button
+        <AppButton
           :variant="ButtonVariantEnum.TEXT"
           class="auth-view__tab-btn"
           :class="{ 'auth-view__tab-btn--active': activeTab === 'login' }"
           @click="activeTab = 'login'"
         >
           Login
-        </Button>
-        <Button
+        </AppButton>
+        <AppButton
           :variant="ButtonVariantEnum.TEXT"
           class="auth-view__tab-btn"
           :class="{ 'auth-view__tab-btn--active': activeTab === 'register' }"
           @click="activeTab = 'register'"
         >
           Register
-        </Button>
+        </AppButton>
       </div>
 
       <div class="auth-view__content">
@@ -32,7 +32,7 @@
 import { ref } from 'vue'
 import LoginForm from '@/components/organisms/LoginForm.vue'
 import RegisterForm from '@/components/organisms/RegisterForm.vue'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 
 const activeTab = ref('login')

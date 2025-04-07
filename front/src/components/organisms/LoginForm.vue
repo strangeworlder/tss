@@ -39,9 +39,9 @@ Usage:
       />
 
       <div class="login-form__actions">
-        <Button type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="isLoading">
+        <AppButton type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="isLoading">
           {{ isLoading ? 'Logging in...' : 'Login' }}
-        </Button>
+        </AppButton>
         <FormError :message="errorMessage" />
       </div>
     </form>
@@ -52,7 +52,7 @@ Usage:
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import FormGroup from '@/components/molecules/FormGroup.vue'
 import FormError from '@/components/atoms/FormError.vue'
 import { ButtonVariantEnum } from '@/types/button'

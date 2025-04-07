@@ -3,7 +3,7 @@ import { mountButton, createDefaultButtonProps } from './Button.test-utils'
 import { ButtonVariantEnum } from '@/types/button'
 import { mockButtons } from './__fixtures__/Button.fixture'
 
-describe('Button', () => {
+describe('AppButton', () => {
   it('renders correctly with default props', () => {
     const wrapper = mountButton()
     expect(wrapper.exists()).toBe(true)

@@ -19,7 +19,7 @@ export function mountReadMoreButton(props: IReadMoreButtonProps = createReadMore
     props,
     global: {
       stubs: {
-        Button: true,
+        AppButton: true,
       },
     },
   })

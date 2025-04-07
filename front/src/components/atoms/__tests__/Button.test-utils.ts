@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import Button from '../Button.vue'
+import AppButton from '../AppButton.vue'
 import { ButtonVariantEnum } from '@/types/button'
 import { createButtonProps } from './__fixtures__/Button.fixture'
 
@@ -19,7 +19,7 @@ interface IButtonProps {
  * @returns The mounted component
  */
 export function mountButton(props: IButtonProps = createButtonProps()) {
-  return mount(Button, {
+  return mount(AppButton, {
     props,
     global: {
       stubs: {

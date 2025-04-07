@@ -2,7 +2,7 @@
 import { onMounted, ref, computed } from 'vue'
 import { useBlogStore } from '@/stores/blogStore'
 import BlogPostCard from '@/components/organisms/BlogPostCard.vue'
-import Button from '@/components/atoms/Button.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import { checkApiHealth } from '@/api/apiClient'
 import { BlogPostTitleVariantEnum } from '@/types/blogPost'
 import { ButtonVariantEnum } from '@/types/button'
@@ -92,21 +92,21 @@ onMounted(() => {
     <!-- Error state -->
     <div v-else-if="error" class="blog-view__error">
       <p>{{ error }}</p>
-      <Button
+      <AppButton
         v-if="!serverStarting && error.includes('API server is not available')"
         @click="startBackendServer"
         :variant="ButtonVariantEnum.PRIMARY"
         :disabled="serverStarting"
       >
         Start Backend Server
-      </Button>
-      <Button
+      </AppButton>
+      <AppButton
         @click="fetchBlogPosts"
         :variant="ButtonVariantEnum.DANGER"
         :disabled="serverStarting"
       >
         Try Again
-      </Button>
+      </AppButton>
     </div>
 
     <!-- Empty state - only shown if we're not loading and have no error -->
