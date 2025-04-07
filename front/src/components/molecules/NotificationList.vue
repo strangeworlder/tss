@@ -152,7 +152,7 @@ const removeNotification = (id: string): void => {
   }
 }
 
-@media (max-width: 567px;) {
+@media (max-width: 567px) {
   .notification-list {
     top: var(--spacing-sm);
     right: var(--spacing-sm);
