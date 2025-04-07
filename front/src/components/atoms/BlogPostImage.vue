@@ -155,7 +155,7 @@ const handleImageError = () => {
 
 .blog-post-image__img {
   width: 100%;
-  height: var(--blog-image-height-full);
+  height: 100%;
   object-fit: cover;
 }
 
