@@ -93,7 +93,6 @@ const imageService = {
 
   /**
    * Process an image with the given parameters
-   * This would be called by the REST endpoint
    */
   processImage: async (
     filename: string,
@@ -108,39 +107,31 @@ const imageService = {
     error?: string;
   }> => {
     try {
-      // First, find the image in our "database"
-      const image = await imageService.getImageByFilename(filename);
-      let imagePath: string;
+      // Define the directories to search for images
+      const directories = [
+        path.join(process.cwd(), 'public/uploads/blog-heroes'),
+        path.join(process.cwd(), 'public/uploads/images'),
+        path.join(process.cwd(), 'public/images'),
+      ];
 
-      if (!image) {
-        // If not in our database, check if it exists in the uploads directory
-        const uploadsPath = path.join(process.cwd(), 'public/uploads/images', filename);
-
-        if (!fs.existsSync(uploadsPath)) {
-          return { error: 'Image not found' };
+      // Try to find the image in any of the directories
+      let imagePath: string | null = null;
+      for (const dir of directories) {
+        const potentialPath = path.join(dir, filename);
+        if (fs.existsSync(potentialPath)) {
+          imagePath = potentialPath;
+          break;
         }
+      }
 
-        imagePath = uploadsPath;
-      } else {
-        // If image exists in our mock DB, read from the actual path
-        imagePath = path.join(process.cwd(), 'public', image.path.replace(/^\//, ''));
-
-        if (!fs.existsSync(imagePath)) {
-          // Fallback to uploads directory if path in DB is wrong
-          const uploadsPath = path.join(process.cwd(), 'public/uploads/images', filename);
-
-          if (!fs.existsSync(uploadsPath)) {
-            return { error: 'Image file not found on disk' };
-          }
-
-          imagePath = uploadsPath;
-        }
+      if (!imagePath) {
+        return { error: 'Image not found' };
       }
 
       // Use server-side defaults if not provided
       const format = options.format || ImageFormat.WEBP;
       const quality = options.quality || 80;
-      const size = options.size || ImageSize.FULL;
+      const size = options.size || ImageSize.MEDIUM;
 
       // Start with a Sharp instance
       let sharpInstance = sharp(imagePath);
@@ -156,8 +147,8 @@ const imageService = {
       };
 
       // 1. Process size (resize image)
-      if (options.size && options.size !== ImageSize.FULL) {
-        const dimensions = dimensionMap[options.size];
+      if (size !== ImageSize.FULL) {
+        const dimensions = dimensionMap[size];
         sharpInstance = sharpInstance.resize({
           width: dimensions.width,
           height: dimensions.height,
@@ -167,21 +158,24 @@ const imageService = {
       }
 
       // 2. Process format (convert image format)
-      if (options.format && options.format !== ImageFormat.ORIGINAL) {
-        switch (options.format) {
+      if (format !== ImageFormat.ORIGINAL) {
+        switch (format) {
           case ImageFormat.WEBP:
             sharpInstance = sharpInstance.webp({
-              quality: options.quality || 80,
+              quality,
+              effort: 4, // Higher effort = better compression but slower
             });
             break;
           case ImageFormat.JPEG:
             sharpInstance = sharpInstance.jpeg({
-              quality: options.quality || 80,
+              quality,
+              mozjpeg: true, // Use mozjpeg for better compression
             });
             break;
           case ImageFormat.PNG:
             sharpInstance = sharpInstance.png({
-              quality: options.quality ? Math.min(Math.floor(options.quality / 10), 9) : 8,
+              quality: Math.min(Math.floor(quality / 10), 9), // PNG quality is 0-9
+              compressionLevel: 9, // Maximum compression
             });
             break;
         }
@@ -195,9 +189,9 @@ const imageService = {
 
       // Determine the output MIME type
       let mimeType = 'image/jpeg'; // Default fallback
-      if (options.format === ImageFormat.WEBP) {
+      if (format === ImageFormat.WEBP) {
         mimeType = 'image/webp';
-      } else if (options.format === ImageFormat.PNG) {
+      } else if (format === ImageFormat.PNG) {
         mimeType = 'image/png';
       } else if (finalMetadata.format) {
         mimeType = `image/${finalMetadata.format}`;
@@ -220,11 +214,10 @@ const imageService = {
 
   /**
    * Get an image URL with the specified parameters
-   * This would be used by the frontend to construct image URLs
    */
   getImageUrl: (
     filename: string,
-    size: ImageSize = ImageSize.FULL,
+    size: ImageSize = ImageSize.MEDIUM,
     format: ImageFormat = ImageFormat.WEBP,
     quality = 85
   ): string => {

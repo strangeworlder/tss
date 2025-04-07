@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { ImageSize, ImageFormat } from '../models/image.model';
+import imageService from '../services/image.service';
 
 const router = Router();
 
@@ -36,93 +37,46 @@ function setCorsHeaders(res: Response) {
  * @desc    Serve images with optional resizing
  * @access  Public
  */
-router.get('/:filename', (req: Request, res: Response) => {
+router.get('/:filename', async (req: Request, res: Response) => {
   const { filename } = req.params;
-  const { size = 'medium', format = 'webp' } = req.query;
+  const size = (req.query.size as ImageSize) || ImageSize.MEDIUM;
+  const format = (req.query.format as ImageFormat) || ImageFormat.WEBP;
+  const quality = req.query.quality ? Number.parseInt(req.query.quality as string) : 80;
 
   // Set CORS headers for all responses
   setCorsHeaders(res);
 
-  // Log request info
-  console.log(`Image request: ${filename} from origin: ${req.headers.origin}`);
+  try {
+    // Process the image with requested parameters
+    const result = await imageService.processImage(filename, {
+      size,
+      format,
+      quality,
+    });
 
-  // Try to find the image in blog heroes directory first
-  const blogHeroPath = path.join(blogHeroesDir, filename);
-  if (fs.existsSync(blogHeroPath)) {
-    // Set additional headers for content type
-    if (filename.endsWith('.webp')) {
-      res.set('Content-Type', 'image/webp');
-    } else if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) {
-      res.set('Content-Type', 'image/jpeg');
-    } else if (filename.endsWith('.png')) {
-      res.set('Content-Type', 'image/png');
+    if (!result.imageBuffer || !result.metadata) {
+      console.error(`Image not found: ${filename}`);
+      return res.status(404).json({
+        success: false,
+        message: result.error || 'Image not found',
+      });
     }
 
-    return res.sendFile(blogHeroPath, (err) => {
-      if (err) {
-        console.error('Error serving image from blog heroes:', err);
-        return res.status(404).json({
-          success: false,
-          message: 'Image not found in blog heroes directory',
-        });
-      }
+    // Set appropriate content type based on format
+    res.set('Content-Type', result.metadata.mimeType);
+    
+    // Set cache control headers (1 day by default)
+    res.set('Cache-Control', 'public, max-age=86400');
+
+    // Send the processed image
+    res.status(200).send(result.imageBuffer);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process image',
     });
   }
-
-  // Try to find the image in uploads directory
-  const uploadPath = path.join(uploadsDir, filename);
-  if (fs.existsSync(uploadPath)) {
-    // Set additional headers for content type
-    if (filename.endsWith('.webp')) {
-      res.set('Content-Type', 'image/webp');
-    } else if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) {
-      res.set('Content-Type', 'image/jpeg');
-    } else if (filename.endsWith('.png')) {
-      res.set('Content-Type', 'image/png');
-    }
-
-    return res.sendFile(uploadPath, (err) => {
-      if (err) {
-        console.error('Error serving image from uploads:', err);
-        return res.status(404).json({
-          success: false,
-          message: 'Image not found in uploads directory',
-        });
-      }
-    });
-  }
-
-  // If not in uploads, try the regular images directory
-  const imagePath = path.join(imagesDir, filename);
-  if (fs.existsSync(imagePath)) {
-    // Set additional headers for content type
-    if (filename.endsWith('.webp')) {
-      res.set('Content-Type', 'image/webp');
-    } else if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) {
-      res.set('Content-Type', 'image/jpeg');
-    } else if (filename.endsWith('.png')) {
-      res.set('Content-Type', 'image/png');
-    }
-
-    return res.sendFile(imagePath, (err) => {
-      if (err) {
-        console.error('Error serving image:', err);
-        return res.status(404).json({
-          success: false,
-          message: 'Image not found in images directory',
-        });
-      }
-    });
-  }
-
-  // If image doesn't exist in any location, send an error
-  console.error(`Image not found: ${filename}`);
-  console.log(`Looked in: ${blogHeroPath} and ${uploadPath} and ${imagePath}`);
-
-  return res.status(404).json({
-    success: false,
-    message: 'Image not found',
-  });
 });
 
 // Handle OPTIONS requests for CORS preflight

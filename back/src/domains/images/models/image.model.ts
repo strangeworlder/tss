@@ -16,7 +16,7 @@ export interface Image {
   };
 }
 
-// Available image sizes/styles
+// Available image sizes
 export enum ImageSize {
   THUMBNAIL = 'thumbnail',
   MEDIUM = 'medium',
@@ -29,4 +29,23 @@ export enum ImageFormat {
   WEBP = 'webp',
   JPEG = 'jpeg',
   PNG = 'png',
+}
+
+// Image processing options
+export interface ImageProcessingOptions {
+  size?: ImageSize;
+  format?: ImageFormat;
+  quality?: number;
+}
+
+// Image processing result
+export interface ImageProcessingResult {
+  imageBuffer?: Buffer;
+  metadata?: {
+    mimeType: string;
+    filename: string;
+    width?: number;
+    height?: number;
+  };
+  error?: string;
 }
