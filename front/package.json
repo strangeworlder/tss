@@ -17,7 +17,8 @@
     "type-check": "vue-tsc --build",
     "lint": "biome lint . --write",
     "lint:biome": "biome lint . --write",
-    "format": "biome format . --write"
+    "format": "biome format . --write",
+    "format:biome": "biome format . --write"
   },
   "dependencies": {
     "@types/marked": "^5.0.2",

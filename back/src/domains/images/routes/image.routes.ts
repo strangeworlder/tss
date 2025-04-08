@@ -64,7 +64,7 @@ router.get('/:filename', async (req: Request, res: Response) => {
 
     // Set appropriate content type based on format
     res.set('Content-Type', result.metadata.mimeType);
-    
+
     // Set cache control headers (1 day by default)
     res.set('Cache-Control', 'public, max-age=86400');
 

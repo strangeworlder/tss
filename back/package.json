@@ -11,6 +11,7 @@
     "lint": "biome lint . --write --unsafe",
     "lint:biome": "biome lint . --write --unsafe",
     "format": "biome format . --write",
+    "format:biome": "biome format . --write",
     "seed:blog": "ts-node src/domains/blog/seed.ts"
   },
   "keywords": [],

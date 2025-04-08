@@ -10,10 +10,11 @@
  * - Content overlay with gradient background
  * - Responsive design
  * - Customizable alt text
- * - Thumbnail that opens a full-size image modal when clicked
+ * - Thumbnail that opens a full-size image modal when clicked (only shown when heroImage is provided)
+ * - Uses placeholder image when no hero image is provided
  *
  * Props:
- * - heroImage (String, required): The filename of the hero image
+ * - heroImage (String, optional): The filename of the hero image
  * - altText (String, default: 'Blog hero image'): Alternative text for the image
  *
  * Slots:
@@ -28,7 +29,7 @@
 <template>
   <div class="blog-hero">
     <app-image
-      :filename="heroImage"
+      :filename="heroImage || 'placeholder1.webp'"
       :size="ImageSizeEnum.FULL"
       :alt="altText"
       class="blog-hero__image"
@@ -37,6 +38,7 @@
       <!-- Content overlaying the hero image -->
       <div class="blog-hero__wrapper">
         <gallery-thumbnail
+          v-if="heroImage"
           :image-filename="heroImage"
           :alt-text="altText"
           :position="{ top: 'calc(-1 * var(--spacing-xl))', right: '0' }"
@@ -65,7 +67,7 @@ export default defineComponent({
   props: {
     heroImage: {
       type: String,
-      required: true,
+      required: false,
     },
     altText: {
       type: String,

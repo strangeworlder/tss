@@ -133,9 +133,9 @@ onMounted(() => {
       
       <!-- Hero image -->
       <BlogHero
-        v-if="post.heroImage"
-        :hero-image="post.heroImage.filename"
-        :alt-text="post.heroImage.altText || post.title"
+        v-if="post.title"
+        :hero-image="post.heroImage?.filename"
+        :alt-text="post.heroImage?.altText || post.title"
       >
         <h2 class="blog-detail-view__hero-title">{{ post.title }}</h2>
       </BlogHero>
