@@ -190,28 +190,35 @@ const handleCancel = (): void => {
   color: var(--color-text);
 }
 
-.comment-form__input,
-.comment-form__textarea {
+.comment-form__input {
   width: 100%;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-md);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background-input);
   color: var(--color-text);
-  background: var(--color-background);
-  transition: border-color 0.2s;
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.comment-form__input:focus,
-.comment-form__textarea:focus {
+.comment-form__input:focus {
   outline: none;
   border-color: var(--color-primary);
 }
 
 .comment-form__textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background-input);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
   resize: vertical;
-  min-height: 6rem;
+  min-height: calc(var(--spacing-md) * 4);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .comment-form__error {

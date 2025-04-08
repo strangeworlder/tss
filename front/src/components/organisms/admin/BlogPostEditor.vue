@@ -638,27 +638,35 @@ onMounted(() => {
   font-family: var(--font-family-base);
 }
 
-.blog-post-editor__input,
-.blog-post-editor__textarea {
-  padding: var(--spacing-md);
+.blog-post-editor__input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-base);
-  font-family: var(--font-family-base);
   background-color: var(--color-background-input);
   color: var(--color-text);
-  transition: border-color var(--transition-fast);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.blog-post-editor__input:focus,
-.blog-post-editor__textarea:focus {
+.blog-post-editor__input:focus {
   outline: none;
   border-color: var(--color-border-focus);
 }
 
 .blog-post-editor__textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background-input);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
   resize: vertical;
-  min-height: 100px;
+  min-height: calc(var(--spacing-md) * 15);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .blog-post-editor__button {

@@ -135,7 +135,7 @@ onMounted((): void => {
 
 .app-footer {
   background-color: var(--color-background-alt);
-  color: var(--color-text-inverse);
+  color: var(--color-text);
   padding: var(--spacing-md);
   margin-top: var(--spacing-xl);
 }

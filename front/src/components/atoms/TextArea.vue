@@ -75,16 +75,16 @@ defineEmits<(e: 'update:modelValue', value: string) => void>();
 
 .textarea-field__input {
   width: 100%;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
-  background-color: var(--color-background-alt);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  font-family: var(--font-family-base);
+  background-color: var(--color-background-input);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
   resize: vertical;
   min-height: calc(var(--spacing-md) * 4);
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .textarea-field__input:focus {

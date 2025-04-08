@@ -210,6 +210,8 @@ onMounted(() => {
 }
 
 .blog-detail-view__article {
+  margin-top: 6rem;
+  padding-top: var(--spacing-sm);
   background-color: var(--color-background);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
@@ -226,7 +228,7 @@ onMounted(() => {
 }
 
 .blog-detail-view__content {
-  padding: var(--spacing-xl);
+  padding: 0 var(--spacing-xl) var(--spacing-xl);
   padding-top: var(--spacing-md);
 }
 
@@ -241,9 +243,15 @@ onMounted(() => {
   color: var(--color-text);
 }
 
+.blog-content {
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
 :deep(.markdown-body) {
-  font-family: var(--font-family-body);
-  line-height: 1.6;
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-relaxed);
   color: var(--color-text);
 }
 

@@ -106,14 +106,15 @@ defineEmits<(e: 'update:modelValue', value: string) => void>();
 }
 
 .input-field__input {
-  padding: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-base);
-  font-family: var(--font-family-base);
-  background-color: var(--color-background);
+  background-color: var(--color-background-input);
   color: var(--color-text);
-  transition: border-color var(--transition-fast);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .input-field__input:focus {

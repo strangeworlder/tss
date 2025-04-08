@@ -62,10 +62,6 @@ withDefaults(defineProps<Props>(), {
 </template>
 
 <style scoped>
-.blog-post-header {
-  margin-bottom: var(--spacing-xl);
-}
-
 .blog-post-header__container {
   display: flex;
   justify-content: space-between;

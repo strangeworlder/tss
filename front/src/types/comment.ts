@@ -17,7 +17,7 @@ export interface CreateCommentInput {
   title: string;
   content: string;
   parentId: string;
-  parentType: 'post' | 'comment';
+  parentType: CommentParentTypeEnum;
 }
 
 export interface DeleteCommentInput {
