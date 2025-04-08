@@ -47,6 +47,10 @@ import { ButtonVariantEnum } from '@/types/button';
 import LoadingSpinner from '@/components/atoms/LoadingSpinner.vue';
 import FormGroup from '@/components/molecules/FormGroup.vue';
 import HomeViewError from '@/components/molecules/HomeViewError.vue';
+import { useDocumentTitle } from '@/composables/useDocumentTitle';
+
+// Use document title
+useDocumentTitle('Home');
 
 // Store
 const blogStore = useBlogStore();
@@ -148,8 +152,8 @@ onMounted(() => {
   <main class="home-view">
     <section class="home-view__hero">
       <div class="container home-view__hero-container">
-        <h1 class="home-view__hero-title">Welcome to Vue Blog</h1>
-        <p class="home-view__hero-text">A modern blog built with Vue 3 and TypeScript.</p>
+        <h1 class="home-view__hero-title">Welcome to The Slow</h1>
+        <p class="home-view__hero-text">A space for thoughtful articles and deep insights.</p>
         <AppButton 
           to="/blog" 
           :variant="ButtonVariantEnum.PRIMARY" 
@@ -266,7 +270,7 @@ onMounted(() => {
 
 <style scoped>
 .home-view__hero {
-  background-color: var(--color-primary-600);
+  background-color: var(--color-primary);
   color: var(--color-text-inverse);
   padding: var(--spacing-xl) var(--spacing-md);
   border-radius: var(--border-radius);
@@ -294,7 +298,7 @@ onMounted(() => {
 .home-view__cta {
   display: inline-block;
   background-color: var(--color-background);
-  color: var(--color-primary-600);
+  color: var(--color-primary);
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius);
   font-weight: var(--font-weight-medium);

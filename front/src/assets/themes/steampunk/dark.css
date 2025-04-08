@@ -1,0 +1,112 @@
+[data-theme="steampunk"][data-color-mode="dark"] {
+  /* Primary colors - Brass/Bronze palette (darkened) - Adjusted for WCAG AA compliance */
+  --color-primary-100: #1a1610; /* Darkened background for better contrast */
+  --color-primary-200: #2a2318;
+  --color-primary-300: #3d331f;
+  --color-primary-400: #665536;
+  --color-primary-500: #997a3d; /* Brightened for better contrast */
+  --color-primary-600: #c49e4d;
+  --color-primary-700: #e6c170;
+  --color-primary-800: #f5d28b;
+  --color-primary-900: #fdf6e3;
+
+  /* Secondary colors - Copper palette (darkened) - Adjusted for WCAG AA compliance */
+  --color-secondary-100: #1a0f0a;
+  --color-secondary-200: #2a1811;
+  --color-secondary-300: #4d2d1e;
+  --color-secondary-400: #804932;
+  --color-secondary-500: #b35b1e;
+  --color-secondary-600: #d97a3d;
+  --color-secondary-700: #f1a777;
+  --color-secondary-800: #f5c09d;
+  --color-secondary-900: #fdf2e9;
+
+  /* Accent colors - Steam/Blue palette (darkened) - Adjusted for WCAG AA compliance */
+  --color-accent-100: #001726;
+  --color-accent-200: #002e4d;
+  --color-accent-300: #004580;
+  --color-accent-400: #005cb3;
+  --color-accent-500: #0073e6;
+  --color-accent-600: #4d99e6;
+  --color-accent-700: #80bfff;
+  --color-accent-800: #b3d9ff;
+  --color-accent-900: #e6f3ff;
+
+  /* Highlight colors - Orange/Amber palette (darkened) - Adjusted for WCAG AA compliance */
+  --color-highlight-100: #1e0c02;
+  --color-highlight-200: #3d1705;
+  --color-highlight-300: #5c2209;
+  --color-highlight-400: #7c2d12;
+  --color-highlight-500: #9a3412;
+  --color-highlight-600: #ea580c; /* Brightened for better contrast */
+  --color-highlight-700: #fb923c;
+  --color-highlight-800: #fdba74;
+  --color-highlight-900: #fff7ed;
+
+  /* Semantic variables - Adjusted for WCAG AA compliance */
+  --color-background: var(--color-primary-100);
+  --color-background-alt: var(--color-primary-200);
+  --color-background-muted: var(--color-primary-300);
+  --color-background-overlay: var(--color-primary-900);
+  --color-background-card: var(--color-primary-200);
+  --color-background-input: var(--color-primary-200);
+  --color-background-disabled: var(--color-primary-300);
+
+  /* Text colors - Adjusted for WCAG AA compliance */
+  --color-text: var(--color-primary-700); /* Brightened for better contrast */
+  --color-text-secondary: var(--color-primary-600);
+  --color-text-muted: var(--color-primary-500);
+  --color-text-inverse: var(--color-primary-100);
+  --color-text-disabled: var(--color-primary-400);
+  --color-text-link: var(--color-accent-700); /* Brightened for better contrast */
+  --color-text-link-hover: var(--color-accent-800);
+
+  /* Text on status colors - Adjusted for WCAG AA compliance */
+  --color-text-on-success: var(--color-primary-100);
+  --color-text-on-danger: var(--color-primary-100);
+  --color-text-on-warning: var(--color-primary-100);
+  --color-text-on-info: var(--color-primary-100);
+
+  /* Border colors - Adjusted for WCAG AA compliance */
+  --color-border: var(--color-primary-500);
+  --color-border-hover: var(--color-primary-600);
+  --color-border-focus: var(--color-accent-700);
+  --color-border-disabled: var(--color-primary-300);
+  --color-border-error: var(--color-danger-400);
+
+  /* Status colors - Adjusted for WCAG AA compliance */
+  --color-danger: #ff6b6b; /* Brightened for better contrast */
+  --color-danger-light: #ff8a80;
+  --color-danger-dark: #c50e29;
+  --color-warning: #ffd54f; /* Brightened for better contrast */
+  --color-warning-light: #ffe97d;
+  --color-warning-dark: #c88719;
+  --color-success: #81c784; /* Brightened for better contrast */
+  --color-success-light: #9fffe0;
+  --color-success-dark: #2bbd7e;
+  --color-info: var(--color-accent-700);
+  --color-info-light: var(--color-accent-600);
+  --color-info-dark: var(--color-accent-800);
+
+  /* Highlight/Spot colors - Adjusted for WCAG AA compliance */
+  --color-spot: var(--color-highlight-700);
+  --color-spot-light: var(--color-highlight-600);
+  --color-spot-dark: var(--color-highlight-800);
+  --color-spot-bg: var(--color-highlight-100);
+  --color-spot-text: var(--color-highlight-900);
+  --color-spot-border: var(--color-highlight-600);
+
+  /* Typography */
+  --font-family-base: "IM Fell English", serif;
+  --font-family-mono: "Courier New", monospace;
+
+  /* Shadows - Enhanced for better visibility */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.6);
+
+  /* Borders */
+  --border-radius-sm: 0.25rem;
+  --border-radius: 0.5rem;
+  --border-radius-lg: 1rem;
+}

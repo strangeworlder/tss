@@ -1,5 +1,21 @@
+/* Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Special+Elite&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap");
+
 @import "./vars.css";
 @import "./base.css";
+@import "./focus.css";
+@import "./utility.css";
+
+/* Import themes */
+@import "./themes/steampunk/light.css";
+@import "./themes/steampunk/dark.css";
+@import "./themes/horror/light.css";
+@import "./themes/horror/dark.css";
 
 #app {
   max-width: var(--container-width);

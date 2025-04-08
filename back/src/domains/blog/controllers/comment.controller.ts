@@ -120,24 +120,62 @@ export const createComment = async (req: Request, res: Response) => {
   }
 };
 
-// Get comments for a post
+// Get comments for a post or replies for a comment
 export const getComments = async (req: Request, res: Response) => {
   try {
-    const { postId } = req.params;
-    const { parentType } = req.query;
+    const { postId, commentId } = req.params;
+    const parentId = postId || commentId;
+    const parentType = postId ? 'post' : 'comment';
 
-    if (!validateObjectId(postId)) {
+    if (!validateObjectId(parentId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid post ID format',
+        message: 'Invalid ID format',
       });
     }
 
-    const query: any = { parentId: postId };
-    if (parentType) {
-      query.parentType = parentType;
-    }
+    // If fetching post comments, get both top-level comments and their replies
+    if (parentType === 'post') {
+      // Get all top-level comments for the post
+      const topLevelComments = await CommentModel.find({
+        parentId,
+        parentType: 'post',
+      }).sort({ createdAt: -1 });
 
+      // Get all comment IDs to fetch their replies
+      const commentIds = topLevelComments.map((comment) => comment._id);
+
+      // Get all replies for these comments
+      const replies = await CommentModel.find({
+        parentId: { $in: commentIds },
+        parentType: 'comment',
+      }).sort({ createdAt: -1 });
+
+      // Create a map of comment ID to its replies
+      const repliesMap = new Map();
+      for (const reply of replies) {
+        if (!repliesMap.has(reply.parentId.toString())) {
+          repliesMap.set(reply.parentId.toString(), []);
+        }
+        repliesMap.get(reply.parentId.toString()).push(reply);
+      }
+
+      // Attach replies to their parent comments
+      const commentsWithReplies = topLevelComments.map((comment) => {
+        const commentObj = comment.toObject();
+        commentObj.replies = repliesMap.get(comment._id.toString()) || [];
+        return commentObj;
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          comments: commentsWithReplies,
+        },
+      });
+    }
+    // For comment replies, just return the direct replies
+    const query = { parentId, parentType };
     const comments = await CommentModel.find(query).sort({ createdAt: -1 });
 
     return res.status(200).json({

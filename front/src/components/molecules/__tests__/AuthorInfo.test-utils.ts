@@ -11,6 +11,7 @@ interface IAuthorInfoProps {
   author?: Author;
   date?: string;
   size?: 'sm' | 'md' | 'lg';
+  variant?: 'left' | 'right';
 }
 
 /**
@@ -49,6 +50,7 @@ export function createDefaultAuthorInfoProps(overrides: Partial<Props> = {}) {
     },
     date: '2024-03-20',
     size: 'md' as const,
+    variant: 'left' as const,
     ...overrides,
   } as Props;
 }

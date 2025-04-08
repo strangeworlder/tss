@@ -1,6 +1,15 @@
-import { api } from './api';
-import type { IComment } from '@/types/comment';
+import { apiGet, apiPost, apiDelete, apiRequest } from './apiClient';
+import type { IComment, CreateCommentInput } from '@/types/comment';
+import type { IApiResponse } from '@/types/blog';
 import { CommentParentTypeEnum } from '@/types/comment';
+
+interface CommentsResponse {
+  comments: IComment[];
+}
+
+interface CommentResponse {
+  comment: IComment;
+}
 
 export interface ICreateCommentParams {
   title?: string;
@@ -9,37 +18,28 @@ export interface ICreateCommentParams {
   parentType: CommentParentTypeEnum;
 }
 
+/**
+ * Get comments for a post or replies for a comment
+ * @param parentId The ID of the parent (post or comment)
+ * @param parentType The type of the parent (CommentParentTypeEnum)
+ * @returns Array of comments, with nested replies for post comments
+ */
 export const getComments = async (
   parentId: string,
-  parentType: CommentParentTypeEnum = CommentParentTypeEnum.POST
+  parentType: CommentParentTypeEnum
 ): Promise<IComment[]> => {
-  const endpoint =
-    parentType === CommentParentTypeEnum.POST
-      ? `/v1/blog/posts/${parentId}/comments`
-      : `/v1/blog/comments/${parentId}/replies`;
-
   try {
-    const response = await api.get(endpoint);
-    console.log('Raw API response for comments:', response.data);
+    const endpoint =
+      parentType === CommentParentTypeEnum.POST
+        ? `/v1/blog/posts/${parentId}/comments`
+        : `/v1/blog/comments/${parentId}/replies`;
 
-    // Handle the response structure based on the logs
-    if (response.data.success && response.data.data) {
-      // If data is an array, return it directly
-      if (Array.isArray(response.data.data)) {
-        return response.data.data;
-      }
-      // If data has a comments property, return that
-      if (response.data.data.comments && Array.isArray(response.data.data.comments)) {
-        return response.data.data.comments;
-      }
-      // If data is an object with a comment property, wrap it in an array
-      if (response.data.data.comment) {
-        return [response.data.data.comment];
-      }
+    const response = await apiGet<CommentsResponse>(endpoint);
+
+    if (response?.success && response.data?.comments) {
+      return response.data.comments;
     }
 
-    // If we get here, the response structure is unexpected
-    console.error('Unexpected response structure for comments:', response.data);
     return [];
   } catch (error) {
     console.error('Error fetching comments:', error);
@@ -47,36 +47,41 @@ export const getComments = async (
   }
 };
 
-export const createComment = async (params: ICreateCommentParams): Promise<IComment> => {
+/**
+ * Create a new comment or reply
+ * @param comment The comment data to create
+ * @returns The created comment
+ */
+export const createComment = async (comment: CreateCommentInput): Promise<IComment> => {
   try {
-    const response = await api.post('/v1/blog/posts/comments', params);
-    console.log('Raw API response for creating comment:', response.data);
+    const endpoint =
+      comment.parentType === CommentParentTypeEnum.POST
+        ? '/v1/blog/posts/comments'
+        : '/v1/blog/comments';
 
-    if (response.data.success && response.data.data) {
-      if (response.data.data.comment) {
-        return response.data.data.comment;
-      }
-      // If data is the comment itself
-      if (response.data.data._id || response.data.data.id) {
-        return response.data.data;
-      }
+    const response = await apiPost<CommentResponse>(endpoint, comment);
+
+    if (response?.success && response.data?.comment) {
+      return response.data.comment;
     }
 
-    console.error('Unexpected response structure for creating comment:', response.data);
-    throw new Error('Failed to create comment: Invalid response structure');
+    throw new Error('Failed to create comment');
   } catch (error) {
     console.error('Error creating comment:', error);
     throw error;
   }
 };
 
+/**
+ * Delete a comment
+ * @param commentId The ID of the comment to delete
+ */
 export const deleteComment = async (commentId: string): Promise<void> => {
   try {
-    const response = await api.delete(`/v1/blog/comments/${commentId}`);
-    console.log('Raw API response for deleting comment:', response.data);
+    const response = await apiDelete<void>(`/v1/blog/comments/${commentId}`);
 
-    if (!response.data.success) {
-      throw new Error('Failed to delete comment: Server returned unsuccessful response');
+    if (!response?.success) {
+      throw new Error('Failed to delete comment');
     }
   } catch (error) {
     console.error('Error deleting comment:', error);
@@ -85,6 +90,22 @@ export const deleteComment = async (commentId: string): Promise<void> => {
 };
 
 export const updateCommentStatus = async (commentId: string, status: string): Promise<IComment> => {
-  const response = await api.patch(`/v1/blog/comments/${commentId}/status`, { status });
-  return response.data.data.comment;
+  try {
+    const response = await apiRequest<IApiResponse<CommentResponse>>(
+      `/v1/blog/comments/${commentId}/status`,
+      {
+        method: 'PATCH',
+        body: { status },
+      }
+    );
+
+    if (response?.success && response.data?.comment) {
+      return response.data.comment;
+    }
+
+    throw new Error('Failed to update comment status');
+  } catch (error) {
+    console.error('Error updating comment status:', error);
+    throw error;
+  }
 };

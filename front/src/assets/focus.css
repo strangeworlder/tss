@@ -1,0 +1,46 @@
+/* Focus styles for keyboard navigation - WCAG AA compliant */
+*:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Custom focus styles for specific elements */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Focus style for navigation items */
+.nav-link:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 4px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Focus style for cards and interactive containers */
+.card:focus-visible,
+.interactive-container:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 4px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}
+
+/* Remove focus styles from elements that don't need them */
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  *:focus-visible {
+    outline: 3px solid CanvasText;
+  }
+}

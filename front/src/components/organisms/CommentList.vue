@@ -71,7 +71,7 @@
     </div>
     <p v-else class="comment-list__login-prompt">
       {{ COMMENT_CONSTANTS.LOGIN_PROMPT }}
-      <router-link to="/login">log in</router-link>
+      <router-link to="/auth">log in</router-link>
     </p>
 
     <div v-if="loading" class="comment-list__loading" role="status" aria-live="polite">
@@ -87,18 +87,22 @@
       <li v-for="comment in comments" :key="comment?._id" class="comment-list__item">
         <article>
           <div class="comment-list__header">
-            <AuthorInfo :author="mapToAuthor(comment)" :date="comment?.createdAt" size="sm" />
             <h3 class="comment-list__title">{{ comment?.title || 'Untitled' }}</h3>
+            <AuthorInfo :author="mapToAuthor(comment)" :date="comment?.createdAt" size="sm" variant="right" />
           </div>
           <div class="comment-list__content" v-html="formatContent(comment?.content || '')" />
           <div class="comment-list__actions">
-            <AppButton :variant="ButtonVariantEnum.TEXT" @click="showReplyForm(comment?._id)">
+            <AppButton 
+              v-if="isAuthenticated" 
+              :variant="ButtonVariantEnum.TEXT" 
+              @click="showReplyForm(comment?._id)"
+            >
               Reply
             </AppButton>
             <AppButton
               v-if="canDelete(comment)"
               :variant="ButtonVariantEnum.TEXT"
-              @click="deleteComment(comment?._id)"
+              @click="showDeleteDialog(comment?._id)"
             >
               Delete
             </AppButton>
@@ -118,9 +122,42 @@
               </template>
             </Suspense>
           </div>
+          <!-- Nested replies -->
+          <ul v-if="comment?.replies?.length" class="comment-list__replies">
+            <li v-for="reply in comment.replies" :key="reply._id" class="comment-list__reply">
+              <article>
+                <div class="comment-list__header">
+                  <h4 class="comment-list__title">{{ reply.title || 'Untitled' }}</h4>
+                  <AuthorInfo :author="mapToAuthor(reply)" :date="reply.createdAt" size="sm" variant="right" />
+                </div>
+                <div class="comment-list__content" v-html="formatContent(reply.content || '')" />
+                <div class="comment-list__actions">
+                  <AppButton
+                    v-if="canDelete(reply)"
+                    :variant="ButtonVariantEnum.TEXT"
+                    @click="showDeleteDialog(reply._id)"
+                  >
+                    Delete
+                  </AppButton>
+                </div>
+              </article>
+            </li>
+          </ul>
         </article>
       </li>
     </ul>
+
+    <!-- Delete Confirmation Dialog -->
+    <AppDialog
+      :is-open="!!commentToDelete"
+      title="Delete Comment"
+      content="Are you sure you want to delete this comment? This action cannot be undone."
+      primary-action="Delete"
+      secondary-action="Cancel"
+      variant="danger"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </section>
 </template>
 
@@ -136,6 +173,7 @@ import { useNotificationStore } from '@/stores/notification';
 import { COMMENT_CONSTANTS } from '@/constants/comment';
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
 import AppButton from '@/components/atoms/AppButton.vue';
+import AppDialog from '@/components/molecules/AppDialog.vue';
 import { ButtonVariantEnum } from '@/types/button';
 import type { Author } from '@/types/blog';
 
@@ -164,6 +202,7 @@ const comments = ref<IComment[]>([]);
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 const replyingTo = ref<string | null>(null);
+const commentToDelete = ref<string | null>(null);
 
 // Helper function to convert IAuthor to Author
 const mapToAuthor = (comment: IComment | undefined): Author | undefined => {
@@ -254,22 +293,30 @@ const canDelete = (comment: IComment | undefined): boolean => {
   return currentUser?.id === comment.author.id || authStore.isAdmin;
 };
 
-const deleteComment = async (commentId: string | undefined): Promise<void> => {
+const showDeleteDialog = (commentId: string | undefined): void => {
   if (!commentId) return;
-  if (!confirm(COMMENT_CONSTANTS.DELETE_CONFIRMATION)) {
-    return;
-  }
+  commentToDelete.value = commentId;
+};
+
+const confirmDelete = async (): Promise<void> => {
+  if (!commentToDelete.value) return;
 
   try {
-    await deleteCommentApi(commentId);
-    emit('comment-deleted', commentId);
+    await deleteCommentApi(commentToDelete.value);
+    emit('comment-deleted', commentToDelete.value);
     await fetchComments();
     notificationStore.success('Comment deleted successfully');
   } catch (err) {
     const apiError = err as IApiError;
     error.value = apiError.message || 'Failed to delete comment';
     emit('error', error.value);
+  } finally {
+    commentToDelete.value = null;
   }
+};
+
+const cancelDelete = (): void => {
+  commentToDelete.value = null;
 };
 
 const handleCommentSuccess = async (): Promise<void> => {
@@ -369,6 +416,22 @@ onMounted(fetchComments);
   border-top: 0.0625rem solid var(--color-border);
 }
 
+.comment-list__replies {
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-md) 0 0 var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.comment-list__reply {
+  padding: var(--spacing-md);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-background);
+}
+
 @media (max-width: 48rem) {
   .comment-list__header {
     flex-direction: column;
@@ -377,6 +440,10 @@ onMounted(fetchComments);
 
   .comment-list__actions {
     flex-wrap: wrap;
+  }
+
+  .comment-list__replies {
+    margin-left: var(--spacing-md);
   }
 }
 </style>

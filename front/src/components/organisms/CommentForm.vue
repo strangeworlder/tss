@@ -190,28 +190,35 @@ const handleCancel = (): void => {
   color: var(--color-text);
 }
 
-.comment-form__input,
+.comment-form__input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background-input);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.comment-form__input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
 .comment-form__textarea {
   width: 100%;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-md);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background-input);
   color: var(--color-text);
-  background: var(--color-background);
-  transition: border-color 0.2s;
-}
-
-.comment-form__input:focus,
-.comment-form__textarea:focus {
-  outline: none;
-  border-color: var(--color-primary-500);
-}
-
-.comment-form__textarea {
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-input);
   resize: vertical;
-  min-height: 6rem;
+  min-height: calc(var(--spacing-md) * 4);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .comment-form__error {
@@ -247,16 +254,16 @@ const handleCancel = (): void => {
 }
 
 .comment-form__button--submit {
-  background: var(--color-primary-500);
+  background: var(--color-primary);
   color: white;
 }
 
 .comment-form__button--submit:hover {
-  background: var(--color-primary-600);
+  background: var(--color-primary-dark);
 }
 
 .comment-form__button--submit:disabled {
-  background: var(--color-neutral-400);
+  background: var(--color-text-muted);
   cursor: not-allowed;
 }
 

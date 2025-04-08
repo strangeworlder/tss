@@ -29,8 +29,14 @@ router.use((req, res, next) => {
 // Create a new comment (requires authentication)
 router.post('/posts/comments', authenticateToken, createCommentValidation, createComment);
 
-// Get comments for a post (public)
+// Create a new comment reply (requires authentication)
+router.post('/comments', authenticateToken, createCommentValidation, createComment);
+
+// Get comments for a post
 router.get('/posts/:postId/comments', getComments);
+
+// Get replies for a comment
+router.get('/comments/:commentId/replies', getComments);
 
 // Update comment status (admin only)
 router.patch('/comments/:commentId/status', authenticateToken, updateCommentStatus);

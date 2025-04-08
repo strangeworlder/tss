@@ -9,6 +9,7 @@ Features:
 - Integrated user menu for authenticated users
 - Admin section access for admin users
 - Mobile-friendly collapsible menu
+- Theme toggle for light/dark mode and theme selection
 
 Usage:
 ```vue
@@ -69,15 +70,14 @@ Accessibility:
           {{ item.text }}
         </NavLink>
       </li>
+      <li>
+        <ThemeToggle />
+      </li>
       <li v-if="isAuthenticated">
         <UserMenu
-          :user-name="userName"
+          :user="{ displayName: userName }"
           :is-open="isUserMenuOpen"
-          :is-profile-active="$route.path === '/profile'"
-          :tabindex="currentFocusIndex === navItems.length ? 0 : -1"
           @toggle="toggleUserMenu"
-          @logout="handleLogout"
-          @focus="currentFocusIndex = navItems.length"
         />
       </li>
     </ul>
@@ -89,6 +89,7 @@ import { computed, ref } from 'vue';
 import type { ComputedRef } from 'vue';
 import NavLink from '@/components/molecules/NavLink.vue';
 import UserMenu from '@/components/molecules/UserMenu.vue';
+import ThemeToggle from '@/components/molecules/ThemeToggle.vue';
 
 interface INavItem {
   to: string;

@@ -37,13 +37,15 @@
     <div class="blog-hero__content">
       <!-- Content overlaying the hero image -->
       <div class="blog-hero__wrapper">
-        <gallery-thumbnail
-          v-if="heroImage"
-          :image-filename="heroImage"
-          :alt-text="altText"
-          :position="{ top: 'calc(-1 * var(--spacing-xl))', right: '0' }"
-          @click="handleThumbnailClick"
-        />
+        <div class="blog-hero__wrapper-inner">
+          <gallery-thumbnail
+            v-if="heroImage"
+            :image-filename="heroImage"
+            :alt-text="altText"
+            :position="{ top: 'calc(-1 * var(--spacing-xl))', right: '0' }"
+            @click="handleThumbnailClick"
+          />
+        </div>
         <slot></slot>
       </div>
     </div>
@@ -90,13 +92,15 @@ export default defineComponent({
 
 <style scoped>
 .blog-hero {
-  position: relative;
+  position: absolute;
   width: 94vw;
-  height: 30rem;
-  max-height: 33vh;
+  height: 60rem;
+  max-height: 50vh;
   overflow: hidden;
   margin-left: calc(-47vw + 50%);
   margin-right: calc(-47vw + 50%);
+  top: 0;
+  left: 0;
 }
 
 .blog-hero__image {
@@ -124,6 +128,13 @@ export default defineComponent({
 }
 
 .blog-hero__wrapper {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-background) 50%, transparent),
+    color-mix(in srgb, var(--color-background) 90%, transparent),
+    var(--color-background)
+  );
+
   max-width: 40rem;
   margin: var(--spacing-md) auto;
   width: 100%;
@@ -131,12 +142,17 @@ export default defineComponent({
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
-
+.blog-hero__wrapper-inner {
+  position: absolute;
+    margin: var(--spacing-3xl) var(--spacing-lg);
+    right: 0;
+}
 .blog-hero__wrapper :deep(h2) {
   font-size: 2.2rem;
-  color: var(--color-text);
+    color: var(--color-text);
+    margin: 5rem 1rem;
 }
 
 /* Style the GalleryThumbnail component */

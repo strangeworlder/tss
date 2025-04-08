@@ -188,7 +188,7 @@ onMounted(() => {
   height: 3rem;
   border-radius: 50%;
   border: 0.25rem solid var(--color-border);
-  border-top-color: var(--color-primary-500);
+  border-top-color: var(--color-primary);
   animation: spin 1s linear infinite;
   margin-bottom: var(--spacing-md);
 }

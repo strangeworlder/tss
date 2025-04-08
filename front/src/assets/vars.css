@@ -33,6 +33,17 @@
   --color-accent-800: #86198f;
   --color-accent-900: #701a75;
 
+  /* Highlight colors - Orange/Amber palette */
+  --color-highlight-100: #fff7ed;
+  --color-highlight-200: #fed7aa;
+  --color-highlight-300: #fdba74;
+  --color-highlight-400: #fb923c;
+  --color-highlight-500: #f97316;
+  --color-highlight-600: #ea580c;
+  --color-highlight-700: #c2410c;
+  --color-highlight-800: #9a3412;
+  --color-highlight-900: #7c2d12;
+
   /* Neutral colors - Grayscale */
   --color-neutral-100: #ffffff;
   --color-neutral-200: #f9fafb;
@@ -43,6 +54,39 @@
   --color-neutral-700: #6b7280;
   --color-neutral-800: #4b5563;
   --color-neutral-900: #111827;
+
+  /* Danger colors - Red palette */
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  /* Warning colors - Yellow palette */
+  --color-warning-100: #fef9c3;
+  --color-warning-200: #fef08a;
+  --color-warning-300: #fde047;
+  --color-warning-400: #facc15;
+  --color-warning-500: #eab308;
+  --color-warning-600: #ca8a04;
+  --color-warning-700: #a16207;
+  --color-warning-800: #854d0e;
+  --color-warning-900: #713f12;
+
+  /* Success colors - Green palette */
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
 
   /* Semantic Variables */
 
@@ -91,25 +135,56 @@
   --color-info-light: var(--color-primary-100);
   --color-info-dark: var(--color-primary-700);
 
+  /* Primary color semantic variables */
+  --color-primary: var(--color-primary-500);
+  --color-primary-dark: var(--color-primary-700);
+
+  /* Highlight/Spot colors - for emphasis and callouts */
+  --color-spot: var(--color-highlight-500);
+  --color-spot-light: var(--color-highlight-300);
+  --color-spot-dark: var(--color-highlight-700);
+  --color-spot-bg: var(--color-highlight-100);
+  --color-spot-text: var(--color-highlight-900);
+  --color-spot-border: var(--color-highlight-300);
+
   /* Typography */
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  --font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-family-base: "Source Sans Pro", sans-serif;
+  --font-family-heading: "Playfair Display", serif;
+  --font-family-mono: "Special Elite", monospace;
+  --font-family-input: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
 
   /* Font sizes */
-  --font-size-3xl: 1.875rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-xl: 1.25rem;
-  --font-size-lg: 1.125rem;
-  --font-size-base: 1rem;
-  --font-size-sm: 0.875rem;
   --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
 
   /* Font weights */
+  --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* Line heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+
+  /* Letter spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
 
   /* Spacing - 8px grid system */
   --spacing-xs: 0.25rem; /* 4px */
@@ -122,12 +197,19 @@
   --spacing-4xl: 6rem; /* 96px */
   --spacing-5xl: 8rem; /* 128px */
 
+  /* Additional spacing variables for backward compatibility */
+  --spacing-2: var(--spacing-sm);
+  --spacing-8: var(--spacing-xl);
+  --spacing-12: var(--spacing-2xl);
+  --spacing-16: var(--spacing-3xl);
+
   /* Layout */
   --section-gap: 10rem;
   --container-width: 80rem;
   --border-radius-sm: 0.25rem;
   --border-radius: 0.5rem;
   --border-radius-lg: 1rem;
+  --border-radius-md: var(--border-radius);
 
   /* Shadows */
   --shadow-sm: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
@@ -149,9 +231,9 @@
   --z-index-tooltip: 1070;
 
   /* Avatar-specific variables */
-  --avatar-size-sm: var(--spacing-8); /* 2rem - 32px */
-  --avatar-size-md: var(--spacing-12); /* 3rem - 48px */
-  --avatar-size-lg: var(--spacing-16); /* 4rem - 64px */
+  --avatar-size-sm: var(--spacing-xl); /* 2rem - 32px */
+  --avatar-size-md: var(--spacing-2xl); /* 3rem - 48px */
+  --avatar-size-lg: var(--spacing-3xl); /* 4rem - 64px */
 
   /* Blog image variables */
   --blog-image-height-full: 16rem;
@@ -159,12 +241,6 @@
 
   /* Notification variables */
   --notification-max-width: 24rem;
-
-  /* Breakpoints */
-  --breakpoint-sm: 36rem; /* 576px */
-  --breakpoint-md: 48rem; /* 768px */
-  --breakpoint-lg: 64rem; /* 1024px */
-  --breakpoint-xl: 80rem; /* 1280px */
 }
 
 /* Dark mode overrides - only semantic variables */
@@ -200,5 +276,31 @@
     --color-border-focus: var(--color-primary-400);
     --color-border-disabled: var(--color-neutral-700);
     --color-border-error: var(--color-danger-400);
+
+    /* Highlight/Spot colors - for emphasis and callouts */
+    --color-spot: var(--color-highlight-400);
+    --color-spot-light: var(--color-highlight-300);
+    --color-spot-dark: var(--color-highlight-500);
+    --color-spot-bg: var(--color-highlight-900);
+    --color-spot-text: var(--color-highlight-100);
+    --color-spot-border: var(--color-highlight-700);
   }
+}
+
+/* Horror Theme */
+[data-theme="horror"] {
+  --font-family-base: "Crimson Text", serif;
+  --font-family-heading: "UnifrakturMaguntia", serif;
+  --font-family-mono: "Special Elite", monospace;
+  --font-family-input: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+}
+
+/* Steampunk Theme */
+[data-theme="steampunk"] {
+  --font-family-base: "IM Fell English", serif;
+  --font-family-heading: "IM Fell English", serif;
+  --font-family-mono: "Special Elite", monospace;
+  --font-family-input: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
 }

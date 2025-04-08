@@ -36,6 +36,7 @@ import { ImageSizeEnum } from '@/types/image';
 import { checkApiHealth } from '@/api/apiClient';
 import { marked } from 'marked';
 import { CommentParentTypeEnum } from '@/types/comment';
+import { useDocumentTitle } from '@/composables/useDocumentTitle';
 
 const route = useRoute();
 const router = useRouter();
@@ -46,8 +47,18 @@ const blogStore = useBlogStore();
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 
+// Document title management
+const { setTitle } = useDocumentTitle('Blog Post');
+
 // Get the current post from the store
-const post = computed(() => blogStore.currentPost);
+const post = computed(() => {
+  const currentPost = blogStore.currentPost;
+  // Update the document title when post is loaded
+  if (currentPost?.title) {
+    setTitle(currentPost.title);
+  }
+  return currentPost;
+});
 
 // Configure marked options
 marked.setOptions({
@@ -199,10 +210,13 @@ onMounted(() => {
 }
 
 .blog-detail-view__article {
+  margin-top: 6rem;
+  padding-top: var(--spacing-sm);
   background-color: var(--color-background);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+  position: relative;
 }
 
 .blog-detail-view__hero-title {
@@ -214,7 +228,8 @@ onMounted(() => {
 }
 
 .blog-detail-view__content {
-  padding: var(--spacing-xl);
+  padding: 0 var(--spacing-xl) var(--spacing-xl);
+  padding-top: var(--spacing-md);
 }
 
 .blog-detail-view__comments {
@@ -228,9 +243,15 @@ onMounted(() => {
   color: var(--color-text);
 }
 
+.blog-content {
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
 :deep(.markdown-body) {
-  font-family: var(--font-family-body);
-  line-height: 1.6;
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-relaxed);
   color: var(--color-text);
 }
 
@@ -281,7 +302,7 @@ onMounted(() => {
 }
 
 :deep(.markdown-body blockquote) {
-  border-left: 0.25rem solid var(--color-primary-500);
+  border-left: 0.25rem solid var(--color-primary);
   margin: var(--spacing-lg) 0;
   padding: var(--spacing-md) var(--spacing-lg);
   background-color: var(--color-background-muted);
@@ -299,13 +320,13 @@ onMounted(() => {
 }
 
 :deep(.markdown-body a) {
-  color: var(--color-primary-500);
+  color: var(--color-text-link);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 :deep(.markdown-body a:hover) {
-  color: var(--color-primary-600);
+  color: var(--color-text-link-hover);
   text-decoration: underline;
 }
 
