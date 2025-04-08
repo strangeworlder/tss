@@ -42,9 +42,8 @@ const formattedDate = computed(() => props.date || undefined);
 
 <template>
   <div class="blog-post-meta">
-    <span v-if="date" class="blog-post-meta__date">{{ date }}</span>
     <div v-if="author" class="blog-post-meta__author">
-      <AuthorInfo :author="author" :date="formattedDate" size="sm" />
+      <AuthorInfo :author="author" :date="formattedDate" size="sm" variant="left" />
     </div>
   </div>
 </template>
@@ -58,7 +57,4 @@ const formattedDate = computed(() => props.date || undefined);
   font-family: var(--font-family-base);
 }
 
-.blog-post-meta__author {
-  margin-left: var(--spacing-sm);
-}
 </style>

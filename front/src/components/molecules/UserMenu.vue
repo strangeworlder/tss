@@ -41,138 +41,124 @@
 - Provides screen reader announcements
 -->
 
-<template>
-  <div class="user-menu">
-    <button 
-      class="user-menu__button" 
-      @click="$emit('toggle')" 
-      :aria-expanded="isOpen"
-      :aria-controls="menuId"
-    >
-      <span class="user-menu__name">{{ userName }}</span>
-      <span class="user-menu__arrow" aria-hidden="true"></span>
-    </button>
-
-    <nav 
-      :id="menuId"
-      class="user-menu__dropdown" 
-      :class="{ 'user-menu__dropdown--open': isOpen }"
-      role="menu"
-    >
-      <RouterLink
-        to="/profile"
-        class="user-menu__link"
-        :class="{ 'user-menu__link--active': isProfileActive }"
-        role="menuitem"
-        @click="$emit('toggle')"
-      >
-        Profile
-      </RouterLink>
-      <button 
-        class="user-menu__link user-menu__link--logout"
-        role="menuitem"
-        @click="handleLogout"
-      >
-        Logout
-      </button>
-    </nav>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
+import UserAvatar from '../atoms/UserAvatar.vue';
+import DropdownMenu from './DropdownMenu.vue';
 
-// Props interface
-interface IUserMenuProps {
-  userName: string;
+interface IUser {
+  displayName: string;
+  avatarUrl?: string;
+}
+
+const props = defineProps<{
+  user: IUser;
   isOpen: boolean;
-  isProfileActive: boolean;
-}
+}>();
 
-// Events interface
-interface IUserMenuEmits {
-  (e: 'toggle'): void;
-  (e: 'logout'): void;
-}
+const emit = defineEmits<(e: 'toggle') => void>();
 
-const emit = defineEmits<IUserMenuEmits>();
+// Add logging for props changes
+console.log('[UserMenu] Props updated:', {
+  userName: props.user.displayName,
+  isOpen: props.isOpen,
+});
 
-defineProps<IUserMenuProps>();
+const router = useRouter();
+const authStore = useAuthStore();
 
-// Generate unique ID for ARIA attributes
-const menuId = computed(() => `user-menu-${Math.random().toString(36).substr(2, 9)}`);
+const userInitials = computed(() => {
+  const initials = props.user.displayName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
+  console.log('[UserMenu] Generated initials:', initials);
+  return initials;
+});
 
-// Handler for logout to emit both events
-const handleLogout = () => {
-  emit('toggle'); // Close menu
-  emit('logout'); // Trigger logout
+const handleLogout = async () => {
+  console.log('[UserMenu] Logout initiated');
+  try {
+    await authStore.logout();
+    console.log('[UserMenu] Logout successful');
+    router.push('/login');
+  } catch (error) {
+    console.error('[UserMenu] Logout failed:', error);
+  }
+};
+
+// Add logging for menu toggle
+const handleToggle = () => {
+  console.log('[UserMenu] Toggle triggered, current isOpen:', props.isOpen);
+  emit('toggle');
 };
 </script>
 
-<style scoped>
-.user-menu {
-  position: relative;
-}
+<template>
+  <DropdownMenu :is-open="isOpen" @toggle="handleToggle">
+    <template #trigger>
+      <button 
+        class="user-menu__trigger"
+        :aria-label="`${user.displayName}'s menu`"
+        @click="() => console.log('[UserMenu] Trigger button clicked')"
+      >
+        <UserAvatar
+          :initials="userInitials"
+          :avatar-url="user.avatarUrl"
+          :alt="user.displayName"
+          size="sm"
+        />
+      </button>
+    </template>
+    <template #menu>
+      <nav class="user-menu__nav">
+        <router-link 
+          to="/profile" 
+          class="user-menu__link"
+          @click="handleToggle"
+        >
+          Profile
+        </router-link>
+        <router-link 
+          to="/settings" 
+          class="user-menu__link"
+          @click="handleToggle"
+        >
+          Settings
+        </router-link>
+        <button 
+          class="user-menu__link user-menu__link--logout"
+          @click="handleLogout"
+        >
+          Logout
+        </button>
+      </nav>
+    </template>
+  </DropdownMenu>
+</template>
 
-.user-menu__button {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+<style scoped>
+.user-menu__trigger {
   background: none;
   border: none;
-  color: var(--color-text);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0;
   cursor: pointer;
-  border-radius: var(--border-radius-sm);
-  transition: background-color var(--transition-fast);
 }
 
-.user-menu__button:hover {
-  background-color: var(--color-background-alt);
-}
-
-.user-menu__arrow {
-  width: 0;
-  height: 0;
-  border-left: var(--spacing-xs) solid transparent;
-  border-right: var(--spacing-xs) solid transparent;
-  border-top: var(--spacing-xs) solid currentColor;
-  transition: transform var(--transition-fast);
-}
-
-.user-menu__dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: var(--color-background-card);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  min-width: 12.5rem;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(calc(var(--spacing-xs) * -1));
-  transition: all var(--transition-fast);
-}
-
-.user-menu__dropdown--open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+.user-menu__nav {
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
 }
 
 .user-menu__link {
   display: block;
-  width: 100%;
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   color: var(--color-text);
   text-decoration: none;
-  text-align: left;
-  background: none;
-  border: none;
-  font-size: inherit;
-  font-family: inherit;
-  cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
@@ -180,35 +166,12 @@ const handleLogout = () => {
   background-color: var(--color-background-alt);
 }
 
-.user-menu__link--active {
-  background-color: var(--color-background-alt);
-  color: var(--color-primary-500);
-}
-
 .user-menu__link--logout {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
   color: var(--color-danger);
-}
-
-.user-menu__link--logout:hover {
-  background-color: var(--color-danger-light);
-}
-
-@media (max-width: 48rem) {
-  .user-menu {
-    width: 100%;
-  }
-
-  .user-menu__button {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .user-menu__dropdown {
-    position: static;
-    box-shadow: none;
-    background-color: var(--color-background-alt);
-    margin-top: var(--spacing-sm);
-    border-radius: var(--border-radius-sm);
-  }
 }
 </style>

@@ -1,5 +1,13 @@
 @import "./vars.css";
 @import "./base.css";
+@import "./focus.css";
+@import "./utility.css";
+
+/* Import themes */
+@import "./themes/steampunk/light.css";
+@import "./themes/steampunk/dark.css";
+@import "./themes/horror/light.css";
+@import "./themes/horror/dark.css";
 
 #app {
   max-width: var(--container-width);

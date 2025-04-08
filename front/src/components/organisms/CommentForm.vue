@@ -206,7 +206,7 @@ const handleCancel = (): void => {
 .comment-form__input:focus,
 .comment-form__textarea:focus {
   outline: none;
-  border-color: var(--color-primary-500);
+  border-color: var(--color-primary);
 }
 
 .comment-form__textarea {
@@ -247,16 +247,16 @@ const handleCancel = (): void => {
 }
 
 .comment-form__button--submit {
-  background: var(--color-primary-500);
+  background: var(--color-primary);
   color: white;
 }
 
 .comment-form__button--submit:hover {
-  background: var(--color-primary-600);
+  background: var(--color-primary-dark);
 }
 
 .comment-form__button--submit:disabled {
-  background: var(--color-neutral-400);
+  background: var(--color-text-muted);
   cursor: not-allowed;
 }
 

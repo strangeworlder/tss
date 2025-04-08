@@ -62,7 +62,7 @@ onMounted((): void => {
     <header class="app-header">
       <div class="container app-header__container">
         <RouterLink to="/" class="app-header__logo">
-          <h1 class="app-header__title">Vue Blog</h1>
+          <h1 class="app-header__title">The Slow</h1>
         </RouterLink>
 
         <MenuToggle :is-open="isMenuOpen" @toggle="isMenuOpen = !isMenuOpen" />
@@ -85,7 +85,7 @@ onMounted((): void => {
 
     <footer class="app-footer">
       <div class="container app-footer__container">
-        <p>&copy; {{ new Date().getFullYear() }} Vue Blog. All rights reserved.</p>
+        <p>&copy; {{ new Date().getFullYear() }} The Slow. All rights reserved.</p>
       </div>
     </footer>
   </div>
@@ -125,7 +125,7 @@ onMounted((): void => {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   margin: 0;
-  color: var(--color-text-inverse);
+  color: var(--color-primary);
 }
 
 .app-main {

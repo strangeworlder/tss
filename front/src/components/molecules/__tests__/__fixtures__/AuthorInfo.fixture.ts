@@ -19,6 +19,7 @@ export function createAuthorInfoProps(overrides: Partial<Props> = {}) {
     },
     date: '2024-03-20',
     size: 'md' as const,
+    variant: 'left' as const,
     ...overrides,
   } as Props;
 }
@@ -39,6 +40,9 @@ export const mockAuthorInfos = {
   }),
   largeSize: createAuthorInfoProps({
     size: 'lg' as const,
+  }),
+  rightVariant: createAuthorInfoProps({
+    variant: 'right' as const,
   }),
   authorWithoutAvatar: createAuthorInfoProps({
     author: {

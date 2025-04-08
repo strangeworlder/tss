@@ -87,8 +87,8 @@
       <li v-for="comment in comments" :key="comment?._id" class="comment-list__item">
         <article>
           <div class="comment-list__header">
-            <AuthorInfo :author="mapToAuthor(comment)" :date="comment?.createdAt" size="sm" />
             <h3 class="comment-list__title">{{ comment?.title || 'Untitled' }}</h3>
+            <AuthorInfo :author="mapToAuthor(comment)" :date="comment?.createdAt" size="sm" variant="right" />
           </div>
           <div class="comment-list__content" v-html="formatContent(comment?.content || '')" />
           <div class="comment-list__actions">

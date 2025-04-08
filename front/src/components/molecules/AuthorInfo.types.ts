@@ -10,4 +10,6 @@ export interface Props {
   date?: string;
   /** Size of the avatar image */
   size: 'sm' | 'md' | 'lg';
+  /** Layout variant - left (default) or right */
+  variant: 'left' | 'right';
 }

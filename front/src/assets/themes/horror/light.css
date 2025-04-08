@@ -1,0 +1,127 @@
+[data-theme="horror"][data-color-mode="light"] {
+  /* Primary colors - Blood Red palette - Enhanced for horror theme */
+  --color-primary-100: #ffe6e6;
+  --color-primary-200: #ffb3b3;
+  --color-primary-300: #ff6666;
+  --color-primary-400: #cc0000;
+  --color-primary-500: #990000; /* Dark blood red */
+  --color-primary-600: #800000;
+  --color-primary-700: #660000;
+  --color-primary-800: #4d0000;
+  --color-primary-900: #330000;
+
+  /* Secondary colors - Eerie Purple palette */
+  --color-secondary-100: #f5f0ff;
+  --color-secondary-200: #e0d1ff;
+  --color-secondary-300: #c29eff;
+  --color-secondary-400: #9f6cff;
+  --color-secondary-500: #7c3aff;
+  --color-secondary-600: #5900ee;
+  --color-secondary-700: #4400b7;
+  --color-secondary-800: #2f0080;
+  --color-secondary-900: #1a0049;
+
+  /* Accent colors - Toxic Green palette */
+  --color-accent-100: #e8fff0;
+  --color-accent-200: #c9ffd1;
+  --color-accent-300: #96ff9e;
+  --color-accent-400: #63ff6c;
+  --color-accent-500: #30ff3a;
+  --color-accent-600: #00ee00;
+  --color-accent-700: #00b700;
+  --color-accent-800: #008000;
+  --color-accent-900: #004900;
+
+  /* Highlight colors - Decaying Yellow palette */
+  --color-highlight-100: #fffff0;
+  --color-highlight-200: #ffffd1;
+  --color-highlight-300: #ffff9e;
+  --color-highlight-400: #ffff6c;
+  --color-highlight-500: #ffff3a;
+  --color-highlight-600: #eeee00;
+  --color-highlight-700: #b7b700;
+  --color-highlight-800: #808000;
+  --color-highlight-900: #494900;
+
+  /* Semantic variables - Horror themed */
+  --color-background: #fff4f4; /* Bloodstained white */
+  --color-background-alt: #f8eeee;
+  --color-background-muted: #f0e2e2;
+  --color-background-overlay: rgba(102, 0, 0, 0.85); /* Darker blood overlay */
+  --color-background-card: #fffafa; /* Snow white */
+  --color-background-input: #fff8f8;
+  --color-background-disabled: var(--color-primary-100);
+
+  /* Text colors - Horror themed with WCAG compliance */
+  --color-text: #1a0000; /* Darker blood for better contrast */
+  --color-text-secondary: #4d0000; /* Adjusted for 4.5:1 minimum contrast */
+  --color-text-muted: #660000; /* Adjusted for 4.5:1 minimum contrast */
+  --color-text-inverse: #fff4f4; /* Bloodstained white */
+  --color-text-disabled: #805555; /* Adjusted for better contrast */
+  --color-text-link: #330099; /* Adjusted purple for 4.5:1 minimum contrast */
+  --color-text-link-hover: #1a004d;
+
+  /* Text on status colors */
+  --color-text-on-success: #ffffff;
+  --color-text-on-danger: #ffffff;
+  --color-text-on-warning: #000000;
+  --color-text-on-info: #ffffff;
+
+  /* Border colors - Horror themed */
+  --color-border: #800000; /* Adjusted for better visibility */
+  --color-border-hover: #b30000;
+  --color-border-focus: #4d0000;
+  --color-border-disabled: #d9b3b3;
+  --color-border-error: #cc0000;
+
+  /* Status colors - Horror themed with WCAG compliance */
+  --color-danger: #b30000; /* Adjusted for better contrast */
+  --color-danger-light: #ff8080;
+  --color-danger-dark: #660000;
+  --color-warning: #804000; /* Adjusted for better contrast */
+  --color-warning-light: #ffaa66;
+  --color-warning-dark: #4d2600;
+  --color-success: #006600; /* Adjusted for better contrast */
+  --color-success-light: #80ff80;
+  --color-success-dark: #004d00;
+  --color-info: #330099; /* Adjusted for better contrast */
+  --color-info-light: #cbb3ff;
+  --color-info-dark: #1a004d;
+
+  /* Highlight/Spot colors - Horror themed with WCAG compliance */
+  --color-spot: #b30000;
+  --color-spot-light: #ff8080;
+  --color-spot-dark: #660000;
+  --color-spot-bg: #fff0f0;
+  --color-spot-text: #1a0000;
+  --color-spot-border: #cc0000;
+
+  /* Typography - Horror themed */
+  --font-family-base: "UnifrakturMaguntia", "Crimson Text", "IM Fell English", serif; /* Gothic font */
+  --font-family-mono: "Special Elite", "Courier New", monospace; /* Typewriter style */
+
+  /* Shadows - Horror themed */
+  --shadow-sm: 0 2px 4px rgba(102, 0, 0, 0.15), 0 0 8px rgba(102, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(102, 0, 0, 0.25), 0 0 12px rgba(102, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(102, 0, 0, 0.35), 0 0 20px rgba(102, 0, 0, 0.25);
+
+  /* Borders - Sharp edges for horror feel */
+  --border-radius-sm: 0;
+  --border-radius: 0;
+  --border-radius-lg: 0;
+
+  /* Additional horror-specific variables */
+  --horror-blood-drip: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(153, 0, 0, 0.15) 50%,
+    rgba(102, 0, 0, 0.25) 100%
+  );
+  --horror-texture-overlay: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  --horror-vignette: radial-gradient(
+    circle at center,
+    transparent 0%,
+    rgba(102, 0, 0, 0.1) 80%,
+    rgba(102, 0, 0, 0.2) 100%
+  );
+}

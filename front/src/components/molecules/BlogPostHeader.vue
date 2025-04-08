@@ -4,12 +4,12 @@
   
   Features:
   - Displays blog post title
-  - Shows author information with publication date
+  - Shows author information with publication date in the top right corner
   - Displays tags associated with the post
   - Optional back button to return to blog listing
   
   Props:
-  - post: BlogPost - The blog post data to display
+  - post: IBlogPost - The blog post data to display
   - showBackButton: boolean - Whether to show the back button (default: true)
   
   Accessibility:
@@ -35,15 +35,24 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <header class="blog-post-header">
-    <BackButton
-      v-if="showBackButton"
-      text="Back to Blog Listing"
-      to="/blog"
-      class="blog-post-header__back"
-    />
-
-    <div class="blog-post-header__meta">
-      <AuthorInfo :author="post.author" :date="post.publishedAt || undefined" size="md" />
+    <div class="blog-post-header__container">
+      <div class="blog-post-header__left">
+        <BackButton
+          v-if="showBackButton"
+          text="Back to Blog Listing"
+          to="/blog"
+          class="blog-post-header__back"
+        />
+      </div>
+      
+      <div class="blog-post-header__right">
+        <AuthorInfo 
+          :author="post.author" 
+          :date="post.publishedAt || undefined" 
+          size="md" 
+          variant="right" 
+        />
+      </div>
     </div>
 
     <div v-if="post.tags && post.tags.length > 0" class="blog-post-header__tags">
@@ -57,6 +66,22 @@ withDefaults(defineProps<Props>(), {
   margin-bottom: var(--spacing-xl);
 }
 
+.blog-post-header__container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+}
+
+.blog-post-header__left {
+  flex: 1;
+}
+
+.blog-post-header__right {
+  margin-left: var(--spacing-lg);
+  margin-right: var(--spacing-md);
+}
+
 .blog-post-header__back {
   margin-bottom: var(--spacing-md);
 }
@@ -67,10 +92,6 @@ withDefaults(defineProps<Props>(), {
   color: var(--color-text);
   margin-bottom: var(--spacing-md);
   line-height: 1.2;
-}
-
-.blog-post-header__meta {
-  margin-bottom: var(--spacing-md);
 }
 
 .blog-post-header__tags {
