@@ -29,16 +29,17 @@ mongoose
       // Log the current database
       console.log('Current database:', db.databaseName);
       // Log all collections
-      db.listCollections().toArray((err: Error | null, collections: { name: string }[]) => {
-        if (err) {
+      db.listCollections()
+        .toArray()
+        .then((collections: { name: string }[]) => {
+          console.log(
+            'Available collections:',
+            collections.map((c) => c.name)
+          );
+        })
+        .catch((err: Error) => {
           console.error('Error listing collections:', err);
-          return;
-        }
-        console.log(
-          'Available collections:',
-          collections.map((c) => c.name)
-        );
-      });
+        });
     }
 
     app.listen(PORT, () => {

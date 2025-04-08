@@ -20,6 +20,7 @@
 
 ## 2. Documentation Requirements
 - [ ] Component has comprehensive documentation in HTML comments at the top
+- [ ] HTML comments have proper opening and closing tags (`<!--` and `-->`)
 - [ ] Documentation includes: name, description, features, props, events, accessibility
 - [ ] No separate .md documentation files exist
 

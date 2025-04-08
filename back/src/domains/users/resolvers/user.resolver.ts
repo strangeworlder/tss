@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Arg, Ctx, UseMiddleware } from 'type-graphql';
 import { UserResponse, type UserInput, type LoginInput } from '../schemas/user.schema';
 import User, { IUser } from '../models/user.model';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { JWT } from '../../../config/config';
 import { redisClient } from '../../../db/redis/connection';
 import { AuthMiddleware } from '../../../middlewares/graphql.middleware';
@@ -20,7 +20,7 @@ export class UserResolver {
       }
 
       return {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -52,12 +52,14 @@ export class UserResolver {
       await user.save();
 
       // Generate token
-      const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT.SECRET, {
-        expiresIn: JWT.EXPIRY,
-      });
+      const token = jwt.sign(
+        { id: user._id, email: user.email, role: user.role }, 
+        JWT.SECRET as jwt.Secret, 
+        { expiresIn: JWT.EXPIRY } as SignOptions
+      );
 
       return {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -86,9 +88,11 @@ export class UserResolver {
       }
 
       // Generate token
-      const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT.SECRET, {
-        expiresIn: JWT.EXPIRY,
-      });
+      const token = jwt.sign(
+        { id: user._id, email: user.email, role: user.role }, 
+        JWT.SECRET as jwt.Secret, 
+        { expiresIn: JWT.EXPIRY } as SignOptions
+      );
 
       // Store token in Redis
       await redisClient.set(`token:${user._id}`, token, {
@@ -96,7 +100,7 @@ export class UserResolver {
       });
 
       return {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,

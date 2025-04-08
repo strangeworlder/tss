@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import BlogPostList from '@/components/organisms/admin/BlogPostList.vue';
 import BlogPostEditor from '@/components/organisms/admin/BlogPostEditor.vue';
 import { useBlogStore } from '@/stores/blogStore';
 import { useAuthStore } from '@/stores/authStore';
 import BaseView from '@/components/templates/BaseView.vue';
+import Tabs from '@/components/molecules/Tabs.vue';
 
 const router = useRouter();
 const blogStore = useBlogStore();
@@ -36,6 +37,11 @@ const handleBackToList = () => {
   activeTab.value = 'list';
   editingPostId.value = null;
 };
+
+const adminTabs = computed(() => [
+  { value: 'list', label: 'Posts' },
+  { value: 'editor', label: 'New Post' },
+]);
 </script>
 
 <template>
@@ -46,22 +52,11 @@ const handleBackToList = () => {
     <template #header>
       <div class="admin-view__header">
         <h1 class="admin-view__title">Blog Admin</h1>
-        <div class="admin-view__tabs">
-          <button
-            class="admin-view__tab"
-            :class="{ 'admin-view__tab--active': activeTab === 'list' }"
-            @click="activeTab = 'list'"
-          >
-            Posts
-          </button>
-          <button
-            class="admin-view__tab"
-            :class="{ 'admin-view__tab--active': activeTab === 'editor' }"
-            @click="handleCreatePost"
-          >
-            New Post
-          </button>
-        </div>
+        <Tabs
+          v-model="activeTab"
+          :tabs="adminTabs"
+          @update:modelValue="(value) => value === 'editor' && handleCreatePost()"
+        />
       </div>
     </template>
     
@@ -89,26 +84,8 @@ const handleBackToList = () => {
   margin-bottom: var(--spacing-4);
 }
 
-.admin-view__tabs {
-  display: flex;
-  gap: var(--spacing-2);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--spacing-2);
-}
-
-.admin-view__tab {
-  padding: var(--spacing-2) var(--spacing-4);
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--color-text);
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.admin-view__tab--active {
-  color: var(--color-primary);
-  border-bottom: 2px solid var(--color-primary);
+.admin-view__content {
+  padding: var(--spacing-4);
 }
 
 .admin-view__notification {

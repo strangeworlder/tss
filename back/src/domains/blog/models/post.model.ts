@@ -85,6 +85,7 @@ onMounted(() => {
 Start building with Vue 3 today to take advantage of these improvements!`,
     excerpt: 'Learn the basics of Vue 3 and the Composition API.',
     author: {
+      type: 'text',
       name: 'Jane Smith',
       avatar: {
         filename: 'placeholder1.webp',
@@ -147,6 +148,7 @@ Start building your robust API today!`,
     excerpt:
       'Learn how to set up a Node.js project with TypeScript and Express for better type safety and development experience.',
     author: {
+      type: 'text',
       name: 'Jane Developer',
       avatar: {
         filename: 'placeholder1.webp',
@@ -226,6 +228,7 @@ Following these practices will help you build a production-ready API!`,
     excerpt:
       'A comprehensive guide to building robust REST APIs with Node.js, Express, and best practices for production.',
     author: {
+      type: 'text',
       name: 'John Backend',
       avatar: {
         filename: 'placeholder2.webp',
@@ -330,6 +333,7 @@ Start leveraging the power of the Composition API in your Vue 3 projects today!`
     excerpt:
       "Learn how to use Vue 3's Composition API to write more maintainable and reusable component logic.",
     author: {
+      type: 'text',
       name: 'Sarah Frontend',
       avatar: {
         filename: 'sarah-frontend.jpg',
@@ -434,6 +438,7 @@ Choose the right tool for the specific requirements of your project!`,
     excerpt:
       'An in-depth comparison of MongoDB and PostgreSQL to help you choose the right database for your next project.',
     author: {
+      type: 'text',
       name: 'Alex DBAdmin',
       avatar: {
         filename: 'alex-dbadmin.jpg',
@@ -603,6 +608,7 @@ By mastering these tools, you can create maintainable, responsive layouts that w
     excerpt:
       'Master modern responsive web design using the power of CSS Grid and Flexbox for flexible, maintainable layouts.',
     author: {
+      type: 'text',
       name: 'Olivia Designer',
       avatar: {
         filename: 'olivia-designer.jpg',

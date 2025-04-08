@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import BlogPost from '../models/BlogPost';
-import upload from '../config/multer';
 import { blogHeroUpload } from '../config/multer';
 
 export const updatePost = async (req: Request, res: Response) => {

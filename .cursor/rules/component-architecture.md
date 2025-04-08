@@ -123,6 +123,8 @@ All component documentation MUST be placed inside the component file (.vue) as a
 - Events table with payload types and descriptions
 - Accessibility considerations 
 
+HTML comments MUST have proper opening and closing tags (`<!--` and `-->`) to ensure proper parsing.
+
 <!--
 @component UserMenu
 @description A dropdown menu component for user-related actions.

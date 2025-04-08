@@ -42,7 +42,7 @@ Usage:
         <AppButton type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="isLoading">
           {{ isLoading ? 'Logging in...' : 'Login' }}
         </AppButton>
-        <FormError :message="errorMessage" />
+        <FormError v-if="errorMessage" :message="errorMessage" />
       </div>
     </form>
   </div>
@@ -146,30 +146,32 @@ const handleSubmit = async (): Promise<void> => {
 
 <style scoped>
 .login-form {
-  max-width: 480px;
   margin: 0 auto;
-  padding: var(--spacing-8);
+  padding: var(--spacing-lg);
   border-radius: var(--border-radius);
-  background-color: var(--color-background-soft);
-  box-shadow: 0 4px 6px var(--color-shadow);
+  background-color: var(--color-background-alt);
+  box-shadow: 0 4px 6px var(--color-background-overlay);
 }
 
 .login-form__title {
   text-align: center;
-  margin-bottom: var(--spacing-6);
-  color: var(--color-heading);
-  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
 }
 
 .login-form__form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
+  gap: var(--spacing-md);
 }
 
 .login-form__actions {
-  margin-top: var(--spacing-6);
+  margin-top: var(--spacing-lg);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 </style>

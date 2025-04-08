@@ -1,24 +1,34 @@
+<!--
+@component AuthView
+@description A view component that handles user authentication, providing both login and registration functionality.
+
+@features
+- Tab-based navigation between login and registration forms
+- Responsive design that works on all device sizes
+- Clean, accessible interface following WCAG 2.1 AA standards
+- Uses semantic variables for consistent styling
+
+@props
+- None (this is a view component with no props)
+
+@events
+- None (this is a view component with no events)
+
+@accessibility
+- Uses semantic HTML elements
+- Provides clear visual indication of active tab
+- Ensures keyboard navigation is available
+- Maintains proper color contrast ratios
+-->
+
 <template>
   <div class="auth-view">
     <div class="auth-view__container">
-      <div class="auth-view__tabs">
-        <AppButton
-          :variant="ButtonVariantEnum.TEXT"
-          class="auth-view__tab-btn"
-          :class="{ 'auth-view__tab-btn--active': activeTab === 'login' }"
-          @click="activeTab = 'login'"
-        >
-          Login
-        </AppButton>
-        <AppButton
-          :variant="ButtonVariantEnum.TEXT"
-          class="auth-view__tab-btn"
-          :class="{ 'auth-view__tab-btn--active': activeTab === 'register' }"
-          @click="activeTab = 'register'"
-        >
-          Register
-        </AppButton>
-      </div>
+      <Tabs
+        v-model="activeTab"
+        :tabs="authTabs"
+        full-width
+      />
 
       <div class="auth-view__content">
         <LoginForm v-if="activeTab === 'login'" />
@@ -29,13 +39,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import LoginForm from '@/components/organisms/LoginForm.vue';
 import RegisterForm from '@/components/organisms/RegisterForm.vue';
-import AppButton from '@/components/atoms/AppButton.vue';
-import { ButtonVariantEnum } from '@/types/button';
+import Tabs from '@/components/molecules/Tabs.vue';
 
-const activeTab = ref('login');
+const activeTab = ref<'login' | 'register'>('login');
+
+const authTabs = computed(() => [
+  { value: 'login', label: 'Login' },
+  { value: 'register', label: 'Register' },
+]);
 </script>
 
 <style scoped>
@@ -44,8 +58,8 @@ const activeTab = ref('login');
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--color-background-mute);
-  padding: var(--spacing-8) var(--spacing-4);
+  background-color: var(--color-background-muted);
+  padding: var(--spacing-xl) var(--spacing-md);
 }
 
 .auth-view__container {
@@ -53,34 +67,11 @@ const activeTab = ref('login');
   max-width: 520px;
   background-color: var(--color-background);
   border-radius: var(--border-radius);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
-.auth-view__tabs {
-  display: flex;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.auth-view__tab-btn {
-  flex: 1;
-  padding: var(--spacing-4);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  background-color: transparent;
-  border: none;
-  transition: all var(--transition-normal);
-  color: var(--color-text);
-  font-family: var(--font-family-base);
-}
-
-.auth-view__tab-btn--active {
-  background-color: var(--color-background-soft);
-  color: var(--color-highlight-1);
-  border-bottom: 2px solid var(--color-highlight-1);
-}
-
 .auth-view__content {
-  padding: var(--spacing-4);
+  padding: var(--spacing-md);
 }
 </style>

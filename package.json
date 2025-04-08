@@ -10,6 +10,7 @@
     "prepare": "husky install",
     "lint": "npm run lint --workspaces",
     "lint:biome": "npm run lint:biome --workspaces",
+    "type-check": "npm run type-check --workspaces",
     "format": "npm run format:biome --workspaces",
     "format:biome": "npm run format:biome --workspaces"
   },
