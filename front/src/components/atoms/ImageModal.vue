@@ -192,11 +192,11 @@ export default defineComponent({
           previousActiveElement.value = document.activeElement as HTMLElement;
           dialogRef.value.showModal();
           lockScroll();
-          
+
           // Reset zoom state when opening
           isZoomed.value = false;
           resetDragState();
-          
+
           // Focus the close button after opening
           const closeButton = dialogRef.value.querySelector('.image-modal__close');
           if (closeButton instanceof HTMLElement) {
@@ -240,7 +240,7 @@ export default defineComponent({
       event.preventDefault();
       isDragging.value = true;
       dragState.value.hasMoved = false;
-      
+
       const { clientX, clientY } = event instanceof MouseEvent ? event : event.touches[0];
       dragState.value = {
         ...dragState.value,
@@ -256,17 +256,17 @@ export default defineComponent({
       }
 
       event.preventDefault();
-      
+
       const { clientX, clientY } = event instanceof MouseEvent ? event : event.touches[0];
       dragState.value.translateX = clientX - dragState.value.startX;
       dragState.value.translateY = clientY - dragState.value.startY;
-      
+
       // Check if we've moved more than a small threshold
       const distance = Math.sqrt(
-        Math.pow(dragState.value.translateX - dragState.value.lastTranslateX, 2) + 
-        Math.pow(dragState.value.translateY - dragState.value.lastTranslateY, 2)
+        (dragState.value.translateX - dragState.value.lastTranslateX) ** 2 +
+          (dragState.value.translateY - dragState.value.lastTranslateY) ** 2
       );
-      
+
       if (distance > 5) {
         dragState.value.hasMoved = true;
       }

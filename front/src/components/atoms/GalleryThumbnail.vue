@@ -96,7 +96,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const isModalOpen = ref(false);
-    
+
     const positionStyle = computed(() => ({
       top: props.position.top,
       right: props.position.right,
@@ -107,7 +107,7 @@ export default defineComponent({
       emit('click');
       isModalOpen.value = true;
     };
-    
+
     const handleModalClose = (): void => {
       console.log('Modal closing');
       isModalOpen.value = false;
