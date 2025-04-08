@@ -21,6 +21,7 @@ export enum ImageSize {
   THUMBNAIL = 'thumbnail',
   MEDIUM = 'medium',
   FULL = 'full',
+  HERO = 'hero',
 }
 
 // Available image formats

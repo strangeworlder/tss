@@ -30,7 +30,7 @@
   <div class="blog-hero">
     <app-image
       :filename="heroImage || 'placeholder1.webp'"
-      :size="ImageSizeEnum.FULL"
+      :size="ImageSizeEnum.HERO"
       :alt="altText"
       class="blog-hero__image"
     />

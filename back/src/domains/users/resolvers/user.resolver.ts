@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Arg, Ctx, UseMiddleware } from 'type-graphql';
 import { UserResponse, type UserInput, type LoginInput } from '../schemas/user.schema';
 import User, { IUser } from '../models/user.model';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import { JWT } from '../../../config/config';
 import { redisClient } from '../../../db/redis/connection';
 import { AuthMiddleware } from '../../../middlewares/graphql.middleware';
@@ -53,8 +53,8 @@ export class UserResolver {
 
       // Generate token
       const token = jwt.sign(
-        { id: user._id, email: user.email, role: user.role }, 
-        JWT.SECRET as jwt.Secret, 
+        { id: user._id, email: user.email, role: user.role },
+        JWT.SECRET as jwt.Secret,
         { expiresIn: JWT.EXPIRY } as SignOptions
       );
 
@@ -89,8 +89,8 @@ export class UserResolver {
 
       // Generate token
       const token = jwt.sign(
-        { id: user._id, email: user.email, role: user.role }, 
-        JWT.SECRET as jwt.Secret, 
+        { id: user._id, email: user.email, role: user.role },
+        JWT.SECRET as jwt.Secret,
         { expiresIn: JWT.EXPIRY } as SignOptions
       );
 

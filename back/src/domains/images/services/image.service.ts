@@ -143,18 +143,33 @@ const imageService = {
       const dimensionMap = {
         [ImageSize.THUMBNAIL]: { width: 150, height: 150 },
         [ImageSize.MEDIUM]: { width: 400, height: 400 },
-        [ImageSize.FULL]: { width: metadata.width, height: metadata.height },
+        [ImageSize.FULL]: { width: metadata.width || 0, height: metadata.height || 0 },
+        [ImageSize.HERO]: {
+          width: metadata.width || 0,
+          height: Math.round((metadata.width || 0) * (3 / 4)),
+        },
       };
 
       // 1. Process size (resize image)
       if (size !== ImageSize.FULL) {
         const dimensions = dimensionMap[size];
-        sharpInstance = sharpInstance.resize({
-          width: dimensions.width,
-          height: dimensions.height,
-          fit: 'inside',
-          withoutEnlargement: true,
-        });
+        if (size === ImageSize.HERO) {
+          // For hero size, we want to maintain the original width and crop to 4:3 ratio
+          sharpInstance = sharpInstance.resize({
+            width: dimensions.width,
+            height: dimensions.height,
+            fit: 'cover',
+            position: 'center',
+            withoutEnlargement: true,
+          });
+        } else {
+          sharpInstance = sharpInstance.resize({
+            width: dimensions.width,
+            height: dimensions.height,
+            fit: 'inside',
+            withoutEnlargement: true,
+          });
+        }
       }
 
       // 2. Process format (convert image format)

@@ -11,6 +11,7 @@ export enum ImageSizeEnum {
   XLARGE = 'xlarge',
   THUMBNAIL = 'thumbnail',
   FULL = 'full',
+  HERO = 'hero',
 }
 
 // Available image formats
