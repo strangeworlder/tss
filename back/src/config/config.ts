@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import path from 'path';
+import path from 'node:path';
 
 // Load environment variables from .env file
 dotenv.config({ path: path.join(__dirname, '../../.env') });
@@ -9,11 +9,7 @@ export const SERVER = {
   PORT: Number(process.env.PORT) || 4000,
   NODE_ENV: process.env.NODE_ENV || 'development',
   API_PREFIX: '/api/v1',
-  CORS_ORIGINS: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://localhost:8080'
-  ]
+  CORS_ORIGINS: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8080'],
 };
 
 // MongoDB configuration
@@ -48,4 +44,4 @@ export default {
   POSTGRES,
   REDIS,
   JWT,
-}; 
+};

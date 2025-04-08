@@ -3,61 +3,66 @@
  * These match the backend data structures to ensure consistency
  */
 
+import type { IUser } from './user';
+import type { IImage } from './image';
+
 export interface Author {
-  type: 'user' | 'text'
-  id?: string
-  name: string
+  type: 'user' | 'text';
+  id?: string;
+  name: string;
   avatar?: {
-    filename: string
-    altText: string
-  }
+    filename: string;
+    altText: string;
+  };
 }
 
 export interface HeroImage {
-  filename: string
-  altText: string
-  url?: string // Optional URL for direct image access
+  filename: string;
+  altText: string;
+  url?: string; // Optional URL for direct image access
 }
 
-export interface BlogPost {
-  id: string
-  title: string
-  slug: string
-  content: string
-  excerpt: string
-  author: Author
-  heroImage?: {
-    filename: string
-    altText: string
-  }
-  heroImageUrl?: string
-  tags: string[]
-  createdAt: string
-  updatedAt: string
-  publishedAt: string | null
-  isPublished: boolean
+/**
+ * Interface representing a blog post in the system
+ */
+export interface IBlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  author: Author;
+  heroImage?: HeroImage;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+  isPublished: boolean;
 }
 
-// For partial blog post data (e.g. listings)
-export type BlogPostPreview = Pick<
-  BlogPost,
-  | 'id'
-  | 'title'
-  | 'slug'
-  | 'excerpt'
-  | 'author'
-  | 'heroImage'
-  | 'heroImageUrl'
-  | 'tags'
-  | 'publishedAt'
->
+/**
+ * Interface for blog post preview data
+ */
+export interface IBlogPostPreview {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  author: Author;
+  heroImage?: HeroImage;
+  tags: string[];
+  publishedAt?: string;
+  isPublished: boolean;
+}
 
-// Response structure from backend
-export interface ApiResponse<T> {
-  success: boolean
-  data: T
-  message?: string
-  count?: number
+/**
+ * Interface for API responses
+ */
+export interface IApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  error?: string;
 }
 
 export type BlogPostField =
@@ -67,6 +72,16 @@ export type BlogPostField =
   | 'excerpt'
   | 'author'
   | 'heroImage'
-  | 'heroImageUrl'
   | 'tags'
-  | 'publishedAt'
+  | 'publishedAt';
+
+export interface IBlogStore {
+  posts: IBlogPost[];
+  loading: boolean;
+  error: string | null;
+  fetchAdminPosts: () => Promise<void>;
+  fetchPost: (id: string) => Promise<IBlogPost | null>;
+  createPost: (post: Omit<IBlogPost, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IBlogPost>;
+  updatePost: (id: string, post: Partial<IBlogPost>) => Promise<IBlogPost>;
+  deletePost: (id: string) => Promise<void>;
+}

@@ -3,5 +3,5 @@
  */
 export enum BlogPostTitleVariantEnum {
   COMPACT = 'compact',
-  FULL = 'full'
-} 
+  FULL = 'full',
+}

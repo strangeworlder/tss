@@ -5,5 +5,16 @@ export enum ButtonVariantEnum {
   PRIMARY = 'primary',
   SECONDARY = 'secondary',
   DANGER = 'danger',
-  TEXT = 'text'
-} 
+  SUCCESS = 'success',
+  WARNING = 'warning',
+  INFO = 'info',
+  TEXT = 'text',
+}
+
+export interface IButtonProps {
+  variant?: ButtonVariantEnum;
+  disabled?: boolean;
+  loading?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  size?: 'small' | 'medium' | 'large';
+}

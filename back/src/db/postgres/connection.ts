@@ -1,4 +1,4 @@
-import { Pool, PoolClient } from 'pg';
+import { Pool, type PoolClient } from 'pg';
 import { POSTGRES } from '../../config/config';
 
 // Create a new Pool
@@ -71,4 +71,4 @@ export default {
   query,
   getClient,
   closePool,
-}; 
+};

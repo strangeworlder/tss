@@ -48,7 +48,7 @@ general:
               - "Test cases must have clear, descriptive names"
               - "Complex test setups must be documented"
           - "Testing best practices:"
-              - "Use component testing library for Vue components"
+              - "Use vi.mock for mocking dependencies"
               - "Mock external dependencies and API calls"
               - "Test user interactions and events"
               - "Verify component state changes"
@@ -60,6 +60,24 @@ general:
               - "Create fixture files for mock data in __fixtures__ directory"
               - "Organize tests by category (rendering, props, events, etc.)"
               - "Avoid script execution issues by creating files directly"
+          - "Pinia store testing:"
+              - "Use vi.mock to mock Pinia stores"
+              - "Mock store state, getters, and actions"
+              - "Test store mutations and state changes"
+              - "Test store action error handling"
+              - "Test store getter computations"
+              - "Test store plugin functionality"
+              - "Test store persistence (if used)"
+              - "Example store mock:"
+                  ```typescript
+                  vi.mock('@/stores/myStore', () => ({
+                    useMyStore: vi.fn(() => ({
+                      state: {},
+                      getters: {},
+                      actions: vi.fn(),
+                    })),
+                  }));
+                  ```
       - "Semantic variables are mandatory and must be maintained in front/src/assets/vars.css"
       - "All styling must use semantic variables - no hard-coded values allowed"
       - "Units must use rem as the base unit - avoid px completely"
@@ -141,6 +159,12 @@ general:
           - "Optimize images and assets"
           - "Use proper caching strategies"
           - "Monitor bundle size"
+      - "Code Quality:"
+          - "ESLint for static code analysis"
+          - "Prettier for code formatting"
+          - "Biome for additional linting and formatting"
+          - "Use npm run lint and npm run format:biome to maintain code quality"
+          - "Follow the rules defined in biome.json"
   - naming_conventions:
       - "BEM syntax for CSS classes (block__element--modifier)"
       - "kebab-case within BEM segments (my-block__my-element--my-modifier)"
@@ -222,8 +246,11 @@ backend:
           - "Include performance testing for critical paths"
   - code_quality: 
       - "ESLint and Prettier for code formatting"
+      - "Biome for additional linting and formatting"
       - "Husky for pre-commit hooks"
       - "SonarQube for code quality metrics"
+      - "Run npm run lint:biome to maintain code quality"
+      - "Follow the rules defined in biome.json"
 
 structure:
   - directories:

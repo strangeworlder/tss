@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Arg, Ctx, UseMiddleware } from 'type-graphql';
-import { UserResponse, UserInput, LoginInput } from '../schemas/user.schema';
+import { UserResponse, type UserInput, type LoginInput } from '../schemas/user.schema';
 import User, { IUser } from '../models/user.model';
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import { JWT } from '../../../config/config';
 import { redisClient } from '../../../db/redis/connection';
 import { AuthMiddleware } from '../../../middlewares/graphql.middleware';
@@ -11,16 +11,16 @@ export class UserResolver {
   // Get current user
   @Query(() => UserResponse, { nullable: true })
   @UseMiddleware(AuthMiddleware)
-  async me(@Ctx() context: any): Promise<UserResponse | null> {
+  async me(/* @Ctx() */ context: any): Promise<UserResponse | null> {
     try {
       const user = await User.findById(context.user.id);
-      
+
       if (!user) {
         return null;
       }
 
       return {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -33,7 +33,7 @@ export class UserResolver {
 
   // Register a new user
   @Mutation(() => UserResponse)
-  async register(@Arg('input') input: UserInput): Promise<UserResponse> {
+  async register(/* @Arg('input') */ input: UserInput): Promise<UserResponse> {
     try {
       // Check if user already exists
       const existingUser = await User.findOne({ email: input.email });
@@ -54,12 +54,12 @@ export class UserResolver {
       // Generate token
       const token = jwt.sign(
         { id: user._id, email: user.email, role: user.role },
-        JWT.SECRET,
-        { expiresIn: JWT.EXPIRY }
+        JWT.SECRET as jwt.Secret,
+        { expiresIn: JWT.EXPIRY } as SignOptions
       );
 
       return {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -73,7 +73,7 @@ export class UserResolver {
 
   // Login user
   @Mutation(() => UserResponse)
-  async login(@Arg('input') input: LoginInput): Promise<UserResponse> {
+  async login(/* @Arg('input') */ input: LoginInput): Promise<UserResponse> {
     try {
       // Find user by email
       const user = await User.findOne({ email: input.email });
@@ -90,8 +90,8 @@ export class UserResolver {
       // Generate token
       const token = jwt.sign(
         { id: user._id, email: user.email, role: user.role },
-        JWT.SECRET,
-        { expiresIn: JWT.EXPIRY }
+        JWT.SECRET as jwt.Secret,
+        { expiresIn: JWT.EXPIRY } as SignOptions
       );
 
       // Store token in Redis
@@ -100,7 +100,7 @@ export class UserResolver {
       });
 
       return {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -111,4 +111,4 @@ export class UserResolver {
       throw new Error(error instanceof Error ? error.message : 'Failed to login');
     }
   }
-} 
+}

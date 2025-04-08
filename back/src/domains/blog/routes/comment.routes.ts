@@ -1,5 +1,11 @@
 import express from 'express';
-import { createComment, getComments, updateCommentStatus, deleteComment, createCommentValidation } from '../controllers/comment.controller';
+import {
+  createComment,
+  getComments,
+  updateCommentStatus,
+  deleteComment,
+  createCommentValidation,
+} from '../controllers/comment.controller';
 import { authenticateToken } from '../../../middleware/auth';
 
 const router = express.Router();
@@ -14,8 +20,8 @@ router.use((req, res, next) => {
     body: req.body,
     headers: {
       authorization: req.headers.authorization ? 'Present' : 'Missing',
-      'content-type': req.headers['content-type']
-    }
+      'content-type': req.headers['content-type'],
+    },
   });
   next();
 });
@@ -32,4 +38,4 @@ router.patch('/comments/:commentId/status', authenticateToken, updateCommentStat
 // Delete a comment (admin or comment author)
 router.delete('/comments/:commentId', authenticateToken, deleteComment);
 
-export default router; 
+export default router;

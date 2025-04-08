@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import User from '../models/user.model';
 import sharp from 'sharp';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import { IUser } from '../models/user.model';
 
 // Update user profile
@@ -22,8 +22,8 @@ export const updateProfile = async (req: Request, res: Response) => {
         $set: {
           ...(firstName && { firstName }),
           ...(lastName && { lastName }),
-          ...(bio && { bio })
-        }
+          ...(bio && { bio }),
+        },
       },
       { new: true }
     );
@@ -44,18 +44,20 @@ export const updateProfile = async (req: Request, res: Response) => {
         lastName: user.lastName,
         role: user.role,
         bio: user.bio,
-        avatar: user.avatar ? {
-          url: avatarUrl,
-          filename: user.avatar.filename,
-          altText: user.avatar.altText
-        } : null
-      }
+        avatar: user.avatar
+          ? {
+              url: avatarUrl,
+              filename: user.avatar.filename,
+              altText: user.avatar.altText,
+            }
+          : null,
+      },
     });
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({
       message: 'Error updating profile',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -90,7 +92,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
       await sharp(file.path)
         .resize(200, 200, {
           fit: 'cover',
-          position: 'center'
+          position: 'center',
         })
         .webp({ quality: 90 })
         .toFile(outputPath);
@@ -105,9 +107,9 @@ export const updateAvatar = async (req: Request, res: Response) => {
           $set: {
             avatar: {
               filename,
-              altText: `${currentUser.firstName}'s avatar`
-            }
-          }
+              altText: `${currentUser.firstName}'s avatar`,
+            },
+          },
         },
         { new: true }
       );
@@ -133,9 +135,9 @@ export const updateAvatar = async (req: Request, res: Response) => {
           avatar: {
             url: avatarUrl,
             filename: updatedUser.avatar?.filename,
-            altText: updatedUser.avatar?.altText
-          }
-        }
+            altText: updatedUser.avatar?.altText,
+          },
+        },
       });
     } catch (error) {
       // Clean up any files if processing fails
@@ -147,7 +149,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
     console.error('Error updating avatar:', error);
     res.status(500).json({
       message: 'Error updating avatar',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -165,5 +167,5 @@ export const getUsers = async (req: Request, res: Response) => {
 export default {
   updateProfile,
   updateAvatar,
-  getUsers
-}; 
+  getUsers,
+};

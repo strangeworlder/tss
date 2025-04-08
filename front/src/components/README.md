@@ -16,7 +16,9 @@ components/
 ## Component Classification
 
 ### Atoms
+
 Basic building blocks of the UI:
+
 - Single, indivisible components
 - No dependencies on other components
 - No state management
@@ -25,7 +27,9 @@ Basic building blocks of the UI:
 - Examples: Button, Input, Avatar, Icon
 
 ### Molecules
+
 Simple combinations of atoms:
+
 - Single, well-defined responsibility
 - Composed of atoms
 - Simple internal state only
@@ -34,7 +38,9 @@ Simple combinations of atoms:
 - Examples: FormField, AuthorInfo, SearchBar
 
 ### Organisms
+
 Complex UI components:
+
 - Multiple responsibilities
 - Composed of multiple molecules and atoms
 - Complex state management
@@ -43,13 +49,17 @@ Complex UI components:
 - Examples: CommentList, BlogPostCard, CommentForm
 
 ### Templates
+
 Page layouts:
+
 - Define the structure of pages
 - Arrange organisms in a specific layout
 - Examples: DefaultLayout, AuthLayout
 
 ### Pages
+
 Complete pages:
+
 - Represent specific routes
 - Composed of templates and organisms
 - Examples: HomeView, BlogDetailView
@@ -81,6 +91,7 @@ If the answer to any of these questions is "yes," the component should be an org
 ## Documentation Requirements
 
 All components must include:
+
 1. Component name and description
 2. Features list
 3. Props documentation

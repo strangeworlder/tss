@@ -26,4 +26,4 @@ type Author {
   avatar: String
 }
 
-# ... query types and other schema definitions 
+# ... query types and other schema definitions

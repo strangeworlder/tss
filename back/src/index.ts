@@ -1,8 +1,8 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { ApolloServer } from 'apollo-server-express';
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 // Comment out missing imports temporarily
 // import { imageTypeDefs } from './domains/images/schemas/image.schema';
@@ -19,7 +19,7 @@ import authRoutes from './domains/auth/routes/auth.routes';
 // import { errorMiddleware, formatGraphQLError } from './utils/error.handler';
 // import { apiLimiter } from './middlewares/rateLimiter.middleware';
 // import { WebSocketService } from './services/websocket.service';
-import path from 'path';
+import path from 'node:path';
 // Import blog routes
 import blogRoutes from './domains/blog/routes/blog.routes';
 import { connectMongoDB } from './db/mongodb/connection';
@@ -58,18 +58,18 @@ const userTypeDefs = `
 `;
 const imageResolvers = {
   Query: {
-    images: () => []
-  }
+    images: () => [],
+  },
 };
 const blogResolvers = {
   Query: {
-    posts: () => []
-  }
+    posts: () => [],
+  },
 };
 const userResolvers = {
   Query: {
-    users: () => []
-  }
+    users: () => [],
+  },
 };
 
 // Simple error handler
@@ -87,10 +87,12 @@ const formatGraphQLError = (err: any) => {
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: SERVER.CORS_ORIGINS,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: SERVER.CORS_ORIGINS,
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -99,7 +101,7 @@ app.use(express.urlencoded({ extended: true }));
 connectMongoDB();
 
 // Initialize Redis connection
-connectRedis().catch(err => {
+connectRedis().catch((err) => {
   console.error('Failed to connect to Redis:', err);
   // Don't exit process, just log the error
 });
@@ -125,41 +127,44 @@ app.use('/static', express.static(path.join(__dirname, '../public')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Serve images from uploads directory with proper CORS headers
-app.use('/uploads/images', express.static(path.join(__dirname, '../public/uploads/images'), {
-  setHeaders: (res, path) => {
-    // Set appropriate CORS headers for static files
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5173', 
-      'http://localhost:8080'
-    ];
-    
-    // Get the origin from the request
-    const origin = res.req.headers.origin;
-    
-    // If the origin is in our allowed list, set it as the CORS origin
-    if (origin && allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-    } else {
-      // Otherwise use the first allowed origin
-      res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
-    }
-    
-    // Set other necessary headers
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    
-    // Set the appropriate content type based on file extension
-    if (path.endsWith('.webp')) {
-      res.setHeader('Content-Type', 'image/webp');
-    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-      res.setHeader('Content-Type', 'image/jpeg');
-    } else if (path.endsWith('.png')) {
-      res.setHeader('Content-Type', 'image/png');
-    }
-  }
-}));
+app.use(
+  '/uploads/images',
+  express.static(path.join(__dirname, '../public/uploads/images'), {
+    setHeaders: (res, path) => {
+      // Set appropriate CORS headers for static files
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:8080',
+      ];
+
+      // Get the origin from the request
+      const origin = res.req.headers.origin;
+
+      // If the origin is in our allowed list, set it as the CORS origin
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+      } else {
+        // Otherwise use the first allowed origin
+        res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
+      }
+
+      // Set other necessary headers
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+
+      // Set the appropriate content type based on file extension
+      if (path.endsWith('.webp')) {
+        res.setHeader('Content-Type', 'image/webp');
+      } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+        res.setHeader('Content-Type', 'image/jpeg');
+      } else if (path.endsWith('.png')) {
+        res.setHeader('Content-Type', 'image/png');
+      }
+    },
+  })
+);
 
 // Add an API root endpoint
 app.get('/api', (req: Request, res: Response) => {
@@ -169,15 +174,15 @@ app.get('/api', (req: Request, res: Response) => {
       blog: '/api/v1/blog',
       images: '/api/v1/images',
       auth: '/api/v1/auth',
-      graphql: '/graphql'
-    }
+      graphql: '/graphql',
+    },
   });
 });
 
 // Combine GraphQL schemas and resolvers
 const schema = makeExecutableSchema({
   typeDefs: [imageTypeDefs, blogTypeDefs, userTypeDefs],
-  resolvers: [imageResolvers, blogResolvers, userResolvers]
+  resolvers: [imageResolvers, blogResolvers, userResolvers],
 });
 
 // Create Apollo Server
@@ -201,19 +206,19 @@ async function startServer() {
   try {
     // Start the Apollo server
     await apolloServer.start();
-    
+
     // Apply Apollo middleware to Express - cast to any to avoid type error
     apolloServer.applyMiddleware({ app: app as any, path: '/graphql' });
-    
+
     // Create HTTP server from Express app
     const httpServer = createServer(app);
-    
+
     // Initialize WebSocket service
     const wsService = new WebSocketService(httpServer);
-    
+
     // Connect to MongoDB
     await connectMongoDB();
-    
+
     // Start the server after successful database connection
     httpServer.listen(SERVER.PORT, '0.0.0.0', () => {
       console.log(`🚀 Server ready at http://0.0.0.0:${SERVER.PORT}${apolloServer.graphqlPath}`);

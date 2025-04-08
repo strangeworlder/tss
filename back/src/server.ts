@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import path from 'path';
+import path from 'node:path';
 import blogRoutes from './domains/blog/routes/blog.routes';
 
 const app = express();
@@ -20,7 +20,8 @@ app.use('/api/v1/blog', blogRoutes);
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/blog';
 console.log('Attempting to connect to MongoDB at:', mongoUri);
 
-mongoose.connect(mongoUri)
+mongoose
+  .connect(mongoUri)
   .then(() => {
     console.log('Connected to MongoDB successfully');
     const db = mongoose.connection.db;
@@ -28,19 +29,23 @@ mongoose.connect(mongoUri)
       // Log the current database
       console.log('Current database:', db.databaseName);
       // Log all collections
-      db.listCollections().toArray((err: Error | null, collections: { name: string }[]) => {
-        if (err) {
+      db.listCollections()
+        .toArray()
+        .then((collections: { name: string }[]) => {
+          console.log(
+            'Available collections:',
+            collections.map((c) => c.name)
+          );
+        })
+        .catch((err: Error) => {
           console.error('Error listing collections:', err);
-          return;
-        }
-        console.log('Available collections:', collections.map(c => c.name));
-      });
+        });
     }
-    
+
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   })
   .catch((error) => {
     console.error('MongoDB connection error:', error);
-  }); 
+  });

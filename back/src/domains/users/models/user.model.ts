@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { type Document, Schema, type Types } from 'mongoose';
 import bcrypt from 'bcrypt';
 
 // User roles
@@ -66,18 +66,18 @@ const userSchema = new Schema<UserDocument>(
     },
     avatar: {
       filename: { type: String },
-      altText: { type: String }
+      altText: { type: String },
     },
     bio: {
       type: String,
       trim: true,
-      maxlength: 500
-    }
+      maxlength: 500,
+    },
   },
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
 // Pre-save hook to hash password
@@ -107,4 +107,4 @@ userSchema.methods.comparePassword = async function (password: string): Promise<
 // Create User model
 export const User = mongoose.model<UserDocument>('User', userSchema);
 
-export default User; 
+export default User;

@@ -7,8 +7,8 @@ export const createAvatarProps = (overrides = {}) => ({
   alt: 'Test avatar',
   src: '',
   size: 'md',
-  ...overrides
-})
+  ...overrides,
+});
 
 /**
  * Avatar test cases
@@ -17,33 +17,33 @@ export const mockAvatars = {
   withImage: {
     alt: 'User with image',
     src: 'valid-image.jpg',
-    size: 'md'
+    size: 'md',
   },
   withPlaceholder: {
     alt: 'User with placeholder',
-    size: 'md'
+    size: 'md',
   },
   empty: {
     alt: 'Empty avatar',
-    size: 'sm'
+    size: 'sm',
   },
   error: {
     alt: 'Avatar with error',
     src: 'invalid-image.jpg',
-    size: 'lg'
+    size: 'lg',
   },
   sizes: {
     small: {
       alt: 'Small avatar',
-      size: 'sm'
+      size: 'sm',
     },
     medium: {
       alt: 'Medium avatar',
-      size: 'md'
+      size: 'md',
     },
     large: {
       alt: 'Large avatar',
-      size: 'lg'
-    }
-  }
-}
+      size: 'lg',
+    },
+  },
+};

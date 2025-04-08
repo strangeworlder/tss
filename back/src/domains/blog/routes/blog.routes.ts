@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import blogController from '../controllers/blog.controller';
-import upload from '../../../config/multer';
+import { blogHeroUpload } from '../../../config/multer';
 import bodyParser from 'body-parser';
 import { authenticate } from '../../../middlewares/auth.middleware';
 import commentRoutes from './comment.routes';
@@ -20,7 +20,7 @@ router.use((err: any, req: any, res: any, next: any) => {
   res.status(500).json({
     success: false,
     message: 'Internal server error',
-    error: err.message
+    error: err.message,
   });
 });
 
@@ -28,14 +28,14 @@ router.use((err: any, req: any, res: any, next: any) => {
 const handleFormData = (req: any, res: any, next: any) => {
   if (req.headers['content-type']?.includes('multipart/form-data')) {
     try {
-      // Use multer to handle the form data
-      upload.single('heroImage')(req, res, (err) => {
+      // Use blogHeroUpload to handle the form data
+      blogHeroUpload.single('heroImage')(req, res, (err) => {
         if (err) {
           console.error('Error handling form data:', err);
           return res.status(400).json({
             success: false,
             message: 'Error processing form data',
-            error: err.message
+            error: err.message,
           });
         }
         next();
@@ -45,7 +45,7 @@ const handleFormData = (req: any, res: any, next: any) => {
       return res.status(500).json({
         success: false,
         message: 'Internal server error',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   } else {
@@ -56,7 +56,7 @@ const handleFormData = (req: any, res: any, next: any) => {
 const parseRequestData = (req: any, res: any, next: any) => {
   console.log('Backend: [2] Parsing request data');
   console.log('Backend: [2] Raw request body:', req.body);
-  
+
   // Parse the tags string into an array if it exists
   if (req.body.tags) {
     try {
@@ -66,29 +66,29 @@ const parseRequestData = (req: any, res: any, next: any) => {
       req.body.tags = [];
     }
   }
-  
+
   // Parse boolean fields
   if (req.body.isPublished !== undefined) {
     req.body.isPublished = req.body.isPublished === 'true';
   }
-  
+
   // Parse date fields
   if (req.body.publishedAt) {
     req.body.publishedAt = new Date(req.body.publishedAt);
   }
-  
+
   // Generate excerpt if not provided
   if (!req.body.excerpt && req.body.content) {
-    req.body.excerpt = req.body.content.substring(0, 200) + '...';
+    req.body.excerpt = `${req.body.content.substring(0, 200)}...`;
   }
 
   // Map authorName to author.name and preserve existing author data
   if (req.body.authorName) {
     req.body.author = {
       ...req.body.author,
-      name: req.body.authorName
+      name: req.body.authorName,
     };
-    delete req.body.authorName;
+    req.body.authorName = undefined;
   }
 
   // Parse author field if it's a string
@@ -99,16 +99,16 @@ const parseRequestData = (req: any, res: any, next: any) => {
       console.error('Error parsing author:', error);
       req.body.author = {
         type: 'text',
-        name: req.body.author
+        name: req.body.author,
       };
     }
   }
 
   // Only remove author if it's invalid
   if (req.body.author && !req.body.author.type) {
-    delete req.body.author;
+    req.body.author = undefined;
   }
-  
+
   console.log('Backend: [2] Parsed request body:', req.body);
   next();
 };
@@ -144,7 +144,8 @@ router.get('/admin/all', authenticate, blogController.getAllAdminPosts);
  * @desc    Create a new blog post
  * @access  Private
  */
-router.post('/', 
+router.post(
+  '/',
   authenticate,
   logRequest,
   handleFormData,
@@ -192,10 +193,6 @@ router.get('/:slug', blogController.getPost);
  * @desc    Delete a blog post
  * @access  Private
  */
-router.delete('/id/:id', 
-  authenticate,
-  logRequest,
-  blogController.deletePost
-);
+router.delete('/id/:id', authenticate, logRequest, blogController.deletePost);
 
-export default router; 
+export default router;

@@ -1,49 +1,48 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import imageService from '../../images/services/image.service';
-import BlogPostModel, { IBlogPost } from '../models/BlogPostModel';
+import BlogPostModel, { type IBlogPost } from '../models/BlogPostModel';
 import User, { IUser, UserRole } from '../../users/models/user.model';
 
 // Get all published blog posts
 export const getAllPosts = async (req: Request, res: Response) => {
   try {
     // Get the limit from query params (default to 10)
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-    
+    const limit = req.query.limit ? Number.parseInt(req.query.limit as string) : 10;
+
     // Only get published posts
     const query = { isPublished: true };
-    
+
     // Get posts with the specified limit
-    const posts = await BlogPostModel.find(query)
-      .sort({ publishedAt: -1 })
-      .limit(limit)
-      .lean();
-    
+    const posts = await BlogPostModel.find(query).sort({ publishedAt: -1 }).limit(limit).lean();
+
     // Enhance posts with hero image URLs and convert dates to strings
-    const enhancedPosts = posts.map(post => {
+    const enhancedPosts = posts.map((post) => {
       const typedPost = post as unknown as IBlogPost & { _id: any };
       return {
         ...typedPost,
         id: typedPost._id.toString(),
-        heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
-        tags: Array.isArray(typedPost.tags) ? typedPost.tags.map(tag => String(tag)) : [],
+        heroImageUrl: typedPost.heroImage
+          ? imageService.getImageUrl(typedPost.heroImage.filename)
+          : null,
+        tags: Array.isArray(typedPost.tags) ? typedPost.tags.map((tag) => String(tag)) : [],
         createdAt: new Date(typedPost.createdAt).toISOString(),
         updatedAt: new Date(typedPost.updatedAt).toISOString(),
         publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null,
-        isPublished: typedPost.isPublished
+        isPublished: typedPost.isPublished,
       };
     });
-    
+
     return res.status(200).json({
       success: true,
       count: posts.length,
-      data: enhancedPosts
+      data: enhancedPosts,
     });
   } catch (error: unknown) {
     console.error('Error fetching posts:', error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -53,47 +52,49 @@ export const getAllAdminPosts = async (req: Request, res: Response) => {
   try {
     // Verify admin role
     if (req.user?.role !== UserRole.ADMIN) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Not authorized. Admin access required.' 
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized. Admin access required.',
       });
     }
 
     // Get the limit from query params (default to 50 for admin view)
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
-    
+    const limit = req.query.limit ? Number.parseInt(req.query.limit as string) : 50;
+
     // Get all posts without filtering by isPublished
     const posts = await BlogPostModel.find()
       .sort({ updatedAt: -1 }) // Sort by last updated for admin view
       .limit(limit)
       .lean();
-    
+
     // Enhance posts with hero image URLs and convert dates to strings
-    const enhancedPosts = posts.map(post => {
+    const enhancedPosts = posts.map((post) => {
       const typedPost = post as unknown as IBlogPost & { _id: any };
       return {
         ...typedPost,
         id: typedPost._id.toString(),
-        heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
-        tags: Array.isArray(typedPost.tags) ? typedPost.tags.map(tag => String(tag)) : [],
+        heroImageUrl: typedPost.heroImage
+          ? imageService.getImageUrl(typedPost.heroImage.filename)
+          : null,
+        tags: Array.isArray(typedPost.tags) ? typedPost.tags.map((tag) => String(tag)) : [],
         createdAt: new Date(typedPost.createdAt).toISOString(),
         updatedAt: new Date(typedPost.updatedAt).toISOString(),
         publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null,
-        isPublished: typedPost.isPublished
+        isPublished: typedPost.isPublished,
       };
     });
-    
+
     return res.status(200).json({
       success: true,
       count: posts.length,
-      data: enhancedPosts
+      data: enhancedPosts,
     });
   } catch (error: unknown) {
     console.error('Error fetching admin posts:', error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -102,41 +103,43 @@ export const getAllAdminPosts = async (req: Request, res: Response) => {
 export const getPost = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    
+
     // Get the post by slug
     const post = await BlogPostModel.findOne({ slug }).lean();
-    
+
     // If post not found
     if (!post) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Post not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found',
       });
     }
-    
+
     const typedPost = post as unknown as IBlogPost & { _id: any };
-    
+
     // Add hero image URL and convert dates
     const enhancedPost = {
       ...typedPost,
       id: typedPost._id.toString(), // Convert MongoDB _id to id for client
-      heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
+      heroImageUrl: typedPost.heroImage
+        ? imageService.getImageUrl(typedPost.heroImage.filename)
+        : null,
       // Convert dates to ISO strings for JSON serialization
       createdAt: new Date(typedPost.createdAt).toISOString(),
       updatedAt: new Date(typedPost.updatedAt).toISOString(),
-      publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null
+      publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null,
     };
-    
+
     return res.status(200).json({
       success: true,
       data: enhancedPost,
     });
   } catch (error: unknown) {
     console.error('Error fetching post:', error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -145,42 +148,44 @@ export const getPost = async (req: Request, res: Response) => {
 export const getPostsByTag = async (req: Request, res: Response) => {
   try {
     const { tag } = req.params;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-    
+    const limit = req.query.limit ? Number.parseInt(req.query.limit as string) : 10;
+
     // Find posts with the specified tag
-    const filteredPosts = await BlogPostModel.find({ 
-      isPublished: true, 
-      tags: tag 
+    const filteredPosts = await BlogPostModel.find({
+      isPublished: true,
+      tags: tag,
     })
-    .sort({ publishedAt: -1 })
-    .limit(limit)
-    .lean();
-    
+      .sort({ publishedAt: -1 })
+      .limit(limit)
+      .lean();
+
     // Enhance posts with hero image URLs
-    const enhancedPosts = filteredPosts.map(post => {
+    const enhancedPosts = filteredPosts.map((post) => {
       const typedPost = post as unknown as IBlogPost & { _id: any };
       return {
         ...typedPost,
         id: typedPost._id.toString(), // Convert MongoDB _id to id for client
-        heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
+        heroImageUrl: typedPost.heroImage
+          ? imageService.getImageUrl(typedPost.heroImage.filename)
+          : null,
         // Convert dates to ISO strings for JSON serialization
         createdAt: new Date(typedPost.createdAt).toISOString(),
         updatedAt: new Date(typedPost.updatedAt).toISOString(),
-        publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null
+        publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null,
       };
     });
-    
+
     return res.status(200).json({
       success: true,
       count: enhancedPosts.length,
-      data: enhancedPosts
+      data: enhancedPosts,
     });
   } catch (error: unknown) {
     console.error('Error fetching posts by tag:', error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -190,42 +195,44 @@ export const getPostById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     console.log(`Backend: Fetching post with ID "${id}" from params:`, req.params);
-    
+
     // Get the post by ID
     const post = await BlogPostModel.findById(id).lean();
-    
+
     // If post not found
     if (!post) {
       console.log(`Backend: Post with ID "${id}" not found.`);
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Post not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found',
       });
     }
-    
+
     const typedPost = post as unknown as IBlogPost & { _id: any };
     console.log(`Backend: Found post with title "${typedPost.title}"`);
-    
+
     // Add hero image URL and convert dates
     const enhancedPost = {
       ...typedPost,
       id: typedPost._id.toString(), // Convert MongoDB _id to id for client
-      heroImageUrl: typedPost.heroImage ? imageService.getImageUrl(typedPost.heroImage.filename) : null,
+      heroImageUrl: typedPost.heroImage
+        ? imageService.getImageUrl(typedPost.heroImage.filename)
+        : null,
       // Convert dates to ISO strings for JSON serialization
       createdAt: new Date(typedPost.createdAt).toISOString(),
       updatedAt: new Date(typedPost.updatedAt).toISOString(),
-      publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null
+      publishedAt: typedPost.publishedAt ? new Date(typedPost.publishedAt).toISOString() : null,
     };
-    
+
     return res.status(200).json({
       success: true,
       data: enhancedPost,
     });
   } catch (error) {
     console.error('Error fetching post:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
     });
   }
 };
@@ -245,7 +252,7 @@ export const updatePost = async (req: Request, res: Response) => {
       isPublished: req.body.isPublished === 'true' || req.body.isPublished === true,
       tags: typeof req.body.tags === 'string' ? JSON.parse(req.body.tags) : req.body.tags || [],
       author: typeof req.body.author === 'string' ? JSON.parse(req.body.author) : req.body.author,
-      publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : null
+      publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : null,
     };
 
     console.log('Backend: [2] Parsed request body:', parsedBody);
@@ -284,13 +291,13 @@ export const updatePost = async (req: Request, res: Response) => {
             type: 'user',
             id: authorUser._id.toString(),
             name: `${authorUser.firstName} ${authorUser.lastName}`,
-            avatar: authorUser.avatar
+            avatar: authorUser.avatar,
           };
         } else {
           // Free text author
           updateData.author = {
             type: 'text',
-            name: parsedBody.author.name
+            name: parsedBody.author.name,
           };
         }
       } else {
@@ -299,7 +306,7 @@ export const updatePost = async (req: Request, res: Response) => {
           type: 'user',
           id: user._id.toString(),
           name: `${user.firstName} ${user.lastName}`,
-          avatar: user.avatar
+          avatar: user.avatar,
         };
       }
     }
@@ -313,7 +320,7 @@ export const updatePost = async (req: Request, res: Response) => {
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/(^-|-$)/g, '');
-        
+
         // Check if slug exists and append a number if it does
         let slug = baseSlug;
         let counter = 1;
@@ -345,24 +352,33 @@ export const updatePost = async (req: Request, res: Response) => {
       updateData.isPublished = post.isPublished;
     }
 
+    // Handle hero image if uploaded
+    if (req.file) {
+      updateData.heroImage = {
+        filename: req.file.filename,
+        altText: parsedBody.title || 'Blog post hero image',
+      };
+      console.log('Backend: Hero image update:', updateData.heroImage);
+    }
+
     console.log('Backend: [3] Update data:', updateData);
 
     // Update the post
     const updatedPost = await BlogPostModel.findOneAndUpdate(
       { _id: id },
       { $set: updateData },
-      { 
+      {
         new: true,
         runValidators: true,
-        context: 'query'
+        context: 'query',
       }
     );
 
     if (!updatedPost) {
       console.error('Backend: Post not found after update attempt');
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Post not found after update' 
+        message: 'Post not found after update',
       });
     }
 
@@ -370,9 +386,9 @@ export const updatePost = async (req: Request, res: Response) => {
     const verifiedPost = await BlogPostModel.findById(id);
     if (!verifiedPost) {
       console.error('Backend: Post disappeared after update');
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
-        message: 'Post disappeared after update' 
+        message: 'Post disappeared after update',
       });
     }
 
@@ -385,19 +401,20 @@ export const updatePost = async (req: Request, res: Response) => {
       createdAt: new Date(postObject.createdAt).toISOString(),
       updatedAt: new Date(postObject.updatedAt).toISOString(),
       publishedAt: postObject.publishedAt ? new Date(postObject.publishedAt).toISOString() : null,
-      heroImageUrl: postObject.heroImage ? imageService.getImageUrl(postObject.heroImage.filename) : null
+      heroImageUrl: postObject.heroImage
+        ? imageService.getImageUrl(postObject.heroImage.filename)
+        : null,
     };
 
     return res.status(200).json({
       success: true,
-      data: enhancedPost
+      data: enhancedPost,
     });
   } catch (error) {
     console.error('Error updating post:', error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
@@ -430,13 +447,13 @@ export const createPost = async (req: Request, res: Response) => {
             type: 'user',
             id: authorUser._id.toString(),
             name: `${authorUser.firstName} ${authorUser.lastName}`,
-            avatar: authorUser.avatar
+            avatar: authorUser.avatar,
           };
         } else {
           // Free text author
           author = {
             type: 'text',
-            name: req.body.author.name
+            name: req.body.author.name,
           };
         }
       } else {
@@ -445,7 +462,7 @@ export const createPost = async (req: Request, res: Response) => {
           type: 'user',
           id: user._id.toString(),
           name: `${user.firstName} ${user.lastName}`,
-          avatar: user.avatar
+          avatar: user.avatar,
         };
       }
     } else {
@@ -454,7 +471,7 @@ export const createPost = async (req: Request, res: Response) => {
         type: 'user',
         id: user._id.toString(),
         name: `${user.firstName} ${user.lastName}`,
-        avatar: user.avatar
+        avatar: user.avatar,
       };
     }
 
@@ -472,6 +489,14 @@ export const createPost = async (req: Request, res: Response) => {
       counter++;
     }
 
+    // Handle hero image if uploaded
+    const heroImage = req.file
+      ? {
+          filename: req.file.filename,
+          altText: req.body.title || 'Blog post hero image',
+        }
+      : undefined;
+
     const post = await BlogPostModel.create({
       ...req.body,
       author,
@@ -479,18 +504,33 @@ export const createPost = async (req: Request, res: Response) => {
       excerpt: req.body.excerpt || req.body.content.substring(0, 200),
       tags: req.body.tags || [],
       publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : null,
-      isPublished: req.body.isPublished || false
+      isPublished: req.body.isPublished || false,
+      heroImage,
     });
+
+    // Convert to plain object and enhance with additional fields
+    const postObject = post.toObject();
+    const enhancedPost = {
+      ...postObject,
+      id: postObject._id.toString(),
+      _id: undefined,
+      createdAt: new Date(postObject.createdAt).toISOString(),
+      updatedAt: new Date(postObject.updatedAt).toISOString(),
+      publishedAt: postObject.publishedAt ? new Date(postObject.publishedAt).toISOString() : null,
+      heroImageUrl: postObject.heroImage
+        ? imageService.getImageUrl(postObject.heroImage.filename)
+        : null,
+    };
 
     return res.status(201).json({
       success: true,
-      data: post
+      data: enhancedPost,
     });
   } catch (error) {
     console.error('Error creating post:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
     });
   }
 };
@@ -527,14 +567,14 @@ export const deletePost = async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      message: 'Post deleted successfully'
+      message: 'Post deleted successfully',
     });
   } catch (error: unknown) {
     console.error('Delete post error:', error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: 'Error deleting post',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -547,5 +587,5 @@ export default {
   getPostById,
   updatePost,
   createPost,
-  deletePost
-}; 
+  deletePost,
+};

@@ -1,7 +1,7 @@
-import { mount } from '@vue/test-utils'
-import FormGroup from '../FormGroup.vue'
-import type { IFormFieldProps } from '@/types/form'
-import { createFormGroupProps } from '@/components/molecules/__tests__/__fixtures__/FormGroup.fixture'
+import { mount } from '@vue/test-utils';
+import FormGroup from '../FormGroup.vue';
+import type { IFormFieldProps } from '@/types/form';
+import { createFormGroupProps } from '@/components/molecules/__tests__/__fixtures__/FormGroup.fixture';
 
 /**
  * Mounts the FormGroup component with the given props
@@ -12,8 +12,8 @@ import { createFormGroupProps } from '@/components/molecules/__tests__/__fixture
 export function mountFormGroup(props = createFormGroupProps(), options = {}) {
   return mount(FormGroup, {
     props,
-    ...options
-  })
+    ...options,
+  });
 }
 
 /**
@@ -26,6 +26,6 @@ export function createDefaultFormGroupProps(overrides = {}): IFormFieldProps {
     id: 'test-input',
     label: 'Test Label',
     modelValue: '',
-    ...overrides
-  }
-} 
+    ...overrides,
+  };
+}

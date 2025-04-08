@@ -1,6 +1,6 @@
-import { mount } from '@vue/test-utils'
-import BlogPostTags from '../BlogPostTags.vue'
-import type { Props } from '../BlogPostTags.types'
+import { mount } from '@vue/test-utils';
+import BlogPostTags from '../BlogPostTags.vue';
+import type { Props } from '../BlogPostTags.types';
 
 /**
  * Mounts the BlogPostTags component with the given props
@@ -13,12 +13,13 @@ export function mountComponent(props: Props) {
     global: {
       stubs: {
         TagPill: {
-          template: '<div class="tag-pill-stub" :class="$attrs.class" v-bind="$attrs">{{ tag }}</div>',
-          props: ['tag']
-        }
-      }
-    }
-  })
+          template:
+            '<div class="tag-pill-stub" :class="$attrs.class" v-bind="$attrs">{{ tag }}</div>',
+          props: ['tag'],
+        },
+      },
+    },
+  });
 }
 
 /**
@@ -29,6 +30,6 @@ export function mountComponent(props: Props) {
 export function createDefaultProps(overrides: Partial<Props> = {}): Props {
   return {
     tags: ['default', 'tags'],
-    ...overrides
-  }
-} 
+    ...overrides,
+  };
+}

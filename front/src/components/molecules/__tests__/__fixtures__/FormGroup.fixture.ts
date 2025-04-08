@@ -1,4 +1,4 @@
-import type { IFormFieldProps } from '@/types/form'
+import type { IFormFieldProps } from '@/types/form';
 
 /**
  * Creates a default set of props for the FormGroup component
@@ -10,8 +10,8 @@ export function createFormGroupProps(overrides = {}): IFormFieldProps {
     id: 'test-input',
     label: 'Test Label',
     modelValue: '',
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 /**
@@ -20,33 +20,33 @@ export function createFormGroupProps(overrides = {}): IFormFieldProps {
 export const mockFormGroups = {
   default: createFormGroupProps(),
   withError: createFormGroupProps({
-    error: 'This field is required'
+    error: 'This field is required',
   }),
   required: createFormGroupProps({
-    required: true
+    required: true,
   }),
   disabled: createFormGroupProps({
-    disabled: true
+    disabled: true,
   }),
   withPlaceholder: createFormGroupProps({
-    placeholder: 'Enter your text here'
+    placeholder: 'Enter your text here',
   }),
   withCustomClass: createFormGroupProps({
-    className: 'custom-class'
+    className: 'custom-class',
   }),
   withValue: createFormGroupProps({
-    modelValue: 'test value'
+    modelValue: 'test value',
   }),
   emailType: createFormGroupProps({
     id: 'email',
     label: 'Email',
     type: 'email',
-    placeholder: 'Enter your email'
+    placeholder: 'Enter your email',
   }),
   passwordType: createFormGroupProps({
     id: 'password',
     label: 'Password',
     type: 'password',
-    placeholder: 'Enter your password'
-  })
-} 
+    placeholder: 'Enter your password',
+  }),
+};

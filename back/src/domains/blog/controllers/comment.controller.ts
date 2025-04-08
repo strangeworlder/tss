@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 import { CommentModel, CommentStatus } from '../models/CommentModel';
 import { BlogPostModel } from '../models/BlogPostModel';
@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import { validateObjectId } from '../../../utils/validation';
 
 // Validation rules
-export const createCommentValidation = (req: Request, res: Response, next: Function) => {
+export const createCommentValidation = (req: Request, res: Response, next: NextFunction) => {
   const { title, content, parentId, parentType } = req.body;
 
   if (!title || !content || !parentId || !parentType) {
@@ -18,22 +18,22 @@ export const createCommentValidation = (req: Request, res: Response, next: Funct
         title: !title ? 'Title is required' : undefined,
         content: !content ? 'Content is required' : undefined,
         parentId: !parentId ? 'Parent ID is required' : undefined,
-        parentType: !parentType ? 'Parent type is required' : undefined
-      }
+        parentType: !parentType ? 'Parent type is required' : undefined,
+      },
     });
   }
 
   if (!validateObjectId(parentId)) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid parent ID format'
+      message: 'Invalid parent ID format',
     });
   }
 
   if (!['post', 'comment'].includes(parentType)) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid parent type. Must be either "post" or "comment"'
+      message: 'Invalid parent type. Must be either "post" or "comment"',
     });
   }
 
@@ -49,7 +49,7 @@ export const createComment = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'User not authenticated'
+        message: 'User not authenticated',
       });
     }
 
@@ -57,19 +57,20 @@ export const createComment = async (req: Request, res: Response) => {
     if (!validateObjectId(parentId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid parent ID format'
+        message: 'Invalid parent ID format',
       });
     }
 
     // Check if parent exists
-    const parent = parentType === 'post' 
-      ? await BlogPostModel.findById(parentId)
-      : await CommentModel.findById(parentId);
+    const parent =
+      parentType === 'post'
+        ? await BlogPostModel.findById(parentId)
+        : await CommentModel.findById(parentId);
 
     if (!parent) {
       return res.status(404).json({
         success: false,
-        message: `${parentType === 'post' ? 'Post' : 'Comment'} not found`
+        message: `${parentType === 'post' ? 'Post' : 'Comment'} not found`,
       });
     }
 
@@ -78,7 +79,7 @@ export const createComment = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
@@ -94,10 +95,10 @@ export const createComment = async (req: Request, res: Response) => {
         name: `${user.firstName} ${user.lastName}`,
         avatar: {
           filename: user.avatar?.filename || '',
-          altText: `${user.firstName} ${user.lastName}'s avatar`
-        }
+          altText: `${user.firstName} ${user.lastName}'s avatar`,
+        },
       },
-      status: CommentStatus.PENDING
+      status: CommentStatus.PENDING,
     });
 
     // Populate author information
@@ -106,15 +107,15 @@ export const createComment = async (req: Request, res: Response) => {
     return res.status(201).json({
       success: true,
       data: {
-        comment: populatedComment
-      }
+        comment: populatedComment,
+      },
     });
   } catch (error) {
     console.error('Error creating comment:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to create comment',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -128,7 +129,7 @@ export const getComments = async (req: Request, res: Response) => {
     if (!validateObjectId(postId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid post ID format'
+        message: 'Invalid post ID format',
       });
     }
 
@@ -137,21 +138,20 @@ export const getComments = async (req: Request, res: Response) => {
       query.parentType = parentType;
     }
 
-    const comments = await CommentModel.find(query)
-      .sort({ createdAt: -1 });
+    const comments = await CommentModel.find(query).sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
       data: {
-        comments
-      }
+        comments,
+      },
     });
   } catch (error) {
     console.error('Error fetching comments:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch comments',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -166,14 +166,14 @@ export const updateCommentStatus = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'User not authenticated'
+        message: 'User not authenticated',
       });
     }
 
     if (!validateObjectId(commentId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid comment ID format'
+        message: 'Invalid comment ID format',
       });
     }
 
@@ -181,7 +181,7 @@ export const updateCommentStatus = async (req: Request, res: Response) => {
     if (!comment) {
       return res.status(404).json({
         success: false,
-        message: 'Comment not found'
+        message: 'Comment not found',
       });
     }
 
@@ -190,7 +190,7 @@ export const updateCommentStatus = async (req: Request, res: Response) => {
     if (!user || user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Not authorized to update comment status'
+        message: 'Not authorized to update comment status',
       });
     }
 
@@ -200,15 +200,15 @@ export const updateCommentStatus = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       data: {
-        comment
-      }
+        comment,
+      },
     });
   } catch (error) {
     console.error('Error updating comment status:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to update comment status',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -218,18 +218,20 @@ export const deleteComment = async (req: Request, res: Response) => {
   try {
     console.log('Delete comment request received:', {
       commentId: req.params.commentId,
-      user: req.user ? {
-        id: req.user.id,
-        email: req.user.email,
-        role: req.user.role
-      } : 'No user in request'
+      user: req.user
+        ? {
+            id: req.user.id,
+            email: req.user.email,
+            role: req.user.role,
+          }
+        : 'No user in request',
     });
 
     if (!req.user) {
       console.log('Authentication failed: No user in request');
       return res.status(401).json({
         success: false,
-        message: 'Authentication required'
+        message: 'Authentication required',
       });
     }
 
@@ -238,7 +240,7 @@ export const deleteComment = async (req: Request, res: Response) => {
       console.log('Invalid comment ID:', commentId);
       return res.status(400).json({
         success: false,
-        message: 'Invalid comment ID'
+        message: 'Invalid comment ID',
       });
     }
 
@@ -247,14 +249,14 @@ export const deleteComment = async (req: Request, res: Response) => {
       commentId,
       found: !!comment,
       commentAuthor: comment?.author?.id,
-      requestUser: req.user.id
+      requestUser: req.user.id,
     });
 
     if (!comment) {
       console.log('Comment not found:', commentId);
       return res.status(404).json({
         success: false,
-        message: 'Comment not found'
+        message: 'Comment not found',
       });
     }
 
@@ -265,18 +267,18 @@ export const deleteComment = async (req: Request, res: Response) => {
       isAdmin,
       isAuthor,
       commentAuthorId: comment.author.id,
-      requestUserId: req.user.id
+      requestUserId: req.user.id,
     });
 
     if (!isAdmin && !isAuthor) {
       console.log('Authorization failed:', {
         userRole: req.user.role,
         commentAuthorId: comment.author.id,
-        requestUserId: req.user.id
+        requestUserId: req.user.id,
       });
       return res.status(403).json({
         success: false,
-        message: 'Not authorized to delete this comment'
+        message: 'Not authorized to delete this comment',
       });
     }
 
@@ -285,14 +287,14 @@ export const deleteComment = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Comment deleted successfully'
+      message: 'Comment deleted successfully',
     });
   } catch (error) {
     console.error('Error deleting comment:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to delete comment',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
-}; 
+};

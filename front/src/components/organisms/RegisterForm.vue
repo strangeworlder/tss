@@ -73,23 +73,13 @@ Usage:
       />
 
       <div class="register-form__actions">
-        <Button 
-          type="submit" 
-          :variant="ButtonVariantEnum.PRIMARY" 
-          :disabled="isLoading"
-        >
+        <AppButton type="submit" :variant="ButtonVariantEnum.PRIMARY" :disabled="isLoading">
           {{ isLoading ? 'Creating Account...' : 'Create Account' }}
-        </Button>
-        
-        <FormError 
-          v-if="errorMessage" 
-          :message="errorMessage" 
-        />
-        
-        <p 
-          v-if="successMessage" 
-          class="register-form__success"
-        >
+        </AppButton>
+
+        <FormError v-if="errorMessage" :message="errorMessage" />
+
+        <p v-if="successMessage" class="register-form__success">
           {{ successMessage }}
         </p>
       </div>
@@ -98,31 +88,29 @@ Usage:
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import Button from '@/components/atoms/Button.vue'
-import FormGroup from '@/components/molecules/FormGroup.vue'
-import FormError from '@/components/atoms/FormError.vue'
-import { ButtonVariantEnum } from '@/types/button'
+import { ref, reactive } from 'vue';
+import AppButton from '@/components/atoms/AppButton.vue';
+import FormGroup from '@/components/molecules/FormGroup.vue';
+import FormError from '@/components/atoms/FormError.vue';
+import { ButtonVariantEnum } from '@/types/button';
 
 interface IRegisterFormProps {
-  maxWidth?: string
+  maxWidth?: string;
 }
 
 interface IUser {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
-const props = withDefaults(defineProps<IRegisterFormProps>(), {
-  maxWidth: '480px'
-})
+const { maxWidth = '480px' } = defineProps<IRegisterFormProps>();
 
 const emit = defineEmits<{
-  (e: 'success', user: IUser): void
-  (e: 'error', error: Error): void
-}>()
+  (e: 'success', user: IUser): void;
+  (e: 'error', error: Error): void;
+}>();
 
 // Form data
 const formData = reactive({
@@ -130,115 +118,115 @@ const formData = reactive({
   lastName: '',
   email: '',
   password: '',
-})
+});
 
 // Form state
-const isLoading = ref(false)
+const isLoading = ref(false);
 const errors = reactive({
   firstName: '',
   lastName: '',
   email: '',
   password: '',
-})
-const successMessage = ref('')
-const errorMessage = ref('')
+});
+const successMessage = ref('');
+const errorMessage = ref('');
 
 // Validation function
 const validateForm = (): boolean => {
-  let isValid = true
+  let isValid = true;
 
   // Reset errors
-  errors.firstName = ''
-  errors.lastName = ''
-  errors.email = ''
-  errors.password = ''
-  errorMessage.value = ''
+  errors.firstName = '';
+  errors.lastName = '';
+  errors.email = '';
+  errors.password = '';
+  errorMessage.value = '';
 
   // Validate first name
   if (!formData.firstName.trim()) {
-    errors.firstName = 'First name is required'
-    isValid = false
+    errors.firstName = 'First name is required';
+    isValid = false;
   }
 
   // Validate last name
   if (!formData.lastName.trim()) {
-    errors.lastName = 'Last name is required'
-    isValid = false
+    errors.lastName = 'Last name is required';
+    isValid = false;
   }
 
   // Validate email
   if (!formData.email.trim()) {
-    errors.email = 'Email is required'
-    isValid = false
+    errors.email = 'Email is required';
+    isValid = false;
   } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-    errors.email = 'Please enter a valid email address'
-    isValid = false
+    errors.email = 'Please enter a valid email address';
+    isValid = false;
   }
 
   // Validate password
   if (!formData.password.trim()) {
-    errors.password = 'Password is required'
-    isValid = false
+    errors.password = 'Password is required';
+    isValid = false;
   } else if (formData.password.length < 8) {
-    errors.password = 'Password must be at least 8 characters long'
-    isValid = false
+    errors.password = 'Password must be at least 8 characters long';
+    isValid = false;
   }
 
-  return isValid
-}
+  return isValid;
+};
 
 // Submit handler
 const handleSubmit = async (): Promise<void> => {
   // Validate form
   if (!validateForm()) {
-    return
+    return;
   }
 
   // Start loading
-  isLoading.value = true
-  successMessage.value = ''
-  errorMessage.value = ''
+  isLoading.value = true;
+  successMessage.value = '';
+  errorMessage.value = '';
 
   try {
     // Call API
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
     const response = await fetch(`${API_BASE_URL}/v1/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(formData),
-    })
+    });
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to register')
+      throw new Error(data.message || 'Failed to register');
     }
 
     // Show success message
-    successMessage.value = 'Account created successfully!'
-    
+    successMessage.value = 'Account created successfully!';
+
     // Emit success event with user data
-    emit('success', data.user)
+    emit('success', data.user);
 
     // Reset form
-    formData.firstName = ''
-    formData.lastName = ''
-    formData.email = ''
-    formData.password = ''
+    formData.firstName = '';
+    formData.lastName = '';
+    formData.email = '';
+    formData.password = '';
   } catch (error) {
     // Show error message
-    const errorObj = error instanceof Error ? error : new Error('An error occurred')
-    errorMessage.value = errorObj.message
-    
+    const errorObj = error instanceof Error ? error : new Error('An error occurred');
+    errorMessage.value = errorObj.message;
+
     // Emit error event
-    emit('error', errorObj)
+    emit('error', errorObj);
   } finally {
     // End loading
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -278,4 +266,4 @@ const handleSubmit = async (): Promise<void> => {
   margin-top: var(--spacing-sm);
   text-align: center;
 }
-</style> 
+</style>

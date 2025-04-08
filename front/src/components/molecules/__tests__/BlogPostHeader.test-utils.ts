@@ -1,14 +1,14 @@
-import { mount } from '@vue/test-utils'
-import BlogPostHeader from '../BlogPostHeader.vue'
-import type { BlogPost } from '@/types/blog'
-import { createBlogPostHeaderProps } from './__fixtures__/BlogPostHeader.fixture'
+import { mount } from '@vue/test-utils';
+import BlogPostHeader from '../BlogPostHeader.vue';
+import type { IBlogPost } from '@/types/blog';
+import { createBlogPostHeaderProps } from './__fixtures__/BlogPostHeader.fixture';
 
 /**
  * Interface for BlogPostHeader component props
  */
 interface IBlogPostHeaderProps {
-  post: BlogPost
-  showBackButton?: boolean
+  post: IBlogPost;
+  showBackButton?: boolean;
 }
 
 /**
@@ -18,8 +18,8 @@ interface IBlogPostHeaderProps {
  */
 export function mountBlogPostHeader(props: IBlogPostHeaderProps = createBlogPostHeaderProps()) {
   return mount(BlogPostHeader, {
-    props
-  })
+    props,
+  });
 }
 
 /**
@@ -41,16 +41,16 @@ export function createDefaultBlogPostHeaderProps(overrides: Partial<IBlogPostHea
         name: 'Test Author',
         avatar: {
           filename: 'avatar.jpg',
-          altText: 'Test Author Avatar'
-        }
+          altText: 'Test Author Avatar',
+        },
       },
       tags: ['Vue', 'TypeScript', 'Testing'],
       createdAt: '2023-01-01T00:00:00Z',
       updatedAt: '2023-01-02T00:00:00Z',
       publishedAt: '2023-01-01T00:00:00Z',
-      isPublished: true
+      isPublished: true,
     },
     showBackButton: true,
-    ...overrides
-  }
-} 
+    ...overrides,
+  };
+}

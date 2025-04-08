@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, type Document } from 'mongoose';
 
 export interface IAuthor {
   name: string;
@@ -23,51 +23,56 @@ export interface IBlogPost extends Document {
   updatedAt: Date;
 }
 
-const BlogPostSchema = new Schema({
-  title: {
-    type: String,
-    required: [true, 'Title is required'],
-    trim: true
-  },
-  slug: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-  content: {
-    type: String,
-    required: [true, 'Content is required']
-  },
-  excerpt: {
-    type: String,
-    required: [true, 'Excerpt is required']
-  },
-  author: {
-    name: {
+const BlogPostSchema = new Schema(
+  {
+    title: {
       type: String,
-      required: true
+      required: [true, 'Title is required'],
+      trim: true,
     },
-    avatar: String
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    content: {
+      type: String,
+      required: [true, 'Content is required'],
+    },
+    excerpt: {
+      type: String,
+      required: [true, 'Excerpt is required'],
+    },
+    author: {
+      name: {
+        type: String,
+        required: true,
+      },
+      avatar: String,
+    },
+    heroImage: {
+      url: String,
+      alt: String,
+    },
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+    publishDate: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  heroImage: {
-    url: String,
-    alt: String
-  },
-  tags: [{
-    type: String,
-    trim: true
-  }],
-  publishDate: {
-    type: Date,
-    default: Date.now
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 // Generate slug from title before saving
-BlogPostSchema.pre('save', function(next) {
+BlogPostSchema.pre('save', function (next) {
   if (this.isModified('title')) {
     this.slug = this.title
       .toLowerCase()
@@ -77,4 +82,4 @@ BlogPostSchema.pre('save', function(next) {
   next();
 });
 
-export default mongoose.model<IBlogPost>('BlogPost', BlogPostSchema); 
+export default mongoose.model<IBlogPost>('BlogPost', BlogPostSchema);

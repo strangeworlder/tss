@@ -20,6 +20,7 @@ export const imageTypeDefs = gql`
     THUMBNAIL
     MEDIUM
     FULL
+    HERO
   }
 
   enum ImageFormat {
@@ -61,4 +62,4 @@ export const imageTypeDefs = gql`
       altText: String
     ): Image
   }
-`; 
+`;

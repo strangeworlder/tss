@@ -5,9 +5,13 @@
 
 // Available image sizes
 export enum ImageSizeEnum {
-  THUMBNAIL = 'thumbnail',
+  SMALL = 'small',
   MEDIUM = 'medium',
+  LARGE = 'large',
+  XLARGE = 'xlarge',
+  THUMBNAIL = 'thumbnail',
   FULL = 'full',
+  HERO = 'hero',
 }
 
 // Available image formats
@@ -20,24 +24,33 @@ export enum ImageFormatEnum {
 
 // Image metadata structure
 export interface ImageMetadata {
-  id: string
-  filename: string
-  originalFilename?: string
-  path?: string
-  url: string
-  size: number // size in bytes
-  width: number
-  height: number
-  mimeType: string
-  altText: string
-  createdAt: string
-  updatedAt: string
-  metadata?: Record<string, any>
+  id: string;
+  filename: string;
+  originalFilename?: string;
+  path?: string;
+  url: string;
+  size: number; // size in bytes
+  width: number;
+  height: number;
+  mimeType: string;
+  altText: string;
+  createdAt: string;
+  updatedAt: string;
+  metadata?: Record<string, unknown>;
 }
 
 // Image URL response from API
 export interface ImageUrlResponse {
-  url: string
-  size: string
-  format: string
+  url: string;
+  size: string;
+  format: string;
+}
+
+export interface IImage {
+  filename: string;
+  altText: string;
+  size?: ImageSizeEnum;
+  width?: number;
+  height?: number;
+  url?: string;
 }

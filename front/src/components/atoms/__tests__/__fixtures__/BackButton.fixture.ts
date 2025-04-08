@@ -6,8 +6,8 @@
 export const createBackButtonProps = (overrides = {}) => ({
   text: 'Back',
   to: '/',
-  ...overrides
-})
+  ...overrides,
+});
 
 /**
  * BackButton test cases
@@ -15,18 +15,18 @@ export const createBackButtonProps = (overrides = {}) => ({
 export const mockBackButtons = {
   default: {
     text: 'Back',
-    to: '/'
+    to: '/',
   },
   customText: {
     text: 'Return to Home',
-    to: '/'
+    to: '/',
   },
   customPath: {
     text: 'Back',
-    to: '/dashboard'
+    to: '/dashboard',
   },
   customBoth: {
     text: 'Go to Profile',
-    to: '/profile'
-  }
-} 
+    to: '/profile',
+  },
+};

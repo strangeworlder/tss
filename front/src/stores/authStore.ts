@@ -1,95 +1,95 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { IUser } from '@/types/user'
-import { UserRole } from '@/types/user'
-import { login as loginApi, logout as logoutApi } from '@/api/authService'
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import type { IUser } from '@/types/user';
+import { UserRole } from '@/types/user';
+import { login as loginApi, logout as logoutApi } from '@/api/authService';
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<IUser | null>(null)
-  const token = ref<string | null>(localStorage.getItem('token'))
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const user = ref<IUser | null>(null);
+  const token = ref<string | null>(localStorage.getItem('token'));
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
-  const isAuthenticated = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value?.role === UserRole.ADMIN)
-  const isAuthor = computed(() => user.value?.role === UserRole.AUTHOR || isAdmin.value)
-  const userRole = computed(() => user.value?.role || null)
+  const isAuthenticated = computed(() => !!token.value);
+  const isAdmin = computed(() => user.value?.role === UserRole.ADMIN);
+  const isEditor = computed(() => user.value?.role === UserRole.EDITOR || isAdmin.value);
+  const userRole = computed(() => user.value?.role || null);
 
   // Initialize user data if token exists
   if (token.value) {
-    fetchUserData()
+    fetchUserData();
   }
 
   async function fetchUserData() {
     try {
-      loading.value = true
-      error.value = null
-      
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+      loading.value = true;
+      error.value = null;
+
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
       const response = await fetch(`${API_BASE_URL}/v1/auth/me`, {
         headers: {
           Authorization: `Bearer ${token.value}`,
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch user data')
+        throw new Error('Failed to fetch user data');
       }
 
-      const data = await response.json()
-      user.value = data.user
+      const data = await response.json();
+      user.value = data.user;
     } catch (err: unknown) {
-      console.error('Error fetching user data:', err)
-      clearAuthData()
-      error.value = err instanceof Error ? err.message : 'Failed to fetch user data'
+      console.error('Error fetching user data:', err);
+      clearAuthData();
+      error.value = err instanceof Error ? err.message : 'Failed to fetch user data';
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
   function setAuthData(userData: IUser, authToken: string) {
-    user.value = userData
-    token.value = authToken
-    localStorage.setItem('token', authToken)
+    user.value = userData;
+    token.value = authToken;
+    localStorage.setItem('token', authToken);
   }
 
   function clearAuthData() {
-    user.value = null
-    token.value = null
-    localStorage.removeItem('token')
+    user.value = null;
+    token.value = null;
+    localStorage.removeItem('token');
   }
 
   async function login(email: string, password: string): Promise<void> {
     try {
-      loading.value = true
-      error.value = null
-      
-      const response = await loginApi({ email, password })
-      token.value = response.token
-      user.value = response.user
-      localStorage.setItem('token', response.token)
+      loading.value = true;
+      error.value = null;
+
+      const response = await loginApi({ email, password });
+      token.value = response.token;
+      user.value = response.user;
+      localStorage.setItem('token', response.token);
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Login failed'
-      throw err
+      error.value = err instanceof Error ? err.message : 'Login failed';
+      throw err;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
   async function logout() {
     try {
-      loading.value = true
-      error.value = null
-      
-      await logoutApi()
-      clearAuthData()
+      loading.value = true;
+      error.value = null;
+
+      await logoutApi();
+      clearAuthData();
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Logout failed'
+      error.value = err instanceof Error ? err.message : 'Logout failed';
       // Still clear local data even if the API call fails
-      clearAuthData()
-      throw err
+      clearAuthData();
+      throw err;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
@@ -100,12 +100,12 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     isAuthenticated,
     isAdmin,
-    isAuthor,
+    isEditor,
     userRole,
     fetchUserData,
     setAuthData,
     clearAuthData,
     login,
     logout,
-  }
-})
+  };
+});

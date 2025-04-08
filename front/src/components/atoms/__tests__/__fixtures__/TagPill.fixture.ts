@@ -1,14 +1,23 @@
 /**
+ * TagPill component props interface
+ */
+interface TagPillProps {
+  tag: string;
+  clickable?: boolean;
+  variant?: 'primary' | 'secondary';
+}
+
+/**
  * Creates a default set of props for the TagPill component
  * @param overrides - Props to override the defaults
  * @returns The props for the TagPill component
  */
-export function createTagPillProps(overrides: Record<string, any> = {}) {
+export function createTagPillProps(overrides: Partial<TagPillProps> = {}) {
   return {
     tag: 'test-tag',
     clickable: true,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 /**
@@ -17,17 +26,17 @@ export function createTagPillProps(overrides: Record<string, any> = {}) {
 export const mockTagPills = {
   default: createTagPillProps(),
   nonClickable: createTagPillProps({
-    clickable: false
+    clickable: false,
   }),
   withHyphens: createTagPillProps({
-    tag: 'test-tag-with-hyphens'
+    tag: 'test-tag-with-hyphens',
   }),
   primary: createTagPillProps({
     tag: 'primary-tag',
-    variant: 'primary'
+    variant: 'primary',
   }),
   secondary: createTagPillProps({
     tag: 'secondary-tag',
-    variant: 'secondary'
-  })
-} 
+    variant: 'secondary',
+  }),
+};
