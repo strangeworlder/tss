@@ -1,15 +1,18 @@
 <!--
  * ImageModal Component
  *
- * A modal component for displaying and zooming images.
- * Provides a full-screen view of images with zoom capabilities.
+ * A modal component for displaying images in full-screen.
+ * Provides a simple view of images with basic zoom and pan functionality.
  *
  * Features:
  * - Full-screen modal display
- * - Image zoom functionality
+ * - Simple zoom toggle on click (fit-to-screen / full-size)
+ * - Drag and pan when zoomed in
+ * - Maintains zoom state when panning
  * - Keyboard navigation support
  * - Click outside to close
  * - ESC key to close
+ * - Always displays the full-size version of the image
  *
  * Props:
  * - isOpen (Boolean, required): Controls modal visibility
@@ -44,14 +47,19 @@
       </button>
       <div 
         class="image-modal__image-container"
-        :class="{ 'image-modal__image-container--zoomed': isZoomed }"
+        :class="{ 
+          'image-modal__image-container--zoomed': isZoomed,
+          'image-modal__image-container--dragging': isDragging
+        }"
+        @click="handleContainerClick"
         @mousedown="startDrag"
         @mousemove="drag"
-        @mouseup="handleMouseUp"
+        @mouseup="stopDrag"
         @mouseleave="stopDrag"
         @touchstart="startDrag"
         @touchmove="drag"
-        @touchend="handleTouchEnd"
+        @touchend="stopDrag"
+        :style="transformStyle"
       >
         <app-image
           :filename="imageFilename"
@@ -67,19 +75,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onUnmounted } from 'vue';
+import { defineComponent, ref, watch, onUnmounted, computed } from 'vue';
 import AppImage from '@/components/atoms/AppImage.vue';
 import { ImageSizeEnum } from '@/types/image';
 
 interface IDragState {
   isDragging: boolean;
-  hasMoved: boolean;
   startX: number;
   startY: number;
   translateX: number;
   translateY: number;
   lastTranslateX: number;
   lastTranslateY: number;
+  hasMoved: boolean;
 }
 
 export default defineComponent({
@@ -109,18 +117,29 @@ export default defineComponent({
   setup(props, { emit }) {
     const dialogRef = ref<HTMLDialogElement | null>(null);
     const previousActiveElement = ref<HTMLElement | null>(null);
+    const imageRef = ref<InstanceType<typeof AppImage> | null>(null);
     const isZoomed = ref(false);
+    const isDragging = ref(false);
     const dragState = ref<IDragState>({
       isDragging: false,
-      hasMoved: false,
       startX: 0,
       startY: 0,
       translateX: 0,
       translateY: 0,
       lastTranslateX: 0,
       lastTranslateY: 0,
+      hasMoved: false,
     });
-    const imageRef = ref<InstanceType<typeof AppImage> | null>(null);
+
+    // Compute the transform style for the container
+    const transformStyle = computed(() => {
+      if (!isZoomed.value) {
+        return {};
+      }
+      return {
+        transform: `translate(${dragState.value.translateX}px, ${dragState.value.translateY}px)`,
+      };
+    });
 
     const lockScroll = (): void => {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -160,6 +179,9 @@ export default defineComponent({
         handleTabKey(event);
       } else if (event.key === 'Escape') {
         handleClose();
+      } else if (event.key === 'z' || event.key === 'Z') {
+        // Toggle zoom with 'z' key
+        toggleZoom();
       }
     };
 
@@ -170,27 +192,17 @@ export default defineComponent({
           previousActiveElement.value = document.activeElement as HTMLElement;
           dialogRef.value.showModal();
           lockScroll();
+          
           // Reset zoom state when opening
           isZoomed.value = false;
-          dragState.value = {
-            isDragging: false,
-            hasMoved: false,
-            startX: 0,
-            startY: 0,
-            translateX: 0,
-            translateY: 0,
-            lastTranslateX: 0,
-            lastTranslateY: 0,
-          };
-          const container = dialogRef.value?.querySelector('.image-modal__image-container');
-          if (container instanceof HTMLElement) {
-            container.style.transform = '';
-          }
+          resetDragState();
+          
           // Focus the close button after opening
           const closeButton = dialogRef.value.querySelector('.image-modal__close');
           if (closeButton instanceof HTMLElement) {
             closeButton.focus();
           }
+          console.log('ImageModal opened with full-size image:', props.imageFilename);
         } else if (dialogRef.value) {
           dialogRef.value.close();
           unlockScroll();
@@ -214,103 +226,80 @@ export default defineComponent({
     };
 
     const handleContainerClick = (event: MouseEvent): void => {
-      // Only toggle zoom if it's a direct click on the container or image
-      if (event.target === event.currentTarget || event.target === imageRef.value?.$el) {
+      // Only toggle zoom if we're not dragging and haven't moved
+      if (!isDragging.value && !dragState.value.hasMoved) {
         toggleZoom();
       }
     };
 
     const startDrag = (event: MouseEvent | TouchEvent): void => {
       if (!isZoomed.value) {
-        // If not zoomed, just mark as dragging to prevent immediate zoom
-        dragState.value.isDragging = true;
-        dragState.value.hasMoved = false;
         return;
       }
 
       event.preventDefault();
-      event.stopPropagation();
-
+      isDragging.value = true;
+      dragState.value.hasMoved = false;
+      
       const { clientX, clientY } = event instanceof MouseEvent ? event : event.touches[0];
       dragState.value = {
         ...dragState.value,
         isDragging: true,
-        hasMoved: false,
         startX: clientX - dragState.value.lastTranslateX,
         startY: clientY - dragState.value.lastTranslateY,
       };
     };
 
     const drag = (event: MouseEvent | TouchEvent): void => {
-      if (!dragState.value.isDragging) return;
-
-      if (!isZoomed.value) {
-        // If not zoomed, just mark as moved to prevent zoom
-        dragState.value.hasMoved = true;
+      if (!dragState.value.isDragging || !isZoomed.value) {
         return;
       }
 
       event.preventDefault();
-      dragState.value.hasMoved = true;
-
+      
       const { clientX, clientY } = event instanceof MouseEvent ? event : event.touches[0];
       dragState.value.translateX = clientX - dragState.value.startX;
       dragState.value.translateY = clientY - dragState.value.startY;
-
-      const container = event.currentTarget as HTMLElement;
-      container.style.transform = `translate(${dragState.value.translateX}px, ${dragState.value.translateY}px)`;
-    };
-
-    const handleMouseUp = (event: MouseEvent): void => {
-      // Only trigger zoom if we haven't moved during the drag
-      if (dragState.value.isDragging && !dragState.value.hasMoved) {
-        const target = event.target as HTMLElement;
-        if (target === event.currentTarget || target === imageRef.value?.$el) {
-          toggleZoom();
-        }
+      
+      // Check if we've moved more than a small threshold
+      const distance = Math.sqrt(
+        Math.pow(dragState.value.translateX - dragState.value.lastTranslateX, 2) + 
+        Math.pow(dragState.value.translateY - dragState.value.lastTranslateY, 2)
+      );
+      
+      if (distance > 5) {
+        dragState.value.hasMoved = true;
       }
-      stopDrag();
-    };
-
-    const handleTouchEnd = (event: TouchEvent): void => {
-      // For touch events, we need to check the target of the last touch
-      if (dragState.value.isDragging && !dragState.value.hasMoved) {
-        const touch = event.changedTouches[0];
-        const target = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (target === event.currentTarget || target === imageRef.value?.$el) {
-          toggleZoom();
-        }
-      }
-      stopDrag();
     };
 
     const stopDrag = (): void => {
-      if (isZoomed.value) {
+      if (dragState.value.isDragging) {
         dragState.value.lastTranslateX = dragState.value.translateX;
         dragState.value.lastTranslateY = dragState.value.translateY;
       }
       dragState.value.isDragging = false;
-      dragState.value.hasMoved = false;
+      isDragging.value = false;
+    };
+
+    const resetDragState = (): void => {
+      dragState.value = {
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        translateX: 0,
+        translateY: 0,
+        lastTranslateX: 0,
+        lastTranslateY: 0,
+        hasMoved: false,
+      };
+      isDragging.value = false;
     };
 
     const toggleZoom = (): void => {
       isZoomed.value = !isZoomed.value;
       if (!isZoomed.value) {
         // Reset transform when zooming out
-        dragState.value = {
-          isDragging: false,
-          hasMoved: false,
-          startX: 0,
-          startY: 0,
-          translateX: 0,
-          translateY: 0,
-          lastTranslateX: 0,
-          lastTranslateY: 0,
-        };
-        const container = dialogRef.value?.querySelector('.image-modal__image-container');
-        if (container instanceof HTMLElement) {
-          container.style.transform = '';
-        }
+        resetDragState();
       }
     };
 
@@ -322,17 +311,17 @@ export default defineComponent({
       dialogRef,
       ImageSizeEnum,
       isZoomed,
+      isDragging,
       handleClose,
       handleBackdropClick,
-      toggleZoom,
       handleKeyDown,
+      toggleZoom,
+      imageRef,
+      handleContainerClick,
       startDrag,
       drag,
       stopDrag,
-      imageRef,
-      handleContainerClick,
-      handleMouseUp,
-      handleTouchEnd,
+      transformStyle,
     };
   },
 });
@@ -407,7 +396,6 @@ export default defineComponent({
 
 .image-modal__image-container {
   position: relative;
-  touch-action: none;
   user-select: none;
   cursor: zoom-in;
   transition: transform 0.3s ease;
@@ -417,7 +405,7 @@ export default defineComponent({
   cursor: grab;
 }
 
-.image-modal__image-container--zoomed:active {
+.image-modal__image-container--dragging {
   cursor: grabbing;
 }
 

@@ -10,6 +10,7 @@
  * - Content overlay with gradient background
  * - Responsive design
  * - Customizable alt text
+ * - Thumbnail that opens a full-size image modal when clicked
  *
  * Props:
  * - heroImage (String, required): The filename of the hero image
@@ -22,6 +23,7 @@
  * - Uses semantic HTML
  * - Provides alt text for the image
  * - Ensures content is readable with gradient overlay
+ * - Keyboard navigation support for thumbnail and modal
  -->
 <template>
   <div class="blog-hero">
@@ -44,18 +46,11 @@
       </div>
     </div>
   </div>
-  <image-modal
-    :is-open="isModalOpen"
-    :image-filename="heroImage"
-    :alt-text="altText"
-    @close="handleModalClose"
-  />
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import AppImage from '@/components/atoms/AppImage.vue';
-import ImageModal from '@/components/atoms/ImageModal.vue';
 import GalleryThumbnail from '@/components/atoms/GalleryThumbnail.vue';
 import { ImageSizeEnum } from '@/types/image';
 
@@ -64,7 +59,6 @@ export default defineComponent({
 
   components: {
     AppImage,
-    ImageModal,
     GalleryThumbnail,
   },
 
@@ -80,23 +74,13 @@ export default defineComponent({
   },
 
   setup() {
-    const isModalOpen = ref(false);
-
     const handleThumbnailClick = (): void => {
-      console.log('Thumbnail clicked, opening modal');
-      isModalOpen.value = true;
-    };
-
-    const handleModalClose = (): void => {
-      console.log('Modal closing');
-      isModalOpen.value = false;
+      console.log('Thumbnail clicked in BlogHero');
     };
 
     return {
       ImageSizeEnum,
-      isModalOpen,
       handleThumbnailClick,
-      handleModalClose,
     };
   },
 });
@@ -105,12 +89,13 @@ export default defineComponent({
 <style scoped>
 .blog-hero {
   position: relative;
-    width: 94vw;
-    height: 30rem;
-    max-height: 33vh;
-    overflow: hidden;
-    margin-left: calc(-47vw + 50%);
-    margin-right: calc(-47vw + 50%);}
+  width: 94vw;
+  height: 30rem;
+  max-height: 33vh;
+  overflow: hidden;
+  margin-left: calc(-47vw + 50%);
+  margin-right: calc(-47vw + 50%);
+}
 
 .blog-hero__image {
   width: 100%;
@@ -152,16 +137,29 @@ export default defineComponent({
   color: var(--color-text);
 }
 
-.blog-hero__thumbnail {
+/* Style the GalleryThumbnail component */
+.blog-hero__wrapper :deep(.gallery-thumbnail) {
   position: absolute;
   top: calc(-1 * var(--spacing-xl));
   right: 0;
   width: 5rem;
   height: 5rem;
   border-radius: 0.5rem;
-  object-fit: cover;
+  overflow: hidden;
   border: 0.25rem solid var(--color-background);
   box-shadow: 0 0.25rem 0.5rem color-mix(in srgb, var(--color-text) 20%, transparent);
   z-index: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.blog-hero__wrapper :deep(.gallery-thumbnail:hover) {
+  transform: scale(1.05);
+}
+
+.blog-hero__wrapper :deep(.gallery-thumbnail__image) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

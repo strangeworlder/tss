@@ -26,9 +26,8 @@ export function getImageUrl(
   // Add size and format parameters
   const params = new URLSearchParams();
 
-  if (size !== ImageSizeEnum.FULL) {
-    params.append('size', size);
-  }
+  // Always include the size parameter, even for FULL size
+  params.append('size', size);
 
   if (format !== ImageFormatEnum.ORIGINAL) {
     params.append('format', format);

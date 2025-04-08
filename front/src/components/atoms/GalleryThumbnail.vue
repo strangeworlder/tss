@@ -6,9 +6,10 @@
  *
  * Features:
  * - Displays a thumbnail version of an image
- * - Click interaction for opening full view
+ * - Click interaction for opening full view in a modal
  * - Keyboard navigation support
  * - Customizable size and position
+ * - Built-in modal for displaying the full-size image
  *
  * Props:
  * - imageFilename (String, required): The filename of the image to display
@@ -17,7 +18,7 @@
  * - position (Object, optional): Custom positioning { top, right }
  *
  * Events:
- * - click: Emitted when the thumbnail is clicked
+ * - click: Emitted when the thumbnail is clicked (before opening modal)
  *
  * Accessibility:
  * - Keyboard navigation support
@@ -26,27 +27,37 @@
  */
 -->
 <template>
-  <div
-    class="gallery-thumbnail"
-    :style="positionStyle"
-    @click="handleClick"
-    @keydown.enter="handleClick"
-    role="button"
-    tabindex="0"
-    :aria-label="`View full size ${altText}`"
-  >
-    <app-image
-      :filename="imageFilename"
-      :size="size"
-      :alt="altText"
-      class="gallery-thumbnail__image"
+  <div>
+    <div
+      class="gallery-thumbnail"
+      :style="positionStyle"
+      @click="handleClick"
+      @keydown.enter="handleClick"
+      role="button"
+      tabindex="0"
+      :aria-label="`View full size ${altText}`"
+    >
+      <app-image
+        :filename="imageFilename"
+        :size="size"
+        :alt="altText"
+        class="gallery-thumbnail__image"
+      />
+    </div>
+    
+    <image-modal
+      :is-open="isModalOpen"
+      :image-filename="imageFilename"
+      :alt-text="altText"
+      @close="handleModalClose"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref, watch } from 'vue';
 import AppImage from '@/components/atoms/AppImage.vue';
+import ImageModal from '@/components/atoms/ImageModal.vue';
 import { ImageSizeEnum } from '@/types/image';
 
 interface IPosition {
@@ -59,6 +70,7 @@ export default defineComponent({
 
   components: {
     AppImage,
+    ImageModal,
   },
 
   props: {
@@ -83,20 +95,40 @@ export default defineComponent({
   emits: ['click'],
 
   setup(props, { emit }) {
+    const isModalOpen = ref(false);
+    
     const positionStyle = computed(() => ({
       top: props.position.top,
       right: props.position.right,
     }));
 
     const handleClick = (): void => {
-      console.log('GalleryThumbnail clicked');
+      console.log('GalleryThumbnail clicked, opening modal with full-sized image');
       emit('click');
+      isModalOpen.value = true;
     };
+    
+    const handleModalClose = (): void => {
+      console.log('Modal closing');
+      isModalOpen.value = false;
+    };
+
+    // Log the image URL when the modal opens to verify it's using the full-size image
+    watch(
+      () => isModalOpen.value,
+      (newValue) => {
+        if (newValue) {
+          console.log('GalleryThumbnail opening modal with full-size image:', props.imageFilename);
+        }
+      }
+    );
 
     return {
       ImageSizeEnum,
       positionStyle,
       handleClick,
+      isModalOpen,
+      handleModalClose,
     };
   },
 });
