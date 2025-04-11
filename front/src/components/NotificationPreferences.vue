@@ -220,6 +220,48 @@
           <label class="notification-preferences__label">
             <input
               type="checkbox"
+              v-model="preferences.types.system_success"
+              class="notification-preferences__checkbox"
+            />
+            System Success
+          </label>
+          <p class="notification-preferences__description">
+            Get notified when a system operation is successful
+          </p>
+        </div>
+        
+        <div class="notification-preferences__option">
+          <label class="notification-preferences__label">
+            <input
+              type="checkbox"
+              v-model="preferences.types.system_warning"
+              class="notification-preferences__checkbox"
+            />
+            System Warning
+          </label>
+          <p class="notification-preferences__description">
+            Get notified when a system operation is warning
+          </p>
+        </div>
+        
+        <div class="notification-preferences__option">
+          <label class="notification-preferences__label">
+            <input
+              type="checkbox"
+              v-model="preferences.types.system_info"
+              class="notification-preferences__checkbox"
+            />
+            System Info
+          </label>
+          <p class="notification-preferences__description">
+            Get notified when a system operation is informational
+          </p>
+        </div>
+        
+        <div class="notification-preferences__option">
+          <label class="notification-preferences__label">
+            <input
+              type="checkbox"
               v-model="preferences.types.offline_sync"
               class="notification-preferences__checkbox"
             />
@@ -275,6 +317,9 @@ const preferences = ref<INotificationPreferences>({
     content_cancelled: true,
     content_rescheduled: true,
     system_error: true,
+    system_success: true,
+    system_warning: true,
+    system_info: true,
     offline_sync: true,
   },
 });
@@ -311,6 +356,9 @@ const resetPreferences = () => {
       content_cancelled: true,
       content_rescheduled: true,
       system_error: true,
+      system_success: true,
+      system_warning: true,
+      system_info: true,
       offline_sync: true,
     },
   };
