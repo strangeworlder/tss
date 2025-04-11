@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": ["src/**/__tests__/*", "src/**/*.vue", "env.d.ts"],
+  "exclude": [],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.jest.tsbuildinfo",
+    "composite": true,
+    "lib": [],
+    "types": ["node", "jsdom", "jest"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

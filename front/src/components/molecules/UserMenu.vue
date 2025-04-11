@@ -106,10 +106,9 @@ const handleToggle = () => {
         @click="() => console.log('[UserMenu] Trigger button clicked')"
       >
         <UserAvatar
-          :initials="userInitials"
-          :avatar-url="user.avatarUrl"
+          :src="user.avatarUrl"
           :alt="user.displayName"
-          size="sm"
+          size="md"
         />
       </button>
     </template>

@@ -30,7 +30,7 @@ declare module '@/stores/auth' {
 
 declare module 'dompurify' {
   const DOMPurify: {
-    sanitize: (content: string) => string;
+    sanitize: (content: string, config?: Record<string, unknown>) => string;
   };
   export default DOMPurify;
 }

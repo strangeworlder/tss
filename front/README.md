@@ -100,7 +100,7 @@ The development server will be available at http://localhost:5173
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `npm run test:unit` - Run unit tests with Vitest
+- `npm run test:unit` - Run unit tests with Jest
 - `npm run test:e2e:dev` - Run E2E tests with Cypress in development mode
 - `npm run test:e2e` - Run E2E tests against production build
 - `npm run lint` - Run all linters
@@ -129,6 +129,6 @@ The development server will be available at http://localhost:5173
 - **Development Tools**:
   - TypeScript for type safety
   - ESLint and Prettier for code quality
-  - Vitest for unit testing
+  - Jest for unit testing
   - Cypress for E2E testing
   - Vue DevTools integration

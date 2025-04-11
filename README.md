@@ -247,7 +247,7 @@ If you prefer to develop without Docker, you can set up the project locally:
 - **Development Tools**:
   - TypeScript for type safety
   - ESLint and Prettier for code formatting
-  - Vitest for unit testing
+  - Jest for unit testing
   - Cypress for E2E testing
   - Docker for containerization
 
@@ -262,7 +262,7 @@ If you prefer to develop without Docker, you can set up the project locally:
 - Vue Router 4.x for routing
 - Pinia 3.x for state management
 - Marked for Markdown parsing
-- Vitest 3.x for unit testing
+- Jest for unit testing
 - Cypress 14.x for E2E testing
 - ESLint 9.x and Prettier for code formatting
 - Vue DevTools for debugging

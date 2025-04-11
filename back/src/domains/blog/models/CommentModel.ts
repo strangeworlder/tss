@@ -6,6 +6,10 @@ export enum CommentStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED = 'rejected',
+  DRAFT = 'draft',
+  SCHEDULED = 'scheduled',
+  PUBLISHED = 'published',
+  PENDING_UPDATE = 'pending_update',
 }
 
 export interface IComment extends Document {
@@ -23,6 +27,16 @@ export interface IComment extends Document {
   parentId: Types.ObjectId | null; // ID of the parent post or comment
   parentType: 'post' | 'comment'; // Type of the parent (post or comment)
   status: CommentStatus;
+  publishAt: Date | null;
+  timezone: string;
+  version: number;
+  replyDepth: number;
+  pendingUpdateId: Types.ObjectId | null;
+  hasActiveUpdate: boolean;
+  originalCommentId: Types.ObjectId | null;
+  moderationStatus: 'pending' | 'approved' | 'rejected' | 'flagged';
+  abuseScore: number;
+  lastModeratedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -68,6 +82,49 @@ const commentSchema = new Schema<IComment>(
       enum: Object.values(CommentStatus),
       default: CommentStatus.PENDING,
     },
+    publishAt: {
+      type: Date,
+      default: null,
+    },
+    timezone: {
+      type: String,
+      default: 'UTC',
+    },
+    version: {
+      type: Number,
+      default: 1,
+    },
+    replyDepth: {
+      type: Number,
+      default: 0,
+    },
+    pendingUpdateId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Comment',
+      default: null,
+    },
+    hasActiveUpdate: {
+      type: Boolean,
+      default: false,
+    },
+    originalCommentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Comment',
+      default: null,
+    },
+    moderationStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected', 'flagged'],
+      default: 'pending',
+    },
+    abuseScore: {
+      type: Number,
+      default: 0,
+    },
+    lastModeratedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -76,6 +133,7 @@ const commentSchema = new Schema<IComment>(
 commentSchema.index({ parentId: 1, parentType: 1 });
 commentSchema.index({ createdAt: -1 });
 commentSchema.index({ status: 1 });
+commentSchema.index({ publishAt: 1 });
 
 // Create the model if it doesn't exist already
 export const CommentModel =

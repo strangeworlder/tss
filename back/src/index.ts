@@ -1,4 +1,12 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+  type Application,
+  type Router,
+  type RequestHandler,
+  type Express,
+} from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { ApolloServer } from 'apollo-server-express';
@@ -27,6 +35,7 @@ import { connectRedis, redisClient } from './db/redis/connection';
 import userRoutes from './domains/users/routes/user.routes';
 import { errorHandler } from './middlewares/error.middleware';
 import mongoose from 'mongoose';
+import scheduledContentRoutes from './routes/scheduledContent';
 
 // Temporary dummy exports to satisfy compiler
 const imageTypeDefs = `
@@ -84,7 +93,7 @@ const formatGraphQLError = (err: any) => {
 };
 
 // Create Express app
-const app = express();
+const app: Express = express();
 
 // Middleware
 app.use(
@@ -111,16 +120,17 @@ app.use('/api/v1/images', imageRoutes);
 app.use('/api/v1/blog', blogRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/scheduled-content', scheduledContentRoutes);
 
 // Add a basic health check endpoint
-app.get('/api/healthcheck', (req, res) => {
+app.get('/api/healthcheck', ((req: Request, res: Response) => {
   res.status(200).json({ status: 'ok' });
-});
+}) as RequestHandler);
 
 // Add a health check endpoint
-app.get('/api/health', (req: Request, res: Response) => {
+app.get('/api/health', ((req: Request, res: Response) => {
   res.json({ status: 'OK', message: 'Server is running' });
-});
+}) as RequestHandler);
 
 // Static files
 app.use('/static', express.static(path.join(__dirname, '../public')));
@@ -167,7 +177,7 @@ app.use(
 );
 
 // Add an API root endpoint
-app.get('/api', (req: Request, res: Response) => {
+app.get('/api', ((req: Request, res: Response) => {
   res.json({
     message: 'Welcome to the API',
     endpoints: {
@@ -177,7 +187,7 @@ app.get('/api', (req: Request, res: Response) => {
       graphql: '/graphql',
     },
   });
-});
+}) as RequestHandler);
 
 // Combine GraphQL schemas and resolvers
 const schema = makeExecutableSchema({

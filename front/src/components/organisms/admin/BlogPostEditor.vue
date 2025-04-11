@@ -8,6 +8,7 @@ import { ImageSizeEnum } from '@/types/image';
 import { deleteBlogPost } from '@/api/blogService';
 import type { IUser } from '@/types/user';
 import type { IBlogPost } from '@/types/blog';
+import { BlogPostStatus, BlogPostModerationStatus } from '@/types/blog';
 import AppButton from '@/components/atoms/AppButton.vue';
 import { ButtonVariantEnum } from '@/types/button';
 
@@ -30,6 +31,9 @@ const content = ref('');
 const excerpt = ref('');
 const publishedAt = ref('');
 const isPublished = ref(true);
+const status = ref<BlogPostStatus>(BlogPostStatus.DRAFT);
+const publishAt = ref('');
+const timezone = ref('UTC');
 const authorType = ref<'user' | 'text'>('user');
 const selectedUserId = ref<string>('');
 const authorName = ref('');
@@ -99,11 +103,15 @@ const loadPost = async (postId: string) => {
         ? new Date(post.publishedAt).toISOString().split('T')[0]
         : '';
       isPublished.value = post.isPublished;
+      status.value = post.status;
+      if (post.publishAt) {
+        publishAt.value = new Date(post.publishAt).toISOString().slice(0, 16);
+      }
+      timezone.value = post.timezone || 'UTC';
 
       // Set author data based on type
       if (post.author.type === 'user') {
         authorType.value = 'user';
-        // Handle both _id and id properties
         selectedUserId.value = (post.author as any)._id || post.author.id || '';
         authorName.value = post.author.name;
       } else {
@@ -127,6 +135,9 @@ const resetForm = () => {
   excerpt.value = '';
   publishedAt.value = new Date().toISOString().split('T')[0];
   isPublished.value = true;
+  status.value = BlogPostStatus.DRAFT;
+  publishAt.value = '';
+  timezone.value = 'UTC';
   authorType.value = 'user';
   selectedUserId.value = '';
   authorName.value = '';
@@ -171,6 +182,14 @@ const handleSubmit = async () => {
       publishedAt.value ? new Date(publishedAt.value).toISOString() : ''
     );
     formData.append('isPublished', isPublished.value.toString());
+    formData.append('status', status.value);
+    if (status.value === BlogPostStatus.SCHEDULED) {
+      if (!publishAt.value) {
+        throw new Error('Please select a publish date and time');
+      }
+      formData.append('publishAt', new Date(publishAt.value).toISOString());
+      formData.append('timezone', timezone.value);
+    }
     formData.append('tags', JSON.stringify(tags.value));
 
     // Set author based on type and user role
@@ -272,6 +291,13 @@ const handleDelete = async () => {
   }
 };
 
+// Add this computed property after the other computed properties
+const minPublishDate = computed(() => {
+  const now = new Date();
+  return now.toISOString().slice(0, 16); // Format: YYYY-MM-DDThh:mm
+});
+
+// Update the createInitialPost function
 const createInitialPost = (user: IUser): IBlogPost => {
   return {
     id: user.id,
@@ -289,6 +315,12 @@ const createInitialPost = (user: IUser): IBlogPost => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     isPublished: false,
+    status: BlogPostStatus.DRAFT,
+    timezone: 'UTC',
+    version: 1,
+    hasActiveUpdate: false,
+    moderationStatus: BlogPostModerationStatus.PENDING,
+    abuseScore: 0,
   };
 };
 
@@ -506,6 +538,56 @@ onMounted(() => {
         <!-- Non-admin users see their own name -->
         <div v-if="!isAdmin" class="blog-post-editor__current-user">
           {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+        </div>
+      </div>
+
+      <div class="blog-post-editor__publishing">
+        <h3 class="blog-post-editor__section-title">Publishing Options</h3>
+        
+        <div class="blog-post-editor__publish-options">
+          <div class="blog-post-editor__status-select">
+            <label for="status">Status:</label>
+            <select 
+              id="status" 
+              v-model="status" 
+              class="blog-post-editor__select"
+            >
+              <option :value="BlogPostStatus.DRAFT">Draft</option>
+              <option :value="BlogPostStatus.PUBLISHED">Publish Immediately</option>
+              <option :value="BlogPostStatus.SCHEDULED">Schedule</option>
+            </select>
+          </div>
+
+          <div 
+            v-if="status === BlogPostStatus.SCHEDULED" 
+            class="blog-post-editor__schedule-options"
+          >
+            <div class="blog-post-editor__datetime">
+              <label for="publishAt">Publish Date and Time:</label>
+              <input
+                id="publishAt"
+                v-model="publishAt"
+                type="datetime-local"
+                class="blog-post-editor__input"
+                :min="minPublishDate"
+              />
+            </div>
+            
+            <div class="blog-post-editor__timezone">
+              <label for="timezone">Timezone:</label>
+              <select 
+                id="timezone" 
+                v-model="timezone" 
+                class="blog-post-editor__select"
+              >
+                <option value="UTC">UTC</option>
+                <option value="America/New_York">Eastern Time</option>
+                <option value="America/Chicago">Central Time</option>
+                <option value="America/Denver">Mountain Time</option>
+                <option value="America/Los_Angeles">Pacific Time</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -885,5 +967,48 @@ onMounted(() => {
   margin-top: var(--spacing-md);
   padding-top: var(--spacing-md);
   border-top: 1px solid var(--color-border);
+}
+
+.blog-post-editor__publishing {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+}
+
+.blog-post-editor__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.blog-post-editor__publish-options {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.blog-post-editor__schedule-options {
+  display: grid;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-background-alt);
+  border-radius: var(--border-radius);
+}
+
+.blog-post-editor__select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+}
+
+.blog-post-editor__select:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 </style>

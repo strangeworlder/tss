@@ -23,6 +23,25 @@ export interface HeroImage {
 }
 
 /**
+ * Blog post status enum
+ */
+export enum BlogPostStatus {
+  DRAFT = 'draft',
+  SCHEDULED = 'scheduled',
+  PUBLISHED = 'published',
+  FAILED = 'failed',
+}
+
+/**
+ * Blog post moderation status enum
+ */
+export enum BlogPostModerationStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+/**
  * Interface representing a blog post in the system
  */
 export interface IBlogPost {
@@ -38,6 +57,16 @@ export interface IBlogPost {
   updatedAt: string;
   publishedAt?: string;
   isPublished: boolean;
+  publishAt?: string;
+  status: BlogPostStatus;
+  timezone: string;
+  version: number;
+  pendingUpdateId?: string;
+  hasActiveUpdate: boolean;
+  originalPostId?: string;
+  moderationStatus: BlogPostModerationStatus;
+  abuseScore: number;
+  lastModeratedAt?: string;
 }
 
 /**
@@ -53,6 +82,7 @@ export interface IBlogPostPreview {
   tags: string[];
   publishedAt?: string;
   isPublished: boolean;
+  status: BlogPostStatus;
 }
 
 /**
@@ -65,6 +95,9 @@ export interface IApiResponse<T> {
   error?: string;
 }
 
+/**
+ * Blog post field type for partial updates
+ */
 export type BlogPostField =
   | 'id'
   | 'title'
@@ -73,8 +106,13 @@ export type BlogPostField =
   | 'author'
   | 'heroImage'
   | 'tags'
-  | 'publishedAt';
+  | 'publishedAt'
+  | 'status'
+  | 'moderationStatus';
 
+/**
+ * Blog store interface for state management
+ */
 export interface IBlogStore {
   posts: IBlogPost[];
   loading: boolean;

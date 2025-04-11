@@ -17,4 +17,12 @@ export interface IButtonProps {
   loading?: boolean;
   type?: 'button' | 'submit' | 'reset';
   size?: 'small' | 'medium' | 'large';
+  /**
+   * If provided, renders as a router-link with this destination
+   */
+  to?: string;
+  /**
+   * Accessible label for the button (only used when no content is provided)
+   */
+  ariaLabel?: string;
 }

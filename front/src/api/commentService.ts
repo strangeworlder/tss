@@ -37,7 +37,14 @@ export const getComments = async (
     const response = await apiGet<CommentsResponse>(endpoint);
 
     if (response?.success && response.data?.comments) {
-      return response.data.comments;
+      // Ensure each comment and its replies have an ID
+      const processComment = (comment: IComment): IComment => ({
+        ...comment,
+        id: comment.id || String(comment._id),
+        replies: comment.replies?.map(reply => processComment(reply))
+      });
+
+      return response.data.comments.map(comment => processComment(comment));
     }
 
     return [];
@@ -106,6 +113,36 @@ export const updateCommentStatus = async (commentId: string, status: string): Pr
     throw new Error('Failed to update comment status');
   } catch (error) {
     console.error('Error updating comment status:', error);
+    throw error;
+  }
+};
+
+/**
+ * Updates a comment with the provided data
+ * @param commentId - The ID of the comment to update
+ * @param data - The data to update the comment with
+ * @returns Updated comment
+ */
+export const updateComment = async (
+  commentId: string,
+  data: Partial<IComment>
+): Promise<IComment> => {
+  try {
+    const response = await apiRequest<IApiResponse<CommentResponse>>(
+      `/v1/blog/comments/${commentId}`,
+      {
+        method: 'PUT',
+        body: data,
+      }
+    );
+
+    if (response?.success && response.data?.comment) {
+      return response.data.comment;
+    }
+
+    throw new Error('Failed to update comment');
+  } catch (error) {
+    console.error('Error updating comment:', error);
     throw error;
   }
 };

@@ -67,33 +67,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ButtonVariantEnum } from '@/types/button';
-
-/**
- * Button component props interface
- */
-interface IButtonProps {
-  /**
-   * The visual variant of the button
-   * @default 'primary'
-   */
-  variant?: ButtonVariantEnum;
-  /**
-   * Whether the button is disabled
-   * @default false
-   */
-  disabled?: boolean;
-  /**
-   * If provided, renders as a router-link with this destination
-   * @default undefined
-   */
-  to?: string;
-  /**
-   * Accessible label for the button (only used when no content is provided)
-   * @default undefined
-   */
-  ariaLabel?: string;
-}
+import { ButtonVariantEnum, type IButtonProps } from '@/types/button';
 
 const props = withDefaults(defineProps<IButtonProps>(), {
   variant: ButtonVariantEnum.PRIMARY,

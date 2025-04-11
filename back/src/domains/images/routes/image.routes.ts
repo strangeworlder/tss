@@ -1,4 +1,4 @@
-import { Router, type Request, type Response } from 'express';
+import { Router, type Request, type Response, type RequestHandler } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { ImageSize, ImageFormat } from '../models/image.model';
@@ -37,7 +37,7 @@ function setCorsHeaders(res: Response) {
  * @desc    Serve images with optional resizing
  * @access  Public
  */
-router.get('/:filename', async (req: Request, res: Response) => {
+router.get('/:filename', (async (req: Request, res: Response) => {
   const { filename } = req.params;
   const size = (req.query.size as ImageSize) || ImageSize.MEDIUM;
   const format = (req.query.format as ImageFormat) || ImageFormat.WEBP;
@@ -77,12 +77,12 @@ router.get('/:filename', async (req: Request, res: Response) => {
       message: 'Failed to process image',
     });
   }
-});
+}) as RequestHandler);
 
 // Handle OPTIONS requests for CORS preflight
-router.options('/:filename', (req: Request, res: Response) => {
+router.options('/:filename', ((req: Request, res: Response) => {
   setCorsHeaders(res);
   res.status(204).end();
-});
+}) as RequestHandler);
 
 export default router;

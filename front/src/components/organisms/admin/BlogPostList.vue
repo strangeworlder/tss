@@ -29,7 +29,8 @@ import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
 import AppButton from '@/components/atoms/AppButton.vue';
 import { ButtonVariantEnum } from '@/types/button';
 import type { IUser } from '@/types/user';
-import type { Author } from '@/types/blog';
+import type { Author, IBlogPost } from '@/types/blog';
+import { BlogPostStatus } from '@/types/blog';
 
 /**
  * Emits when the edit button is clicked for a post
@@ -86,6 +87,55 @@ const fetchPosts = async (): Promise<void> => {
   }
 };
 
+/**
+ * Gets the status class for a blog post
+ * @param status - The post status
+ * @returns The CSS class for the status
+ */
+const getStatusClass = (status: BlogPostStatus): string => {
+  switch (status) {
+    case BlogPostStatus.PUBLISHED:
+      return 'blog-post-list__status--published';
+    case BlogPostStatus.SCHEDULED:
+      return 'blog-post-list__status--scheduled';
+    case BlogPostStatus.DRAFT:
+      return 'blog-post-list__status--draft';
+    default:
+      return '';
+  }
+};
+
+/**
+ * Gets the display text for a blog post status
+ * @param post - The blog post
+ * @returns The status display text
+ */
+const getStatusText = (post: IBlogPost): string => {
+  switch (post.status) {
+    case BlogPostStatus.PUBLISHED:
+      return 'Published';
+    case BlogPostStatus.SCHEDULED:
+      return 'Scheduled';
+    case BlogPostStatus.DRAFT:
+      return 'Draft';
+    default:
+      return post.status;
+  }
+};
+
+/**
+ * Formats a scheduled date for display
+ * @param date - The date to format
+ * @returns Formatted date string
+ */
+const formatScheduledDate = (date: string | undefined): string => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+};
+
 onMounted(() => {
   fetchPosts();
 });
@@ -126,12 +176,13 @@ onMounted(() => {
             <span
               :class="[
                 'blog-post-list__status',
-                post.isPublished
-                  ? 'blog-post-list__status--published'
-                  : 'blog-post-list__status--draft',
+                getStatusClass(post.status)
               ]"
             >
-              {{ post.isPublished ? 'Published' : 'Draft' }}
+              {{ getStatusText(post) }}
+            </span>
+            <span v-if="post.status === BlogPostStatus.SCHEDULED" class="blog-post-list__scheduled-date">
+              Scheduled for {{ formatScheduledDate(post.publishAt) }}
             </span>
           </div>
           <div class="blog-post-list__actions">
@@ -272,5 +323,16 @@ onMounted(() => {
 .blog-post-list__status--draft {
   background-color: var(--color-background-muted);
   color: var(--color-text);
+}
+
+.blog-post-list__status--scheduled {
+  background-color: var(--color-info);
+  color: var(--color-text-on-info);
+}
+
+.blog-post-list__scheduled-date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-left: var(--spacing-sm);
 }
 </style>

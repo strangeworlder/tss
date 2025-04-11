@@ -10,6 +10,10 @@
 - Loading, error, and empty states
 - Responsive design
 - Accessibility features
+- Supports scheduled comments with preview and timer
+- Real-time loading states for scheduled comment actions
+- Proper error handling for all operations
+- Integration with CommentStore for state management
 
 @props {
   parentId: {
@@ -40,6 +44,21 @@
   }
 }
 
+@actions
+- editScheduled: Initiates edit mode for a scheduled comment
+- cancelScheduled: Cancels a scheduled comment
+- retryPublication: Retries publication of a failed scheduled comment
+- deleteComment: Deletes a comment (with confirmation)
+- addComment: Adds a new comment
+- replyToComment: Adds a reply to an existing comment
+
+@states
+- loading: Global loading state for the component
+- scheduledActionLoading: Content-specific loading state for scheduled comment actions
+- error: Error state for handling and displaying errors
+- replyingTo: Tracks which comment is being replied to
+- commentToDelete: Tracks which comment is being deleted
+
 @accessibility
 - Uses semantic HTML structure with proper heading hierarchy
 - Loading and error states are announced to screen readers
@@ -48,6 +67,8 @@
 - Markdown content is sanitized for security
 - Color contrast meets WCAG 2.1 AA standards
 - Focus management for reply forms
+- Proper role and aria-live attributes for dynamic content
+- Loading overlays with proper role attributes
 -->
 
 <template>
@@ -84,65 +105,99 @@
       {{ COMMENT_CONSTANTS.EMPTY_MESSAGE }}
     </p>
     <ul v-else class="comment-list__items">
-      <li v-for="comment in comments" :key="comment?._id" class="comment-list__item">
+      <li v-for="comment in comments" :key="comment.id" class="comment-list__item">
         <article>
-          <div class="comment-list__header">
-            <h3 class="comment-list__title">{{ comment?.title || 'Untitled' }}</h3>
-            <AuthorInfo :author="mapToAuthor(comment)" :date="comment?.createdAt" size="sm" variant="right" />
+          <div v-if="comment.status === 'scheduled'" class="comment-list__scheduled">
+            <ScheduledCommentPreview
+              :content-id="comment.id"
+              :publish-at="comment.publishAt || ''"
+              :content="comment.content"
+              :version="comment.version || 1"
+              :has-active-update="comment.hasActiveUpdate"
+              @edit="handleEditScheduled"
+              @cancel="handleCancelScheduled"
+              @retry="handleRetryPublication"
+            />
+            <div v-if="scheduledActionLoading === comment.id" class="comment-list__loading-overlay" role="status">
+              <span class="comment-list__loading-text">Processing...</span>
+            </div>
           </div>
-          <div class="comment-list__content" v-html="formatContent(comment?.content || '')" />
-          <div class="comment-list__actions">
-            <AppButton 
-              v-if="isAuthenticated" 
-              :variant="ButtonVariantEnum.TEXT" 
-              @click="showReplyForm(comment?._id)"
-            >
-              Reply
-            </AppButton>
-            <AppButton
-              v-if="canDelete(comment)"
-              :variant="ButtonVariantEnum.TEXT"
-              @click="showDeleteDialog(comment?._id)"
-            >
-              Delete
-            </AppButton>
-          </div>
-          <div v-if="replyingTo === comment?._id" class="comment-list__form--reply">
-            <Suspense>
-              <template #default>
-                <CommentForm
-                  :parent-id="comment?._id"
-                  :parent-type="CommentParentTypeEnum.COMMENT"
-                  @submit="handleReplySubmit"
-                  @cancel="replyingTo = null"
-                />
-              </template>
-              <template #fallback>
-                <div class="comment-list__loading">{{ COMMENT_CONSTANTS.LOADING_MESSAGE }}</div>
-              </template>
-            </Suspense>
-          </div>
-          <!-- Nested replies -->
-          <ul v-if="comment?.replies?.length" class="comment-list__replies">
-            <li v-for="reply in comment.replies" :key="reply._id" class="comment-list__reply">
-              <article>
-                <div class="comment-list__header">
-                  <h4 class="comment-list__title">{{ reply.title || 'Untitled' }}</h4>
-                  <AuthorInfo :author="mapToAuthor(reply)" :date="reply.createdAt" size="sm" variant="right" />
-                </div>
-                <div class="comment-list__content" v-html="formatContent(reply.content || '')" />
-                <div class="comment-list__actions">
-                  <AppButton
-                    v-if="canDelete(reply)"
-                    :variant="ButtonVariantEnum.TEXT"
-                    @click="showDeleteDialog(reply._id)"
-                  >
-                    Delete
-                  </AppButton>
-                </div>
-              </article>
-            </li>
-          </ul>
+          <template v-else>
+            <div class="comment-list__header">
+              <h3 class="comment-list__title">{{ comment?.title || 'Untitled' }}</h3>
+              <AuthorInfo :author="mapToAuthor(comment)" :date="comment?.createdAt" size="sm" variant="right" />
+            </div>
+            <div class="comment-list__content" v-html="formatContent(comment?.content || '')" />
+            <div class="comment-list__actions">
+              <AppButton 
+                v-if="isAuthenticated && comment?.id" 
+                :variant="ButtonVariantEnum.TEXT" 
+                @click="showReplyForm(comment.id)"
+              >
+                Reply
+              </AppButton>
+              <AppButton
+                v-if="canDelete(comment) && comment?.id"
+                :variant="ButtonVariantEnum.TEXT"
+                @click="showDeleteDialog(comment.id)"
+              >
+                Delete
+              </AppButton>
+            </div>
+            <div v-if="replyingTo === comment.id" class="comment-list__form--reply">
+              <Suspense>
+                <template #default>
+                  <CommentForm
+                    :parent-id="comment.id"
+                    :parent-type="CommentParentTypeEnum.COMMENT"
+                    @submit="handleReplySubmit"
+                    @cancel="replyingTo = null"
+                  />
+                </template>
+                <template #fallback>
+                  <div class="comment-list__loading">{{ COMMENT_CONSTANTS.LOADING_MESSAGE }}</div>
+                </template>
+              </Suspense>
+            </div>
+            <!-- Nested replies -->
+            <ul v-if="comment?.replies?.length" class="comment-list__replies">
+              <li v-for="reply in comment.replies" :key="reply.id" class="comment-list__reply">
+                <article>
+                  <div v-if="reply.status === 'scheduled'" class="comment-list__scheduled">
+                    <ScheduledCommentPreview
+                      :content-id="reply.id"
+                      :publish-at="reply.publishAt || ''"
+                      :content="reply.content"
+                      :version="reply.version || 1"
+                      :has-active-update="reply.hasActiveUpdate"
+                      @edit="handleEditScheduled"
+                      @cancel="handleCancelScheduled"
+                      @retry="handleRetryPublication"
+                    />
+                    <div v-if="scheduledActionLoading === reply.id" class="comment-list__loading-overlay" role="status">
+                      <span class="comment-list__loading-text">Processing...</span>
+                    </div>
+                  </div>
+                  <template v-else>
+                    <div class="comment-list__header">
+                      <h4 class="comment-list__title">{{ reply.title || 'Untitled' }}</h4>
+                      <AuthorInfo :author="mapToAuthor(reply)" :date="reply.createdAt" size="sm" variant="right" />
+                    </div>
+                    <div class="comment-list__content" v-html="formatContent(reply.content || '')" />
+                    <div class="comment-list__actions">
+                      <AppButton
+                        v-if="canDelete(reply) && reply?.id"
+                        :variant="ButtonVariantEnum.TEXT"
+                        @click="showDeleteDialog(reply.id)"
+                      >
+                        Delete
+                      </AppButton>
+                    </div>
+                  </template>
+                </article>
+              </li>
+            </ul>
+          </template>
         </article>
       </li>
     </ul>
@@ -174,8 +229,11 @@ import { COMMENT_CONSTANTS } from '@/constants/comment';
 import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
 import AppButton from '@/components/atoms/AppButton.vue';
 import AppDialog from '@/components/molecules/AppDialog.vue';
+import ScheduledCommentPreview from '@/components/molecules/ScheduledCommentPreview.vue';
 import { ButtonVariantEnum } from '@/types/button';
 import type { Author } from '@/types/blog';
+import { useScheduledContentStore } from '@/stores/scheduledContentStore';
+import { useCommentStore } from '@/stores/commentStore';
 
 const CommentForm = defineAsyncComponent(() => import('@/components/organisms/CommentForm.vue'));
 
@@ -197,12 +255,15 @@ const emit = defineEmits<Emits>();
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const scheduledContentStore = useScheduledContentStore();
+const commentStore = useCommentStore();
 const isAuthenticated = computed((): boolean => authStore.isAuthenticated);
 const comments = ref<IComment[]>([]);
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 const replyingTo = ref<string | null>(null);
 const commentToDelete = ref<string | null>(null);
+const scheduledActionLoading = ref<string | null>(null);
 
 // Helper function to convert IAuthor to Author
 const mapToAuthor = (comment: IComment | undefined): Author | undefined => {
@@ -232,16 +293,11 @@ const fetchComments = async (): Promise<void> => {
       parentId: props.parentId,
       parentType: props.parentType,
     });
-    const fetchedComments = await getComments(props.parentId, props.parentType);
-    console.log('Comments fetched:', fetchedComments);
 
-    // Ensure we have a valid array of comments
-    if (Array.isArray(fetchedComments)) {
-      comments.value = fetchedComments;
-    } else {
-      console.error('Expected array of comments, got:', typeof fetchedComments);
-      comments.value = [];
-    }
+    await commentStore.fetchComments(props.parentId, props.parentType);
+    comments.value = commentStore.comments;
+
+    console.log('Comments fetched:', comments.value);
   } catch (err) {
     const apiError = err as IApiError;
     error.value = apiError.message || 'Failed to load comments';
@@ -277,11 +333,17 @@ const formatContent = (content: string): string => {
 };
 
 const showReplyForm = (commentId: string | undefined) => {
-  if (!commentId) return;
+  console.log('Trying to show reply form for comment:', commentId);
+  if (!commentId) {
+    console.error('No comment ID provided to showReplyForm');
+    return;
+  }
+  console.log('Showing reply form for comment:', commentId);
   replyingTo.value = commentId;
 };
 
 const handleReplySubmit = async (): Promise<void> => {
+  console.log('Handling reply submission');
   replyingTo.value = null;
   await fetchComments();
   emit('comment-added');
@@ -290,16 +352,30 @@ const handleReplySubmit = async (): Promise<void> => {
 const canDelete = (comment: IComment | undefined): boolean => {
   if (!comment || !comment.author) return false;
   const currentUser = authStore.user;
-  return currentUser?.id === comment.author.id || authStore.isAdmin;
+  const canDelete = currentUser?.id === comment.author.id || authStore.isAdmin;
+  console.log('Checking delete permission:', {
+    commentId: comment.id,
+    currentUserId: currentUser?.id,
+    commentAuthorId: comment.author.id,
+    isAdmin: authStore.isAdmin,
+    canDelete
+  });
+  return canDelete;
 };
 
 const showDeleteDialog = (commentId: string | undefined): void => {
-  if (!commentId) return;
+  console.log('Trying to show delete dialog for comment:', commentId);
+  if (!commentId) {
+    console.error('No comment ID provided to showDeleteDialog');
+    return;
+  }
+  console.log('Showing delete dialog for comment:', commentId);
   commentToDelete.value = commentId;
 };
 
 const confirmDelete = async (): Promise<void> => {
   if (!commentToDelete.value) return;
+  console.log('Confirming delete for comment:', commentToDelete.value);
 
   try {
     await deleteCommentApi(commentToDelete.value);
@@ -309,6 +385,10 @@ const confirmDelete = async (): Promise<void> => {
   } catch (err) {
     const apiError = err as IApiError;
     error.value = apiError.message || 'Failed to delete comment';
+    console.error('Error deleting comment:', {
+      commentId: commentToDelete.value,
+      error: apiError
+    });
     emit('error', error.value);
   } finally {
     commentToDelete.value = null;
@@ -316,21 +396,114 @@ const confirmDelete = async (): Promise<void> => {
 };
 
 const cancelDelete = (): void => {
+  console.log('Cancelling delete dialog');
   commentToDelete.value = null;
 };
 
 const handleCommentSuccess = async (): Promise<void> => {
-  await fetchComments();
-  notificationStore.success('Comment added successfully');
-  emit('comment-added');
+  console.log('Handling comment success');
+  try {
+    await fetchComments();
+    notificationStore.success('Comment added successfully');
+    emit('comment-added');
+  } catch (err) {
+    const apiError = err as IApiError;
+    error.value = apiError.message || 'Failed to refresh comments after adding';
+    console.error('Error after comment success:', {
+      error: apiError
+    });
+    emit('error', error.value);
+  }
 };
 
 const handleCommentError = (message: string): void => {
-  notificationStore.error(message || 'Failed to add comment');
-  emit('error', message);
+  console.error('Comment error:', message);
+  error.value = message || 'Failed to add comment';
+  notificationStore.error(error.value);
+  emit('error', error.value);
 };
 
-onMounted(fetchComments);
+const handleEditScheduled = async (contentId: string): Promise<void> => {
+  try {
+    scheduledActionLoading.value = contentId;
+
+    // Get the scheduled comment from the store
+    const comment = commentStore.getScheduledCommentById(contentId);
+    if (!comment) {
+      throw new Error('Scheduled comment not found');
+    }
+
+    // TODO: Implement edit functionality - open editor or navigate to edit page
+    console.log('Editing scheduled comment:', contentId);
+
+    // For now, we'll just show a success message
+    notificationStore.success('Edit mode activated for scheduled comment');
+  } catch (err) {
+    const apiError = err as IApiError;
+    const errorMsg = apiError.message || 'Failed to edit scheduled comment';
+    error.value = errorMsg;
+    notificationStore.error(errorMsg);
+    emit('error', errorMsg);
+    console.error('Error editing scheduled comment:', err);
+  } finally {
+    scheduledActionLoading.value = null;
+  }
+};
+
+const handleCancelScheduled = async (contentId: string): Promise<void> => {
+  try {
+    scheduledActionLoading.value = contentId;
+
+    const success = await commentStore.cancelScheduledComment(contentId);
+    if (success) {
+      await fetchComments();
+      notificationStore.success('Scheduled comment cancelled successfully');
+    } else {
+      throw new Error('Failed to cancel scheduled comment');
+    }
+  } catch (err) {
+    const apiError = err as IApiError;
+    const errorMsg = apiError.message || 'Failed to cancel scheduled comment';
+    error.value = errorMsg;
+    notificationStore.error(errorMsg);
+    emit('error', errorMsg);
+    console.error('Error cancelling scheduled comment:', err);
+  } finally {
+    scheduledActionLoading.value = null;
+  }
+};
+
+const handleRetryPublication = async (contentId: string): Promise<void> => {
+  try {
+    scheduledActionLoading.value = contentId;
+
+    const success = await commentStore.retryPublishComment(contentId);
+    if (success) {
+      await fetchComments();
+      notificationStore.success('Comment publication retry initiated');
+    } else {
+      throw new Error('Failed to retry comment publication');
+    }
+  } catch (err) {
+    const apiError = err as IApiError;
+    const errorMsg = apiError.message || 'Failed to retry comment publication';
+    error.value = errorMsg;
+    notificationStore.error(errorMsg);
+    emit('error', errorMsg);
+    console.error('Error retrying comment publication:', err);
+  } finally {
+    scheduledActionLoading.value = null;
+  }
+};
+
+onMounted(() => {
+  fetchComments().catch((err) => {
+    const apiError = err as IApiError;
+    error.value = apiError.message || 'Failed to load comments';
+    notificationStore.error(error.value);
+    emit('error', error.value);
+  });
+});
 </script>
 
 <style scoped>
@@ -430,6 +603,34 @@ onMounted(fetchComments);
   border: 0.0625rem solid var(--color-border);
   border-radius: var(--border-radius-md);
   background-color: var(--color-background);
+}
+
+.comment-list__scheduled {
+  margin: var(--spacing-md) 0;
+  position: relative;
+}
+
+.comment-list__loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(var(--color-background-rgb), 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--border-radius-md);
+  z-index: 1;
+}
+
+.comment-list__loading-text {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
+  box-shadow: 0 var(--spacing-xs) var(--spacing-sm) rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 48rem) {

@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../domains/users/models/user.model';
-import { JwtPayload } from 'jsonwebtoken';
+import { AuthUser } from '../types/express';
 
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -45,14 +45,11 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       });
     }
 
-    // Add user to request
-    (req as any).user = {
-      id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+    // Add user to request using the AuthUser type
+    req.user = {
+      id: user._id.toString(),
       email: user.email,
       role: user.role,
-      avatar: user.avatar,
     };
 
     console.log('Auth middleware: User added to request:', {
@@ -68,4 +65,26 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       message: 'Token is not valid',
     });
   }
+};
+
+export const isAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    if (req.user.role !== 'admin') {
+      res.status(403).json({ error: 'Forbidden: Admin access required' });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const authMiddleware = {
+  isAdmin,
 };

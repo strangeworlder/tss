@@ -11,6 +11,7 @@ export enum UserRole {
 // User interface
 export interface IUser {
   _id: Types.ObjectId;
+  id?: string; // Optional id field for compatibility with JwtPayload
   email: string;
   password: string;
   firstName: string;

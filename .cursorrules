@@ -1,3 +1,50 @@
+# CursorRules
+
+This file defines rules and best practices for this project.
+
+## Documentation Sources of Truth
+
+The following documents serve as the official single source of truth for their respective domains:
+
+1. **API Documentation**: `docs/api-documentation.md`
+   - All API endpoints must conform to the patterns defined in this document
+   - Frontend and backend implementations must align with the documented endpoints
+   - Any changes to API behavior must be documented here first
+
+2. **Authentication System**: `docs/authentication.md`
+   - All authentication flows must follow the patterns defined in this document
+   - Frontend must use the apiClient helpers for authenticated requests
+   - Backend must implement token validation as documented
+   - FormData uploads must use the authenticated apiClient methods
+
+## Code Standards
+
+1. **Frontend**:
+   - Vue components follow atomic design principles
+   - TypeScript with strict mode enabled
+   - Use semantic variables from `front/src/assets/vars.css`
+   - Tests required for all components
+
+2. **Backend**:
+   - Node.js with Express.js
+   - TypeScript with strict mode enabled
+   - Follow REST principles for API endpoints
+   - Document all API changes in `docs/api-documentation.md`
+
+3. **Authentication**:
+   - Follow the patterns in `docs/authentication.md`
+   - Always use apiClient for authenticated requests
+   - Never use direct fetch for secured endpoints
+   - Properly handle token expiration
+
+## Development Workflow
+
+1. Check relevant documentation first (`docs/api-documentation.md`, `docs/authentication.md`)
+2. Update documentation if implementing new features or changing existing ones
+3. Ensure implementations conform to the documented patterns
+4. Update tests to cover new functionality
+5. Run linters before committing changes
+
 general:
   - shell:
       - "WSL2"
@@ -6,9 +53,22 @@ general:
   - editor:
       - "latest version of Cursor"
       - "latest version of VS Code"
+  - implementation_plan_tracking:
+      - "ALWAYS mark checkboxes in implementation plans as completed right after completing them"
+      - "Use the format [x] for completed items and [ ] for pending items"
+      - "When completing a task, immediately update the corresponding checkbox in the implementation plan"
+      - "If a task is partially complete, use [~] to indicate in-progress status"
+      - "When adding new tasks to the plan, use [ ] to mark them as pending"
+      - "Keep implementation plans up-to-date with the current status of all tasks"
+      - "When reporting progress, reference the updated checkboxes in the implementation plan"
   - frontend:
       - "latest stable version of Vue"
       - "Typescript with strict mode enabled"
+      - "API Consumption:"
+          - "ALWAYS follow the API patterns documented in docs/api-documentation.md"
+          - "API endpoints and data models MUST match those defined in the documentation"
+          - "Use the standard error handling patterns defined in the documentation"
+          - "When requesting changes to the API, update the documentation first"
       - "TypeScript configuration:"
           - "verbatimModuleSyntax is enabled in tsconfig.json"
           - "strict mode is enabled"
@@ -31,7 +91,7 @@ general:
           - "Use relative imports for files in the same directory or for closely related files"
           - "When in doubt, search the entire codebase for references to the file being moved"
       - "Testing requirements:"
-          - "Testing framework: Vitest for unit tests, Cypress for E2E tests"
+          - "Testing framework: Jest for unit tests, Cypress for E2E tests"
           - "Test file organization:"
               - "Unit tests must be co-located with components in __tests__ directory"
               - "Test files must be named *.test.ts or *.test.tsx"
@@ -78,6 +138,7 @@ general:
                     })),
                   }));
                   ```
+          - "DO NOT use vitest directly in test files - use the testing utilities provided by the project"
       - "Semantic variables are mandatory and must be maintained in front/src/assets/vars.css"
       - "All styling must use semantic variables - no hard-coded values allowed"
       - "Units must use rem as the base unit - avoid px completely"
@@ -160,11 +221,22 @@ general:
           - "Use proper caching strategies"
           - "Monitor bundle size"
       - "Code Quality:"
-          - "ESLint for static code analysis"
-          - "Prettier for code formatting"
-          - "Biome for additional linting and formatting"
-          - "Use npm run lint and npm run format:biome to maintain code quality"
+          - "Biome for linting and formatting"
+          - "Use npm run lint:biome to maintain code quality"
           - "Follow the rules defined in biome.json"
+          - "Biome configuration:"
+              - "organizeImports.enabled: true"
+              - "linter.rules.recommended: true"
+              - "linter.rules.suspicious.noExplicitAny: off"
+              - "linter.rules.suspicious.noImplicitAnyLet: off"
+              - "linter.rules.complexity.useOptionalChain: error"
+              - "linter.rules.style.noUnusedTemplateLiteral: error"
+              - "formatter.indentStyle: space"
+              - "formatter.indentWidth: 2"
+              - "formatter.lineWidth: 100"
+              - "javascript.formatter.quoteStyle: single"
+              - "javascript.formatter.trailingCommas: es5"
+              - "javascript.formatter.semicolons: always"
   - naming_conventions:
       - "BEM syntax for CSS classes (block__element--modifier)"
       - "kebab-case within BEM segments (my-block__my-element--my-modifier)"
@@ -181,6 +253,11 @@ backend:
   - framework: "Node.js with Express.js for API development"
   - language: "Typescript with strict mode enabled"
   - api:
+      - "API documentation is maintained in docs/api-documentation.md"
+      - "The API documentation file is the SINGLE SOURCE OF TRUTH for all API implementations"
+      - "When implementing or modifying APIs, ALWAYS refer to the docs/api-documentation.md file first"
+      - "Any changes to API endpoints, request/response formats, or behavior MUST be documented in docs/api-documentation.md"
+      - "Frontend and backend MUST follow the patterns and endpoints defined in the API documentation"
       - "GraphQL for flexible data querying"
           - "Use DataLoader for N+1 query prevention"
           - "Implement proper error handling and custom error types"
@@ -245,12 +322,24 @@ backend:
           - "Test error handling and edge cases"
           - "Include performance testing for critical paths"
   - code_quality: 
-      - "ESLint and Prettier for code formatting"
-      - "Biome for additional linting and formatting"
+      - "Biome for linting and formatting"
       - "Husky for pre-commit hooks"
       - "SonarQube for code quality metrics"
       - "Run npm run lint:biome to maintain code quality"
       - "Follow the rules defined in biome.json"
+      - "TypeScript configuration:"
+          - "target: ES2022"
+          - "module: NodeNext"
+          - "moduleResolution: NodeNext"
+          - "esModuleInterop: true"
+          - "strict: true"
+          - "strictPropertyInitialization: false"
+          - "skipLibCheck: true"
+          - "emitDecoratorMetadata: true"
+          - "experimentalDecorators: true"
+          - "sourceMap: true"
+          - "declaration: true"
+          - "resolveJsonModule: true"
 
 structure:
   - directories:

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type RequestHandler } from 'express';
 import {
   register,
   login,
@@ -12,9 +12,9 @@ import { authenticate } from '../../../middlewares/auth.middleware';
 const router = Router();
 
 // Auth routes
-router.post('/register', registerValidation, register);
-router.post('/login', loginValidation, login);
-router.post('/logout', authenticate, logout);
-router.get('/me', authenticate, getCurrentUser);
+router.post('/register', registerValidation, register as RequestHandler);
+router.post('/login', loginValidation, login as RequestHandler);
+router.post('/logout', authenticate as RequestHandler, logout as RequestHandler);
+router.get('/me', authenticate as RequestHandler, getCurrentUser as RequestHandler);
 
 export default router;

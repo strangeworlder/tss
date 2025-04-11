@@ -75,7 +75,10 @@ Accessibility:
       </li>
       <li v-if="isAuthenticated">
         <UserMenu
-          :user="{ displayName: userName }"
+          :user="{
+            displayName: userName,
+            avatarUrl: authStore.user?.avatar?.filename
+          }"
           :is-open="isUserMenuOpen"
           @toggle="toggleUserMenu"
         />
@@ -90,6 +93,7 @@ import type { ComputedRef } from 'vue';
 import NavLink from '@/components/molecules/NavLink.vue';
 import UserMenu from '@/components/molecules/UserMenu.vue';
 import ThemeToggle from '@/components/molecules/ThemeToggle.vue';
+import { useAuthStore } from '@/stores/authStore';
 
 interface INavItem {
   to: string;
@@ -109,6 +113,8 @@ const emit = defineEmits<{
   (e: 'toggleUserMenu'): void;
   (e: 'logout'): void;
 }>();
+
+const authStore = useAuthStore();
 
 // Keyboard navigation state
 const currentFocusIndex = ref<number>(0);

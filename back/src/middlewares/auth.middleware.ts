@@ -2,19 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { JWT } from '../config/config';
 import { redisClient } from '../db/redis/connection';
-
-// Extend Express Request interface to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role: string;
-      };
-    }
-  }
-}
+import type { AuthUser } from '../types/express';
 
 // Middleware to verify JWT token
 export const authenticate = async (
@@ -41,11 +29,7 @@ export const authenticate = async (
     console.log('Token found:', token ? 'yes' : 'no'); // Debug log
 
     try {
-      const decoded = jwt.verify(token, JWT.SECRET) as {
-        id: string;
-        email: string;
-        role: string;
-      };
+      const decoded = jwt.verify(token, JWT.SECRET) as AuthUser;
       console.log('Token decoded successfully:', decoded); // Debug log
 
       // Check if token is in Redis (valid session)

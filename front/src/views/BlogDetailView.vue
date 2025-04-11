@@ -32,27 +32,42 @@ import BackButton from '@/components/atoms/BackButton.vue';
 import BlogPostHeader from '@/components/molecules/BlogPostHeader.vue';
 import CommentList from '@/components/organisms/CommentList.vue';
 import BlogHero from '@/components/molecules/BlogHero.vue';
+import FormError from '@/components/atoms/FormError.vue';
 import { ImageSizeEnum } from '@/types/image';
 import { checkApiHealth } from '@/api/apiClient';
 import { marked } from 'marked';
 import { CommentParentTypeEnum } from '@/types/comment';
 import { useDocumentTitle } from '@/composables/useDocumentTitle';
+import type { IBlogPost } from '@/types/blog';
+import type { IScheduledContent } from '@/types/scheduledContent';
+import ScheduledPostPreview from '@/components/molecules/ScheduledPostPreview.vue';
+import ScheduledPostStatus from '@/components/molecules/ScheduledPostStatus.vue';
+import { useScheduledContentStore } from '@/stores/scheduledContentStore';
+import { useUpdateStore } from '@/stores/update';
 
 const route = useRoute();
 const router = useRouter();
-const slug = computed((): string => route.params.slug as string);
-
-// Get the blog store
 const blogStore = useBlogStore();
-const loading = ref<boolean>(true);
-const error = ref<string | null>(null);
+const scheduledContentStore = useScheduledContentStore();
+const updateStore = useUpdateStore();
+
+const isLoading = ref(false);
+const error = ref<Error | null>(null);
+const post = ref<IBlogPost | null>(null);
+const scheduledContent = ref<IScheduledContent | null>(null);
+
+const isScheduled = computed(() => !!scheduledContent.value);
+const hasActiveUpdate = computed(() =>
+  post.value ? updateStore.hasActiveUpdate(post.value.id) : false
+);
 
 // Document title management
 const { setTitle } = useDocumentTitle('Blog Post');
 
 // Get the current post from the store
-const post = computed(() => {
+const currentPost = computed(() => {
   const currentPost = blogStore.currentPost;
+  console.log('Current post from store:', currentPost);
   // Update the document title when post is loaded
   if (currentPost?.title) {
     setTitle(currentPost.title);
@@ -72,44 +87,74 @@ const parsedContent = computed((): string => {
   return marked(post.value.content) as string;
 });
 
-// Fetch the blog post when the component mounts or when the slug changes
-const fetchBlogPost = async (): Promise<void> => {
-  if (!slug.value) {
-    error.value = 'Blog post slug is missing';
-    loading.value = false;
-    return;
-  }
-
-  loading.value = true;
+async function fetchBlogPost() {
+  isLoading.value = true;
   error.value = null;
 
   try {
-    const isHealthy = await checkApiHealth();
+    const slug = route.params.slug as string;
+    console.log('BlogDetailView: Starting fetch with slug:', slug);
+    console.log('BlogDetailView: Current store state before fetch:', {
+      currentPost: blogStore.currentPost,
+      loading: blogStore.loading,
+      error: blogStore.error,
+    });
 
-    if (!isHealthy) {
-      error.value = 'API server is not available';
-      return;
-    }
+    await blogStore.fetchPostBySlug(slug);
 
-    await blogStore.fetchPostBySlug(slug.value);
+    console.log('BlogDetailView: Store state after fetch:', {
+      currentPost: blogStore.currentPost,
+      loading: blogStore.loading,
+      error: blogStore.error,
+    });
 
-    if (!blogStore.currentPost) {
-      error.value = 'Blog post not found';
+    post.value = blogStore.currentPost;
+    console.log('BlogDetailView: Local post ref after assignment:', post.value);
+
+    if (post.value) {
+      console.log('BlogDetailView: Post found, fetching scheduled content for ID:', post.value.id);
+      // Use the getContentById getter from the store
+      const content = scheduledContentStore.getContentById(post.value.id);
+      if (content) {
+        scheduledContent.value = content;
+      } else {
+        // If not found in the store, fetch it
+        await scheduledContentStore.fetchScheduledContent();
+        scheduledContent.value = scheduledContentStore.getContentById(post.value.id) || null;
+      }
     }
   } catch (err) {
-    console.error('Error fetching blog post:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load blog post';
+    error.value = err as Error;
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
-};
+}
 
-// Watch for changes in the route parameter
-watchEffect(() => {
-  if (route.params.slug) {
-    fetchBlogPost();
+async function handleEdit() {
+  if (!post.value) return;
+  await router.push(`/blog/${post.value.id}/edit`);
+}
+
+async function handleCancel() {
+  if (!scheduledContent.value) return;
+
+  try {
+    await scheduledContentStore.cancelScheduledContent(scheduledContent.value.id);
+    scheduledContent.value = null;
+  } catch (err) {
+    error.value = err as Error;
   }
-});
+}
+
+async function handleRetry() {
+  if (!scheduledContent.value) return;
+
+  try {
+    await scheduledContentStore.retryPublication(scheduledContent.value.id);
+  } catch (err) {
+    error.value = err as Error;
+  }
+}
 
 onMounted(() => {
   fetchBlogPost();
@@ -118,63 +163,60 @@ onMounted(() => {
 
 <template>
   <div class="blog-detail-view">
-    <!-- Loading state -->
-    <LoadingSpinner v-if="loading" size="lg" text="Loading blog post..." />
-
-    <!-- Error state -->
-    <div v-else-if="error" class="blog-detail-view__error">
-      <h2 class="blog-detail-view__error-heading">Error</h2>
-      <p class="blog-detail-view__error-text">{{ error }}</p>
-      <div class="blog-detail-view__actions">
-        <BackButton
-          text="Try Again"
-          :to="route.path"
-          class="blog-detail-view__button blog-detail-view__button--retry"
-        />
-        <BackButton
-          text="Back to Blog Listing"
-          to="/blog"
-          class="blog-detail-view__button blog-detail-view__button--back"
-          @click="router.push('/blog')"
-        />
-      </div>
+    <div class="blog-detail-view__header">
+      <BackButton />
     </div>
-    <!-- Blog post content -->
+
+    <LoadingSpinner v-if="isLoading" />
+
+    <FormError v-else-if="error" :message="error.message" className="blog-detail-view__error" />
+
     <template v-else-if="post">
-      
-      <!-- Hero image -->
       <BlogHero
-        v-if="post.title"
         :hero-image="post.heroImage?.filename"
         :alt-text="post.heroImage?.altText || post.title"
+        class="blog-detail-view__hero"
       >
         <h2 class="blog-detail-view__hero-title">{{ post.title }}</h2>
       </BlogHero>
+      <article 
+        class="blog-detail-view__article"
+        :class="{ 'blog-detail-view__article--scheduled': isScheduled }"
+      >
+        <BlogPostHeader 
+          :post="post" 
+          class="blog-detail-view__header" 
+         />
+        <div v-if="scheduledContent" class="blog-detail-view__scheduled">
+          <ScheduledPostPreview
+            :content-id="post.id"
+            :publish-at="scheduledContent.publishAt.toISOString()"
+            :content="scheduledContent.content"
+            :version="scheduledContent.version"
+            :has-active-update="hasActiveUpdate"
+            @edit="handleEdit"
+            @cancel="handleCancel"
+          />
+          <ScheduledPostStatus
+            :status="scheduledContent.status"
+            :error="scheduledContent.error"
+            :has-active-update="hasActiveUpdate"
+            @retry="handleRetry"
+          />
+        </div>
+        <div v-else class="blog-detail-view__content">
+          <div class="blog-content markdown-body" v-html="parsedContent"></div>
+        </div>
 
-      <article class="blog-detail-view__article">
-        <BlogPostHeader :post="post" />
-
-        <!-- Content -->
-        <div class="blog-detail-view__content markdown-body" v-html="parsedContent"></div>
-
-        <!-- Comments section -->
-        <section class="blog-detail-view__comments">
+        <div class="blog-detail-view__comments">
           <h2 class="blog-detail-view__comments-heading">Comments</h2>
-          <CommentList :parent-id="post.id" :parent-type="CommentParentTypeEnum.POST" />
-        </section>
+          <CommentList 
+            :parent-id="post.id" 
+            :parent-type="CommentParentTypeEnum.POST" 
+          />
+        </div>
       </article>
     </template>
-    <!-- Not found state -->
-    <div v-else class="blog-detail-view__not-found">
-      <h2 class="blog-detail-view__not-found-heading">Blog Post Not Found</h2>
-      <p class="blog-detail-view__not-found-text">The requested blog post could not be found.</p>
-      <BackButton
-        text="Back to Blog Listing"
-        to="/blog"
-        class="blog-detail-view__button blog-detail-view__button--back"
-        @click="router.push('/blog')"
-      />
-    </div>
   </div>
 </template>
 
@@ -350,5 +392,17 @@ onMounted(() => {
 
 :deep(.markdown-body tr:nth-child(even)) {
   background-color: var(--color-background-muted);
+}
+
+.blog-detail-view__article--scheduled {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.blog-detail-view__scheduled {
+  position: relative;
+  padding: var(--spacing-md);
+  background-color: var(--color-background-muted);
+  border-bottom: 0.0625rem solid var(--color-border);
 }
 </style>

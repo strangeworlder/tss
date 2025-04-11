@@ -136,7 +136,7 @@ export default defineComponent({
   );
 
   max-width: 40rem;
-  margin: var(--spacing-md) auto;
+  margin: var(--spacing-xl) auto;
   width: 100%;
   position: relative;
   height: 100%;
@@ -153,6 +153,9 @@ export default defineComponent({
   font-size: 2.2rem;
     color: var(--color-text);
     margin: 5rem 1rem;
+}
+.blog-hero :deep(.image-component) {
+  border-radius: 0;
 }
 
 /* Style the GalleryThumbnail component */
