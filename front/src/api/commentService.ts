@@ -41,10 +41,10 @@ export const getComments = async (
       const processComment = (comment: IComment): IComment => ({
         ...comment,
         id: comment.id || String(comment._id),
-        replies: comment.replies?.map(reply => processComment(reply))
+        replies: comment.replies?.map((reply) => processComment(reply)),
       });
 
-      return response.data.comments.map(comment => processComment(comment));
+      return response.data.comments.map((comment) => processComment(comment));
     }
 
     return [];

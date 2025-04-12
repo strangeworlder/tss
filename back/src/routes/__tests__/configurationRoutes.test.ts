@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
+import type { Request, Response } from 'express';
 import app from '../../app';
 import { ConfigurationController } from '../../controllers/ConfigurationController';
 
-vi.mock('../../controllers/ConfigurationController');
+jest.mock('../../controllers/ConfigurationController');
 
 describe('Configuration Routes', () => {
   const mockAdminUser = {
@@ -12,7 +13,7 @@ describe('Configuration Routes', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('GET /api/configuration/global-delay', () => {
@@ -23,11 +24,11 @@ describe('Configuration Routes', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(ConfigurationController.getInstance().getGlobalDelay).mockImplementationOnce(
-        async (req, res) => {
+      jest
+        .mocked(ConfigurationController.getInstance().getGlobalDelay)
+        .mockImplementationOnce(async (req: Request, res: Response) => {
           res.json(mockSettings);
-        }
-      );
+        });
 
       const response = await request(app)
         .get('/api/configuration/global-delay')
@@ -65,11 +66,11 @@ describe('Configuration Routes', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(ConfigurationController.getInstance().updateGlobalDelay).mockImplementationOnce(
-        async (req, res) => {
+      jest
+        .mocked(ConfigurationController.getInstance().updateGlobalDelay)
+        .mockImplementationOnce(async (req: Request, res: Response) => {
           res.json(mockSettings);
-        }
-      );
+        });
 
       const response = await request(app)
         .put('/api/configuration/global-delay')
@@ -102,11 +103,11 @@ describe('Configuration Routes', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(ConfigurationController.getInstance().getContentOverride).mockImplementationOnce(
-        async (req, res) => {
+      jest
+        .mocked(ConfigurationController.getInstance().getContentOverride)
+        .mockImplementationOnce(async (req: Request, res: Response) => {
           res.json(mockOverride);
-        }
-      );
+        });
 
       const response = await request(app)
         .get('/api/configuration/content-override/test-content-id')
@@ -117,11 +118,11 @@ describe('Configuration Routes', () => {
     });
 
     it('should return 404 when override not found', async () => {
-      vi.mocked(ConfigurationController.getInstance().getContentOverride).mockImplementationOnce(
-        async (req, res) => {
+      jest
+        .mocked(ConfigurationController.getInstance().getContentOverride)
+        .mockImplementationOnce(async (req: Request, res: Response) => {
           res.status(404).json({ error: 'Content override not found' });
-        }
-      );
+        });
 
       const response = await request(app)
         .get('/api/configuration/content-override/non-existent-id')
@@ -143,11 +144,11 @@ describe('Configuration Routes', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(ConfigurationController.getInstance().createContentOverride).mockImplementationOnce(
-        async (req, res) => {
+      jest
+        .mocked(ConfigurationController.getInstance().createContentOverride)
+        .mockImplementationOnce(async (req: Request, res: Response) => {
           res.json(mockOverride);
-        }
-      );
+        });
 
       const response = await request(app)
         .post('/api/configuration/content-override/test-content-id')
@@ -171,11 +172,11 @@ describe('Configuration Routes', () => {
 
   describe('DELETE /api/configuration/content-override/:contentId', () => {
     it('should remove content override', async () => {
-      vi.mocked(ConfigurationController.getInstance().removeContentOverride).mockImplementationOnce(
-        async (req, res) => {
+      jest
+        .mocked(ConfigurationController.getInstance().removeContentOverride)
+        .mockImplementationOnce(async (req: Request, res: Response) => {
           res.status(204).send();
-        }
-      );
+        });
 
       const response = await request(app)
         .delete('/api/configuration/content-override/test-content-id')

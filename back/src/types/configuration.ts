@@ -1,5 +1,6 @@
 export interface IGlobalDelaySettings {
-  delayHours: number;
+  postDelayHours: number;
+  commentDelayHours: number;
   updatedBy: string;
   updatedAt: Date;
 }

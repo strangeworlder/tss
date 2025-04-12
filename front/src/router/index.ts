@@ -50,6 +50,53 @@ const router = createRouter({
       component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true, title: 'Your Profile' },
     },
+    {
+      path: '/author',
+      name: 'author',
+      component: () => import('../views/AuthorView.vue'),
+      meta: { requiresAuth: true, requiresAuthor: true, title: 'Author Dashboard' },
+      children: [
+        {
+          path: '',
+          name: 'author-dashboard',
+          component: () => import('../views/author/DashboardView.vue'),
+        },
+        {
+          path: 'content',
+          name: 'author-content',
+          component: () => import('../views/author/ContentManagementView.vue'),
+        },
+        {
+          path: 'content/new',
+          name: 'author-content-new',
+          component: () => import('../views/author/ContentCreatorView.vue'),
+          meta: { title: 'Create Content' },
+        },
+        {
+          path: 'schedule',
+          name: 'author-schedule',
+          component: () => import('../views/author/SchedulingView.vue'),
+          meta: { title: 'Content Scheduling' },
+        },
+        {
+          path: 'analytics',
+          name: 'author-analytics',
+          component: () => import('../views/author/AnalyticsView.vue'),
+          meta: { title: 'Analytics' },
+        },
+        {
+          path: 'comments',
+          name: 'author-comments',
+          component: () => import('../views/author/CommentsView.vue'),
+          meta: { title: 'Comments' },
+        },
+        {
+          path: 'settings',
+          name: 'author-settings',
+          component: () => import('../views/author/SettingsView.vue'),
+        },
+      ],
+    },
   ],
 });
 
@@ -72,6 +119,15 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some((record) => record.meta.requiresAdmin)) {
       // Check if user is admin
       if (!authStore.isAdmin) {
+        next({ path: '/' });
+        return;
+      }
+    }
+
+    // Check if route requires author role
+    if (to.matched.some((record) => record.meta.requiresAuthor)) {
+      // Check if user is author
+      if (!authStore.isAuthor) {
         next({ path: '/' });
         return;
       }

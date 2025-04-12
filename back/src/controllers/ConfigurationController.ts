@@ -23,39 +23,30 @@ export class ConfigurationController {
       const settings = await ConfigurationService.getGlobalDelay();
       res.json(settings);
     } catch (error) {
-      const configError = error as IConfigurationError;
-      if (configError.code === 'CONFIG_NOT_FOUND') {
-        res.status(404).json({ error: 'Global delay settings not found' });
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
-      }
+      const err = error as IConfigurationError;
+      res.status(500).json({ error: err.message, code: err.code });
     }
   }
 
   public async updateGlobalDelay(req: Request, res: Response): Promise<void> {
     try {
-      const { delayHours } = req.body;
-      const userId = req.user?.id;
+      const { postDelayHours, commentDelayHours } = req.body;
+      const userId = req.user?.id || 'system';
 
-      if (!userId) {
-        res.status(401).json({ error: 'Unauthorized' });
+      if (typeof postDelayHours !== 'number' || typeof commentDelayHours !== 'number') {
+        res.status(400).json({ error: 'Invalid delay values' });
         return;
       }
 
-      if (typeof delayHours !== 'number') {
-        res.status(400).json({ error: 'Delay hours must be a number' });
-        return;
-      }
-
-      const settings = await ConfigurationService.updateGlobalDelay(delayHours, userId);
+      const settings = await ConfigurationService.updateGlobalDelay(
+        postDelayHours,
+        commentDelayHours,
+        userId
+      );
       res.json(settings);
     } catch (error) {
-      const configError = error as IConfigurationError;
-      if (configError.code === 'INVALID_DELAY') {
-        res.status(400).json({ error: configError.message });
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
-      }
+      const err = error as IConfigurationError;
+      res.status(500).json({ error: err.message, code: err.code });
     }
   }
 

@@ -21,7 +21,9 @@
     "format:biome": "biome format . --write"
   },
   "dependencies": {
+    "@types/diff": "^7.0.2",
     "@types/marked": "^5.0.2",
+    "diff": "^7.0.0",
     "dompurify": "^3.2.4",
     "marked": "^15.0.7",
     "pinia": "^3.0.1",

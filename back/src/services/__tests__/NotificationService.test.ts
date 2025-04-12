@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import { NotificationService } from '../NotificationService';
 import { NotificationType, NotificationEvent, type INotification } from '../../types/notification';
 import type { EmailService } from '../EmailService';
@@ -6,10 +6,10 @@ import type { OfflineNotificationService } from '../OfflineNotificationService';
 import { Types } from 'mongoose';
 
 // Mock dependencies
-vi.mock('../EmailService');
-vi.mock('../OfflineNotificationService');
-vi.mock('../ErrorHandler');
-vi.mock('../MonitoringService');
+jest.mock('../EmailService');
+jest.mock('../OfflineNotificationService');
+jest.mock('../ErrorHandler');
+jest.mock('../MonitoringService');
 
 describe('NotificationService', () => {
   let notificationService: NotificationService;
@@ -37,15 +37,15 @@ describe('NotificationService', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
 
     // Initialize mocks
     mockEmailService = {
-      sendEmail: vi.fn(),
+      sendEmail: jest.fn(),
     } as any;
 
     mockOfflineNotificationService = {
-      queueNotification: vi.fn(),
+      queueNotification: jest.fn(),
     } as any;
 
     // Get singleton instance
@@ -116,7 +116,7 @@ describe('NotificationService', () => {
   describe('Email Notifications', () => {
     it('should send email notification when enabled', async () => {
       // Mock email preferences
-      vi.spyOn(notificationService as any, 'shouldSendEmailNotification').mockResolvedValue(true);
+      jest.spyOn(notificationService as any, 'shouldSendEmailNotification').mockResolvedValue(true);
 
       const notification = await notificationService.notifyContentScheduled(
         mockUser.id,
@@ -134,7 +134,9 @@ describe('NotificationService', () => {
 
     it('should not send email notification when disabled', async () => {
       // Mock email preferences
-      vi.spyOn(notificationService as any, 'shouldSendEmailNotification').mockResolvedValue(false);
+      jest
+        .spyOn(notificationService as any, 'shouldSendEmailNotification')
+        .mockResolvedValue(false);
 
       await notificationService.notifyContentScheduled(
         mockUser.id,

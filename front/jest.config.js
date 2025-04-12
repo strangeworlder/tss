@@ -12,6 +12,7 @@ export default {
       'ts-jest',
       {
         tsconfig: 'tsconfig.jest.json',
+        useESM: true,
       },
     ],
     '^.+\\.vue$': '@vue/vue3-jest',
@@ -29,6 +30,9 @@ export default {
   globals: {
     'ts-jest': {
       isolatedModules: true,
+      useESM: true,
     },
   },
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'vue'],
+  moduleDirectories: ['node_modules', 'src'],
 };

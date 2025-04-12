@@ -52,7 +52,7 @@ export class SchedulingService extends EventEmitter {
     try {
       // Get global delay settings
       const globalDelay = await ConfigurationService.getGlobalDelay();
-      this.defaultDelayHours = globalDelay.delayHours;
+      this.defaultDelayHours = globalDelay.postDelayHours;
 
       // Set timezone
       this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;

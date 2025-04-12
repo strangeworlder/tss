@@ -9,7 +9,8 @@ import { ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 export interface IDelaySettings {
-  globalDelay: number; // in hours
+  postDelay: number; // in hours
+  commentDelay: number; // in hours
   minDelay: number; // in hours
   maxDelay: number; // in hours
   lastUpdated: Date;
@@ -60,7 +61,8 @@ class AdminService {
 
       // Mock data for now
       const mockData: IDelaySettings = {
-        globalDelay: 24,
+        postDelay: 24,
+        commentDelay: 12,
         minDelay: 1,
         maxDelay: 72,
         lastUpdated: new Date(),
@@ -209,13 +211,13 @@ class AdminService {
       // Check if the override has expired
       if (override.expiresAt && override.expiresAt < new Date()) {
         // Override has expired, use global delay
-        return this.delaySettings.value?.globalDelay || 24;
+        return this.delaySettings.value?.postDelay || 24;
       }
       return override.delay;
     }
 
     // Use global delay if no override
-    return this.delaySettings.value?.globalDelay || 24;
+    return this.delaySettings.value?.postDelay || 24;
   }
 
   /**
@@ -261,6 +263,21 @@ class AdminService {
    */
   public get errorState(): Ref<string | null> {
     return this.error;
+  }
+
+  getDefaultDelay(): number {
+    // Check if delay settings are loaded
+    if (this.delaySettings.value) {
+      // Return the postDelay or a default of 24 hours
+      return this.delaySettings.value?.postDelay || 24;
+    }
+
+    // Default to 24 hours if settings not loaded
+    return 24;
+  }
+
+  getPostDelay(): number {
+    return this.delaySettings.value?.postDelay || 24;
   }
 }
 

@@ -237,6 +237,12 @@ general:
               - "javascript.formatter.quoteStyle: single"
               - "javascript.formatter.trailingCommas: es5"
               - "javascript.formatter.semicolons: always"
+      - "Date Handling:"
+          - "NEVER use the date-fns library - it causes compatibility issues with our build system"
+          - "ALWAYS use native JavaScript Date methods and Intl.DateTimeFormat"
+          - "For formatting dates, use toLocaleDateString() and toLocaleTimeString()"
+          - "For time differences, use Date.getTime() and calculate manually"
+          - "For relative times, implement simple utility functions using Date comparison"
   - naming_conventions:
       - "BEM syntax for CSS classes (block__element--modifier)"
       - "kebab-case within BEM segments (my-block__my-element--my-modifier)"

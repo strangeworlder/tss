@@ -10,6 +10,12 @@ import { useNetworkStatus } from '@/composables/useNetworkStatus';
 import { useUserStore } from '@/stores/userStore';
 import { useConfigurationStore } from '@/stores/configuration';
 import { OfflineStorageService, useOfflineStorage } from '@/services/OfflineStorageService';
+import {
+  convertTimezone,
+  getUserTimezone,
+  isValidTimezone,
+  getTimezoneOffset,
+} from '@/utils/timezoneUtils';
 
 export interface ITimer {
   contentId: string;
@@ -53,6 +59,8 @@ export class TimerService {
   private configStore = useConfigurationStore();
   private animationFrameIds: Map<string, number> = new Map();
   private offlineStorage = useOfflineStorage();
+  private userTimezone: string;
+  private serverTimezone = 'UTC'; // Default to UTC, will be updated from server
 
   private constructor() {
     // Private constructor to enforce singleton pattern
@@ -60,6 +68,8 @@ export class TimerService {
     this.setupOfflineHandling();
     this.setupVisibilityChangeHandler();
     this.loadOfflineTimers();
+    this.userTimezone = getUserTimezone();
+    this.initializeTimezone();
   }
 
   /**
@@ -177,6 +187,21 @@ export class TimerService {
         // Timer has expired, mark it as inactive
         this.offlineStorage.updateOfflineTimer(timer.contentId, { isActive: false });
       }
+    }
+  }
+
+  private async initializeTimezone() {
+    try {
+      // Get server timezone from API
+      const response = await fetch('/api/timezone');
+      if (response.ok) {
+        const data = await response.json();
+        if (isValidTimezone(data.timezone)) {
+          this.serverTimezone = data.timezone;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to get server timezone:', error);
     }
   }
 
@@ -643,6 +668,10 @@ export class TimerService {
     this.timers.clear();
     this.intervals.clear();
     this.animationFrameIds.clear();
+  }
+
+  public getTimezoneOffset(): number {
+    return getTimezoneOffset(this.userTimezone, this.serverTimezone);
   }
 }
 

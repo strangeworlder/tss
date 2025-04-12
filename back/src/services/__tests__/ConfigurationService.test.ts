@@ -1,37 +1,46 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import ConfigurationService from '../ConfigurationService';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import ConfigurationServiceInstance from '../ConfigurationService';
 import { ConfigurationModel } from '../../models/ConfigurationModel';
+import { Types } from 'mongoose';
 
-vi.mock('../../models/ConfigurationModel');
+// Mock ConfigurationModel
+jest.mock('../../models/ConfigurationModel', () => ({
+  ConfigurationModel: {
+    findOne: jest.fn(),
+    findOneAndUpdate: jest.fn(),
+    deleteOne: jest.fn(),
+  },
+}));
 
 describe('ConfigurationService', () => {
-  const mockUserId = 'test-user-id';
-  const mockContentId = 'test-content-id';
+  const mockUserId = new Types.ObjectId().toString();
+  const mockContentId = new Types.ObjectId().toString();
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('getGlobalDelay', () => {
     it('should return global delay settings', async () => {
       const mockSettings = {
-        delayHours: 24,
+        postDelayHours: 24,
+        commentDelayHours: 12,
         updatedBy: 'admin',
         updatedAt: new Date(),
       };
 
-      vi.mocked(ConfigurationModel.findOne).mockResolvedValueOnce({
+      jest.mocked(ConfigurationModel.findOne).mockResolvedValueOnce({
         value: mockSettings,
       } as any);
 
-      const result = await ConfigurationService.getGlobalDelay();
+      const result = await ConfigurationServiceInstance.getGlobalDelay();
       expect(result).toEqual(mockSettings);
     });
 
     it('should throw error when settings not found', async () => {
-      vi.mocked(ConfigurationModel.findOne).mockResolvedValueOnce(null);
+      jest.mocked(ConfigurationModel.findOne).mockResolvedValueOnce(null);
 
-      await expect(ConfigurationService.getGlobalDelay()).rejects.toThrow(
+      await expect(ConfigurationServiceInstance.getGlobalDelay()).rejects.toThrow(
         'Global delay settings not found'
       );
     });
@@ -40,23 +49,24 @@ describe('ConfigurationService', () => {
   describe('updateGlobalDelay', () => {
     it('should update global delay settings', async () => {
       const mockSettings = {
-        delayHours: 48,
+        postDelayHours: 48,
+        commentDelayHours: 24,
         updatedBy: mockUserId,
         updatedAt: expect.any(Date),
       };
 
-      vi.mocked(ConfigurationModel.findOneAndUpdate).mockResolvedValueOnce({
+      jest.mocked(ConfigurationModel.findOneAndUpdate).mockResolvedValueOnce({
         value: mockSettings,
       } as any);
 
-      const result = await ConfigurationService.updateGlobalDelay(48, mockUserId);
+      const result = await ConfigurationServiceInstance.updateGlobalDelay(48, 24, mockUserId);
       expect(result).toEqual(mockSettings);
     });
 
     it('should throw error for negative delay hours', async () => {
-      await expect(ConfigurationService.updateGlobalDelay(-1, mockUserId)).rejects.toThrow(
-        'Delay hours must be a positive number'
-      );
+      await expect(
+        ConfigurationServiceInstance.updateGlobalDelay(-1, -1, mockUserId)
+      ).rejects.toThrow('Delay hours must be a positive number');
     });
   });
 
@@ -71,18 +81,18 @@ describe('ConfigurationService', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(ConfigurationModel.findOne).mockResolvedValueOnce({
+      jest.mocked(ConfigurationModel.findOne).mockResolvedValueOnce({
         value: mockOverride,
       } as any);
 
-      const result = await ConfigurationService.getContentOverride(mockContentId);
+      const result = await ConfigurationServiceInstance.getContentOverride(mockContentId);
       expect(result).toEqual(mockOverride);
     });
 
     it('should return null when override not found', async () => {
-      vi.mocked(ConfigurationModel.findOne).mockResolvedValueOnce(null);
+      jest.mocked(ConfigurationModel.findOne).mockResolvedValueOnce(null);
 
-      const result = await ConfigurationService.getContentOverride(mockContentId);
+      const result = await ConfigurationServiceInstance.getContentOverride(mockContentId);
       expect(result).toBeNull();
     });
   });
@@ -98,11 +108,11 @@ describe('ConfigurationService', () => {
         updatedAt: expect.any(Date),
       };
 
-      vi.mocked(ConfigurationModel.findOneAndUpdate).mockResolvedValueOnce({
+      jest.mocked(ConfigurationModel.findOneAndUpdate).mockResolvedValueOnce({
         value: mockOverride,
       } as any);
 
-      const result = await ConfigurationService.createContentOverride(
+      const result = await ConfigurationServiceInstance.createContentOverride(
         mockContentId,
         12,
         'Testing',
@@ -113,17 +123,17 @@ describe('ConfigurationService', () => {
 
     it('should throw error for negative delay hours', async () => {
       await expect(
-        ConfigurationService.createContentOverride(mockContentId, -1, 'Testing', mockUserId)
+        ConfigurationServiceInstance.createContentOverride(mockContentId, -1, 'Testing', mockUserId)
       ).rejects.toThrow('Delay hours must be a positive number');
     });
   });
 
   describe('removeContentOverride', () => {
     it('should remove content override', async () => {
-      vi.mocked(ConfigurationModel.deleteOne).mockResolvedValueOnce({} as any);
+      jest.mocked(ConfigurationModel.deleteOne).mockResolvedValueOnce({} as any);
 
       await expect(
-        ConfigurationService.removeContentOverride(mockContentId)
+        ConfigurationServiceInstance.removeContentOverride(mockContentId)
       ).resolves.not.toThrow();
     });
   });

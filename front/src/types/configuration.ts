@@ -1,6 +1,7 @@
 export interface IConfiguration {
   id: string;
-  globalDelay: number;
+  postDelay: number;
+  commentDelay: number;
   createdAt: string;
   createdBy: string;
 }
@@ -15,7 +16,8 @@ export interface IContentOverride {
 }
 
 export interface IConfigurationState {
-  globalDelay: number;
+  postDelay: number;
+  commentDelay: number;
   contentOverrides: IContentOverride[];
   configurationHistory: IConfiguration[];
   loading: boolean;

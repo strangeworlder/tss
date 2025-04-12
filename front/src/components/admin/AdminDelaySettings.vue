@@ -23,435 +23,448 @@
 -->
 <template>
   <div class="admin-delay-settings">
-    <h2 class="admin-delay-settings__title">Global Delay Settings</h2>
+    <h2 class="admin-delay-settings__title">Delay Settings</h2>
     
-    <div class="admin-delay-settings__current">
-      <h3 class="admin-delay-settings__subtitle">Current Global Delay</h3>
-      <p class="admin-delay-settings__delay">
-        {{ formatDelay(currentDelay) }}
-      </p>
-    </div>
-    
-    <form class="admin-delay-settings__form" @submit.prevent="updateGlobalDelay">
-      <div class="admin-delay-settings__form-group">
-        <label for="delay-hours" class="admin-delay-settings__label">Hours</label>
-        <input 
-          id="delay-hours" 
-          v-model.number="delayHours" 
-          type="number" 
-          min="0" 
-          max="168" 
-          class="admin-delay-settings__input"
-          aria-describedby="delay-description"
-        />
-      </div>
-      
-      <div class="admin-delay-settings__form-group">
-        <label for="delay-minutes" class="admin-delay-settings__label">Minutes</label>
-        <input 
-          id="delay-minutes" 
-          v-model.number="delayMinutes" 
-          type="number" 
-          min="0" 
-          max="59" 
-          class="admin-delay-settings__input"
-          aria-describedby="delay-description"
-        />
-      </div>
-      
-      <p id="delay-description" class="admin-delay-settings__description">
-        Set the global delay for all new content. This will not affect content that is already scheduled.
-      </p>
-      
+    <form class="admin-delay-settings__form" @submit.prevent="handleSubmit">
+      <section class="admin-delay-settings__section">
+        <h3 class="admin-delay-settings__section-title">Default Delays</h3>
+        
+        <div class="admin-delay-settings__field">
+          <label for="post-delay" class="admin-delay-settings__label">
+            Post Delay (minutes)
+          </label>
+          <input
+            id="post-delay"
+            v-model="settings.postDelay"
+            type="number"
+            min="0"
+            class="admin-delay-settings__input"
+            :class="{ 'admin-delay-settings__input--error': errors.postDelay }"
+            @input="validatePostDelay"
+          />
+          <span v-if="errors.postDelay" class="admin-delay-settings__error">
+            {{ errors.postDelay }}
+          </span>
+        </div>
+
+        <div class="admin-delay-settings__field">
+          <label for="comment-delay" class="admin-delay-settings__label">
+            Comment Delay (minutes)
+          </label>
+          <input
+            id="comment-delay"
+            v-model="settings.commentDelay"
+            type="number"
+            min="0"
+            class="admin-delay-settings__input"
+            :class="{ 'admin-delay-settings__input--error': errors.commentDelay }"
+            @input="validateCommentDelay"
+          />
+          <span v-if="errors.commentDelay" class="admin-delay-settings__error">
+            {{ errors.commentDelay }}
+          </span>
+        </div>
+      </section>
+
+      <section class="admin-delay-settings__section">
+        <h3 class="admin-delay-settings__section-title">Content Type Overrides</h3>
+        
+        <div class="admin-delay-settings__overrides">
+          <div v-for="override in overrides" :key="override.id" class="admin-delay-settings__override">
+            <div class="admin-delay-settings__override-content">
+              <span class="admin-delay-settings__override-type">{{ override.contentType }}</span>
+              <span class="admin-delay-settings__override-delay">{{ override.delay }} minutes</span>
+            </div>
+            <div class="admin-delay-settings__override-actions">
+              <button
+                type="button"
+                class="admin-delay-settings__button admin-delay-settings__button--edit"
+                @click="editOverride(override)"
+                aria-label="Edit override"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                class="admin-delay-settings__button admin-delay-settings__button--delete"
+                @click="deleteOverride(override.id)"
+                aria-label="Delete override"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-delay-settings__add-override">
+          <div class="admin-delay-settings__field">
+            <label for="override-type" class="admin-delay-settings__label">
+              Content Type
+            </label>
+            <select
+              id="override-type"
+              v-model="newOverride.contentType"
+              class="admin-delay-settings__select"
+              :class="{ 'admin-delay-settings__select--error': errors.overrideType }"
+            >
+              <option value="post">Post</option>
+              <option value="comment">Comment</option>
+            </select>
+            <span v-if="errors.overrideType" class="admin-delay-settings__error">
+              {{ errors.overrideType }}
+            </span>
+          </div>
+
+          <div class="admin-delay-settings__field">
+            <label for="override-delay" class="admin-delay-settings__label">
+              Delay (minutes)
+            </label>
+            <input
+              id="override-delay"
+              v-model="newOverride.delay"
+              type="number"
+              min="0"
+              class="admin-delay-settings__input"
+              :class="{ 'admin-delay-settings__input--error': errors.overrideDelay }"
+            />
+            <span v-if="errors.overrideDelay" class="admin-delay-settings__error">
+              {{ errors.overrideDelay }}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            class="admin-delay-settings__button admin-delay-settings__button--add"
+            @click="addOverride"
+            :disabled="isAddingOverride"
+          >
+            Add Override
+          </button>
+        </div>
+      </section>
+
       <div class="admin-delay-settings__actions">
-        <button 
-          type="submit" 
-          class="admin-delay-settings__button"
+        <button
+          type="submit"
+          class="admin-delay-settings__button admin-delay-settings__button--primary"
           :disabled="isSubmitting"
         >
-          {{ isSubmitting ? 'Updating...' : 'Update Global Delay' }}
+          {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+        </button>
+        <button
+          type="button"
+          class="admin-delay-settings__button admin-delay-settings__button--secondary"
+          @click="resetForm"
+          :disabled="isSubmitting"
+        >
+          Reset
         </button>
       </div>
     </form>
-    
-    <div v-if="error" class="admin-delay-settings__error">
-      {{ error }}
-    </div>
-    
-    <div v-if="success" class="admin-delay-settings__success">
-      {{ success }}
-    </div>
-    
-    <div class="admin-delay-settings__history">
-      <h3 class="admin-delay-settings__subtitle">Configuration History</h3>
-      <div v-if="isLoadingHistory" class="admin-delay-settings__loading">
-        Loading history...
-      </div>
-      <div v-else-if="configHistory.length === 0" class="admin-delay-settings__empty">
-        No configuration history available.
-      </div>
-      <ul v-else class="admin-delay-settings__history-list">
-        <li 
-          v-for="config in configHistory" 
-          :key="config.updatedAt.toISOString()" 
-          class="admin-delay-settings__history-item"
-        >
-          <div class="admin-delay-settings__history-date">
-            {{ formatDate(config.updatedAt) }}
-          </div>
-          <div class="admin-delay-settings__history-value">
-            {{ formatDelay(config.value as number) }}
-          </div>
-          <div class="admin-delay-settings__history-user">
-            Updated by: {{ config.updatedBy || 'System' }}
-          </div>
-        </li>
-      </ul>
-    </div>
-    
-    <div class="admin-delay-settings__overrides">
-      <h3 class="admin-delay-settings__subtitle">Content Overrides</h3>
-      <div v-if="isLoadingOverrides" class="admin-delay-settings__loading">
-        Loading overrides...
-      </div>
-      <div v-else-if="contentOverrides.length === 0" class="admin-delay-settings__empty">
-        No active content overrides.
-      </div>
-      <ul v-else class="admin-delay-settings__overrides-list">
-        <li 
-          v-for="override in contentOverrides" 
-          :key="override.contentId" 
-          class="admin-delay-settings__override-item"
-        >
-          <div class="admin-delay-settings__override-content">
-            {{ override.contentType === 'post' ? 'Post' : 'Comment' }} ID: {{ override.contentId }}
-          </div>
-          <div class="admin-delay-settings__override-delay">
-            Delay: {{ formatDelay(override.delayOverride) }}
-          </div>
-          <div v-if="override.reason" class="admin-delay-settings__override-reason">
-            Reason: {{ override.reason }}
-          </div>
-          <div v-if="override.expiresAt" class="admin-delay-settings__override-expires">
-            Expires: {{ formatDate(override.expiresAt) }}
-          </div>
-          <div class="admin-delay-settings__override-actions">
-            <button 
-              @click="resetOverride(override.contentId)" 
-              class="admin-delay-settings__button admin-delay-settings__button--secondary"
-            >
-              Reset Override
-            </button>
-          </div>
-        </li>
-      </ul>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useConfigurationStore } from '@/stores/configuration';
-import { useUserStore } from '@/stores/userStore';
+import { ref, reactive } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 
-// Define interfaces
-interface IConfigurationHistory {
-  key: string;
-  value: unknown;
-  updatedAt: Date;
-  updatedBy?: string;
+interface ISettings {
+  postDelay: number;
+  commentDelay: number;
 }
 
-interface IContentOverride {
-  contentId: string;
+interface IOverride {
+  id: string;
   contentType: 'post' | 'comment';
-  delayOverride: number;
-  reason?: string;
-  expiresAt?: Date;
-  createdBy: string;
-  createdAt: Date;
+  delay: number;
 }
 
-// Initialize stores
-const configStore = useConfigurationStore();
-const userStore = useUserStore();
+interface IErrors {
+  postDelay?: string;
+  commentDelay?: string;
+  overrideType?: string;
+  overrideDelay?: string;
+}
 
-// Reactive state
-const currentDelay = ref<number>(24 * 60 * 60 * 1000); // Default 24 hours in milliseconds
-const delayHours = ref<number>(24);
-const delayMinutes = ref<number>(0);
-const isSubmitting = ref<boolean>(false);
-const error = ref<string>('');
-const success = ref<string>('');
-const configHistory = ref<IConfigurationHistory[]>([]);
-const isLoadingHistory = ref<boolean>(true);
-const contentOverrides = ref<IContentOverride[]>([]);
-const isLoadingOverrides = ref<boolean>(true);
+const authStore = useAuthStore();
+const isSubmitting = ref(false);
+const isAddingOverride = ref(false);
 
-// Computed properties
-const totalDelayMs = computed(() => {
-  return delayHours.value * 60 * 60 * 1000 + delayMinutes.value * 60 * 1000;
+const settings = reactive<ISettings>({
+  postDelay: 0,
+  commentDelay: 0,
 });
 
-// Methods
-const formatDelay = (ms: number): string => {
-  const hours = Math.floor(ms / (60 * 60 * 1000));
-  const minutes = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+const overrides = ref<IOverride[]>([]);
 
-  if (hours === 0) {
-    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+const newOverride = reactive<Omit<IOverride, 'id'>>({
+  contentType: 'post',
+  delay: 0,
+});
+
+const errors = reactive<Record<string, string>>({});
+
+const validatePostDelay = () => {
+  if (settings.postDelay < 0) {
+    errors.postDelay = 'Post delay must be a positive number';
+  } else {
+    errors.postDelay = '';
   }
-
-  if (minutes === 0) {
-    return `${hours} hour${hours !== 1 ? 's' : ''}`;
-  }
-
-  return `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`;
 };
 
-const formatDate = (date: Date): string => {
-  return new Date(date).toLocaleString();
+const validateCommentDelay = () => {
+  if (settings.commentDelay < 0) {
+    errors.commentDelay = 'Comment delay must be a positive number';
+  } else {
+    errors.commentDelay = '';
+  }
 };
 
-const updateGlobalDelay = async (): Promise<void> => {
-  isSubmitting.value = true;
-  error.value = '';
-  success.value = '';
+const validateOverride = () => {
+  if (!newOverride.contentType) {
+    errors.overrideType = 'Please select a content type';
+  } else {
+    errors.overrideType = '';
+  }
 
+  if (newOverride.delay < 0) {
+    errors.overrideDelay = 'Delay must be a positive number';
+  } else {
+    errors.overrideDelay = '';
+  }
+
+  return Object.keys(errors).length === 0;
+};
+
+const addOverride = () => {
+  if (!validateOverride()) {
+    return;
+  }
+
+  isAddingOverride.value = true;
   try {
-    await configStore.setGlobalDelay(totalDelayMs.value, userStore.currentUser?.id || 'system');
+    const override: IOverride = {
+      id: crypto.randomUUID(),
+      contentType: newOverride.contentType as 'post' | 'comment',
+      delay: newOverride.delay,
+    };
+    overrides.value.push(override);
+    newOverride.contentType = 'post';
+    newOverride.delay = 0;
+  } catch (error) {
+    console.error('Failed to add override:', error);
+  } finally {
+    isAddingOverride.value = false;
+  }
+};
 
-    success.value = `Global delay updated to ${formatDelay(totalDelayMs.value)}`;
-    await loadCurrentDelay();
-    await loadConfigHistory();
-  } catch (err) {
-    error.value = `Failed to update global delay: ${(err as Error).message}`;
+const editOverride = (override: IOverride) => {
+  const index = overrides.value.findIndex((o) => o.id === override.id);
+  if (index !== -1) {
+    overrides.value[index] = { ...override };
+  }
+};
+
+const deleteOverride = (id: string) => {
+  overrides.value = overrides.value.filter((override) => override.id !== id);
+};
+
+const resetForm = () => {
+  // TODO: Load default settings from API
+  settings.postDelay = 0;
+  settings.commentDelay = 0;
+  overrides.value = [];
+  for (const key of Object.keys(errors)) {
+    errors[key] = '';
+  }
+};
+
+const handleSubmit = async () => {
+  if (Object.keys(errors).length > 0) {
+    return;
+  }
+
+  isSubmitting.value = true;
+  try {
+    // TODO: Implement actual settings update
+    await fetch('/api/admin/delay-settings', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authStore.state.token}`,
+      },
+      body: JSON.stringify({
+        settings,
+        overrides: overrides.value,
+      }),
+    });
+  } catch (error) {
+    console.error('Failed to save settings:', error);
   } finally {
     isSubmitting.value = false;
   }
 };
-
-const loadCurrentDelay = async (): Promise<void> => {
-  try {
-    const delay = await configStore.getGlobalDelay();
-    currentDelay.value = delay;
-
-    // Update form inputs
-    delayHours.value = Math.floor(delay / (60 * 60 * 1000));
-    delayMinutes.value = Math.floor((delay % (60 * 60 * 1000)) / (60 * 1000));
-  } catch (err) {
-    error.value = `Failed to load current delay: ${(err as Error).message}`;
-  }
-};
-
-const loadConfigHistory = async (): Promise<void> => {
-  isLoadingHistory.value = true;
-
-  try {
-    const history = await configStore.getConfigurationHistory('slow_feature_delay');
-    configHistory.value = history.map((item: { updatedAt: string | Date }) => ({
-      ...item,
-      updatedAt: new Date(item.updatedAt),
-    }));
-  } catch (err) {
-    error.value = `Failed to load configuration history: ${(err as Error).message}`;
-  } finally {
-    isLoadingHistory.value = false;
-  }
-};
-
-const loadContentOverrides = async (): Promise<void> => {
-  isLoadingOverrides.value = true;
-
-  try {
-    contentOverrides.value = await configStore.getContentOverrides();
-  } catch (err) {
-    error.value = `Failed to load content overrides: ${(err as Error).message}`;
-  } finally {
-    isLoadingOverrides.value = false;
-  }
-};
-
-const resetOverride = async (contentId: string): Promise<void> => {
-  try {
-    await configStore.resetContentOverride(contentId);
-    await loadContentOverrides();
-    success.value = `Content override reset for ${contentId}`;
-  } catch (err) {
-    error.value = `Failed to reset content override: ${(err as Error).message}`;
-  }
-};
-
-// Lifecycle hooks
-onMounted(async () => {
-  await loadCurrentDelay();
-  await loadConfigHistory();
-  await loadContentOverrides();
-});
 </script>
 
 <style scoped>
 .admin-delay-settings {
+  max-width: 800px;
+  margin: 0 auto;
   padding: var(--spacing-lg);
-  background-color: var(--color-background);
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .admin-delay-settings__title {
-  margin-top: 0;
-  margin-bottom: var(--spacing-lg);
   font-size: var(--font-size-xl);
-  color: var(--color-text);
-}
-
-.admin-delay-settings__subtitle {
-  margin-top: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-  font-size: var(--font-size-lg);
-  color: var(--color-text);
-}
-
-.admin-delay-settings__current {
+  font-weight: var(--font-weight-bold);
   margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.admin-delay-settings__section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
   background-color: var(--color-background-alt);
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius-md);
 }
 
-.admin-delay-settings__delay {
+.admin-delay-settings__section-title {
   font-size: var(--font-size-lg);
-  font-weight: bold;
-  color: var(--color-primary-700);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
 }
 
-.admin-delay-settings__form {
-  margin-bottom: var(--spacing-lg);
-}
-
-.admin-delay-settings__form-group {
+.admin-delay-settings__field {
   margin-bottom: var(--spacing-md);
 }
 
 .admin-delay-settings__label {
   display: block;
   margin-bottom: var(--spacing-xs);
-  font-weight: bold;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
 }
 
-.admin-delay-settings__input {
+.admin-delay-settings__input,
+.admin-delay-settings__select {
   width: 100%;
-  max-width: 10rem;
   padding: var(--spacing-sm);
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background);
+  color: var(--color-text);
   font-size: var(--font-size-md);
 }
 
-.admin-delay-settings__description {
-  margin-top: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  color: var(--color-text-secondary);
+.admin-delay-settings__input--error,
+.admin-delay-settings__select--error {
+  border-color: var(--color-danger);
+}
+
+.admin-delay-settings__error {
+  display: block;
+  margin-top: var(--spacing-xs);
+  color: var(--color-danger);
   font-size: var(--font-size-sm);
 }
 
+.admin-delay-settings__overrides {
+  margin-bottom: var(--spacing-lg);
+}
+
+.admin-delay-settings__override {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-sm);
+}
+
+.admin-delay-settings__override-content {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.admin-delay-settings__override-type {
+  font-weight: var(--font-weight-medium);
+}
+
+.admin-delay-settings__override-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.admin-delay-settings__add-override {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: var(--spacing-md);
+  align-items: end;
+}
+
 .admin-delay-settings__actions {
-  margin-top: var(--spacing-md);
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
 }
 
 .admin-delay-settings__button {
   padding: var(--spacing-sm) var(--spacing-md);
-  background-color: var(--color-primary-600);
-  color: white;
   border: none;
-  border-radius: 0.25rem;
-  font-size: var(--font-size-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 }
 
-.admin-delay-settings__button:hover {
-  background-color: var(--color-primary-700);
+.admin-delay-settings__button--primary {
+  background-color: var(--color-primary-500);
+  color: var(--color-text-inverse);
 }
 
-.admin-delay-settings__button:disabled {
-  background-color: var(--color-neutral-400);
-  cursor: not-allowed;
+.admin-delay-settings__button--primary:hover {
+  background-color: var(--color-primary-600);
 }
 
 .admin-delay-settings__button--secondary {
-  background-color: var(--color-neutral-600);
+  background-color: var(--color-background-muted);
+  color: var(--color-text);
 }
 
 .admin-delay-settings__button--secondary:hover {
-  background-color: var(--color-neutral-700);
-}
-
-.admin-delay-settings__error {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-sm);
-  background-color: var(--color-danger-100);
-  color: var(--color-danger-700);
-  border-radius: 0.25rem;
-}
-
-.admin-delay-settings__success {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-sm);
-  background-color: var(--color-success-100);
-  color: var(--color-success-700);
-  border-radius: 0.25rem;
-}
-
-.admin-delay-settings__history,
-.admin-delay-settings__overrides {
-  margin-top: var(--spacing-xl);
-}
-
-.admin-delay-settings__loading,
-.admin-delay-settings__empty {
-  padding: var(--spacing-md);
-  color: var(--color-text-secondary);
-  font-style: italic;
-}
-
-.admin-delay-settings__history-list,
-.admin-delay-settings__overrides-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.admin-delay-settings__history-item,
-.admin-delay-settings__override-item {
-  padding: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
   background-color: var(--color-background-alt);
-  border-radius: 0.25rem;
-  border-left: 4px solid var(--color-primary-500);
 }
 
-.admin-delay-settings__history-date,
-.admin-delay-settings__override-content {
-  font-weight: bold;
-  margin-bottom: var(--spacing-xs);
+.admin-delay-settings__button--add {
+  background-color: var(--color-success);
+  color: var(--color-text-inverse);
 }
 
-.admin-delay-settings__history-value,
-.admin-delay-settings__override-delay {
-  color: var(--color-primary-700);
-  margin-bottom: var(--spacing-xs);
+.admin-delay-settings__button--add:hover {
+  background-color: var(--color-success-dark);
 }
 
-.admin-delay-settings__history-user,
-.admin-delay-settings__override-reason,
-.admin-delay-settings__override-expires {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xs);
+.admin-delay-settings__button--edit {
+  background-color: var(--color-warning);
+  color: var(--color-text-inverse);
 }
 
-.admin-delay-settings__override-actions {
-  margin-top: var(--spacing-sm);
+.admin-delay-settings__button--edit:hover {
+  background-color: var(--color-warning-dark);
+}
+
+.admin-delay-settings__button--delete {
+  background-color: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+
+.admin-delay-settings__button--delete:hover {
+  background-color: var(--color-danger-dark);
+}
+
+.admin-delay-settings__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style> 

@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { Types } from 'mongoose';
 import { SchedulingService } from '../SchedulingService';
 import { BlogPostModel } from '../../domains/blog/models/BlogPostModel';
@@ -13,37 +13,38 @@ import type { IComment } from '../../domains/blog/models/CommentModel';
 import type { IScheduledContent } from '../../types/scheduling';
 
 // Mock the models
-vi.mock('../../domains/blog/models/BlogPostModel');
-vi.mock('../../domains/blog/models/CommentModel');
-vi.mock('../../domains/scheduledContent/models/ScheduledContentModel');
-vi.mock('../ConfigurationService');
-vi.mock('../MonitoringService');
-vi.mock('../ErrorHandler');
+jest.mock('../../domains/blog/models/BlogPostModel');
+jest.mock('../../domains/blog/models/CommentModel');
+jest.mock('../../domains/scheduledContent/models/ScheduledContentModel');
+jest.mock('../ConfigurationService');
+jest.mock('../MonitoringService');
+jest.mock('../ErrorHandler');
 
 describe('SchedulingService', () => {
   let schedulingService: SchedulingService;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     schedulingService = SchedulingService.getInstance();
 
     // Mock ConfigurationService.getGlobalDelay
-    vi.mocked(ConfigurationService.getGlobalDelay).mockResolvedValue({
-      delayHours: 24,
+    jest.mocked(ConfigurationService.getGlobalDelay).mockResolvedValue({
+      postDelayHours: 24,
+      commentDelayHours: 12,
       updatedBy: 'test-user',
       updatedAt: new Date(),
     });
 
     // Mock MonitoringService.updateHealthCheck
-    vi.mocked(MonitoringService.updateHealthCheck).mockImplementation(() => {});
+    jest.mocked(MonitoringService.updateHealthCheck).mockImplementation(() => {});
 
     // Mock ErrorHandler.handleError
-    vi.mocked(ErrorHandler.handleError).mockImplementation(() => {});
+    jest.mocked(ErrorHandler.handleError).mockImplementation(() => {});
   });
 
   afterEach(() => {
     // Clear all mocks
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('initialize', () => {
@@ -64,7 +65,7 @@ describe('SchedulingService', () => {
     it('should handle initialization errors', async () => {
       // Arrange
       const error = new Error('Initialization failed');
-      vi.mocked(ConfigurationService.getGlobalDelay).mockRejectedValue(error);
+      jest.mocked(ConfigurationService.getGlobalDelay).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.initialize()).rejects.toThrow('Initialization failed');
@@ -121,7 +122,7 @@ describe('SchedulingService', () => {
         version: 1,
       };
 
-      vi.mocked(ScheduledContentModel.create).mockResolvedValue(mockScheduledContent as any);
+      jest.mocked(ScheduledContentModel.create).mockResolvedValue(mockScheduledContent as any);
 
       // Act
       const result = await schedulingService.schedulePost(mockPost, publishAt);
@@ -176,7 +177,7 @@ describe('SchedulingService', () => {
       } as unknown as IBlogPost;
 
       const error = new Error('Failed to schedule post');
-      vi.mocked(ScheduledContentModel.create).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.create).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.schedulePost(mockPost, publishAt)).rejects.toThrow();
@@ -230,7 +231,7 @@ describe('SchedulingService', () => {
         version: 1,
       };
 
-      vi.mocked(ScheduledContentModel.create).mockResolvedValue(mockScheduledContent as any);
+      jest.mocked(ScheduledContentModel.create).mockResolvedValue(mockScheduledContent as any);
 
       // Act
       const result = await schedulingService.scheduleComment(mockComment, publishAt);
@@ -284,7 +285,7 @@ describe('SchedulingService', () => {
       } as unknown as IBlogPost;
 
       const error = new Error('Failed to schedule comment');
-      vi.mocked(ScheduledContentModel.create).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.create).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.scheduleComment(mockComment, publishAt)).rejects.toThrow();
@@ -320,9 +321,9 @@ describe('SchedulingService', () => {
         version: 1,
       };
 
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(
-        mockScheduledContent as any
-      );
+      jest
+        .mocked(ScheduledContentModel.findByIdAndUpdate)
+        .mockResolvedValue(mockScheduledContent as any);
 
       // Act
       const result = await schedulingService.updateScheduledContent(contentId, updates);
@@ -354,7 +355,7 @@ describe('SchedulingService', () => {
       };
 
       const error = new Error('Failed to update scheduled content');
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.findByIdAndUpdate).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.updateScheduledContent(contentId, updates)).rejects.toThrow();
@@ -376,7 +377,7 @@ describe('SchedulingService', () => {
         status: 'scheduled',
       };
 
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(null);
+      jest.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(null);
 
       // Act & Assert
       await expect(schedulingService.updateScheduledContent(contentId, updates)).rejects.toThrow(
@@ -400,9 +401,9 @@ describe('SchedulingService', () => {
         version: 1,
       };
 
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(
-        mockScheduledContent as any
-      );
+      jest
+        .mocked(ScheduledContentModel.findByIdAndUpdate)
+        .mockResolvedValue(mockScheduledContent as any);
 
       // Act
       const result = await schedulingService.cancelScheduledContent(contentId);
@@ -429,7 +430,7 @@ describe('SchedulingService', () => {
       // Arrange
       const contentId = new Types.ObjectId().toString();
       const error = new Error('Failed to cancel scheduled content');
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.findByIdAndUpdate).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.cancelScheduledContent(contentId)).rejects.toThrow();
@@ -445,7 +446,7 @@ describe('SchedulingService', () => {
     it('should throw an error if scheduled content is not found', async () => {
       // Arrange
       const contentId = new Types.ObjectId().toString();
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(null);
+      jest.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(null);
 
       // Act & Assert
       await expect(schedulingService.cancelScheduledContent(contentId)).rejects.toThrow(
@@ -470,9 +471,9 @@ describe('SchedulingService', () => {
         version: 1,
       };
 
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(
-        mockScheduledContent as any
-      );
+      jest
+        .mocked(ScheduledContentModel.findByIdAndUpdate)
+        .mockResolvedValue(mockScheduledContent as any);
 
       // Act
       const result = await schedulingService.rescheduleContent(contentId, newPublishAt);
@@ -500,7 +501,7 @@ describe('SchedulingService', () => {
       const contentId = new Types.ObjectId().toString();
       const newPublishAt = new Date();
       const error = new Error('Failed to reschedule content');
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.findByIdAndUpdate).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.rescheduleContent(contentId, newPublishAt)).rejects.toThrow();
@@ -518,7 +519,7 @@ describe('SchedulingService', () => {
       // Arrange
       const contentId = new Types.ObjectId().toString();
       const newPublishAt = new Date();
-      vi.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(null);
+      jest.mocked(ScheduledContentModel.findByIdAndUpdate).mockResolvedValue(null);
 
       // Act & Assert
       await expect(schedulingService.rescheduleContent(contentId, newPublishAt)).rejects.toThrow(
@@ -542,7 +543,7 @@ describe('SchedulingService', () => {
         version: 1,
       };
 
-      vi.mocked(ScheduledContentModel.findById).mockResolvedValue(mockScheduledContent as any);
+      jest.mocked(ScheduledContentModel.findById).mockResolvedValue(mockScheduledContent as any);
 
       // Act
       const result = await schedulingService.getScheduledContentById(contentId);
@@ -564,7 +565,7 @@ describe('SchedulingService', () => {
     it('should return null if scheduled content is not found', async () => {
       // Arrange
       const contentId = new Types.ObjectId().toString();
-      vi.mocked(ScheduledContentModel.findById).mockResolvedValue(null);
+      jest.mocked(ScheduledContentModel.findById).mockResolvedValue(null);
 
       // Act
       const result = await schedulingService.getScheduledContentById(contentId);
@@ -578,7 +579,7 @@ describe('SchedulingService', () => {
       // Arrange
       const contentId = new Types.ObjectId().toString();
       const error = new Error('Failed to get scheduled content');
-      vi.mocked(ScheduledContentModel.findById).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.findById).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.getScheduledContentById(contentId)).rejects.toThrow();
@@ -619,7 +620,7 @@ describe('SchedulingService', () => {
         },
       ];
 
-      vi.mocked(ScheduledContentModel.find).mockResolvedValue(mockScheduledContent as any[]);
+      jest.mocked(ScheduledContentModel.find).mockResolvedValue(mockScheduledContent as any[]);
 
       // Act
       const result = await schedulingService.getScheduledContentByAuthor(authorId);
@@ -644,7 +645,7 @@ describe('SchedulingService', () => {
       // Arrange
       const authorId = new Types.ObjectId().toString();
       const error = new Error('Failed to get scheduled content by author');
-      vi.mocked(ScheduledContentModel.find).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.find).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.getScheduledContentByAuthor(authorId)).rejects.toThrow();
@@ -684,7 +685,7 @@ describe('SchedulingService', () => {
         },
       ];
 
-      vi.mocked(ScheduledContentModel.find).mockResolvedValue(mockScheduledContent as any[]);
+      jest.mocked(ScheduledContentModel.find).mockResolvedValue(mockScheduledContent as any[]);
 
       // Act
       const result = await schedulingService.getScheduledContent();
@@ -711,7 +712,7 @@ describe('SchedulingService', () => {
     it('should handle errors when getting all scheduled content', async () => {
       // Arrange
       const error = new Error('Failed to get all scheduled content');
-      vi.mocked(ScheduledContentModel.find).mockRejectedValue(error);
+      jest.mocked(ScheduledContentModel.find).mockRejectedValue(error);
 
       // Act & Assert
       await expect(schedulingService.getScheduledContent()).rejects.toThrow();

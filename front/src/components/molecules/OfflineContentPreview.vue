@@ -47,7 +47,7 @@ import { useOfflineStorage } from '@/services/OfflineStorageService';
 import { useNetworkStatus } from '@/composables/useNetworkStatus';
 import AppButton from '@/components/atoms/AppButton.vue';
 import { ButtonVariantEnum } from '@/types/button';
-import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime } from '@/utils/date';
 
 const props = defineProps<{
   content: IOfflineContent;
@@ -99,9 +99,37 @@ const syncStatusClass = computed(() => {
   }
 });
 
-const timeUntilPublish = computed(() => {
+const formatTimeToPublish = computed(() => {
+  if (!props.content.publishAt) return '';
+
   const publishDate = new Date(props.content.publishAt);
-  return formatDistanceToNow(publishDate, { addSuffix: true });
+  const now = new Date();
+  const diffMs = publishDate.getTime() - now.getTime();
+
+  if (diffMs > 0) {
+    // For future dates, calculate time remaining
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) {
+      return `in ${diffDays} day${diffDays === 1 ? '' : 's'}`;
+    }
+
+    if (diffHours > 0) {
+      return `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`;
+    }
+
+    if (diffMins > 0) {
+      return `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`;
+    }
+
+    return 'very soon';
+  }
+
+  // For past dates, use the formatRelativeTime utility
+  return formatRelativeTime(publishDate);
 });
 
 const hasConflict = computed(() => {
@@ -139,7 +167,7 @@ const handleResolveConflict = (resolution: 'local' | 'server') => {
       <div class="offline-content-preview__meta">
         <span class="offline-content-preview__version">Version: {{ content.version }}</span>
         <span class="offline-content-preview__publish-time">
-          Publishes {{ timeUntilPublish }}
+          Publishes {{ formatTimeToPublish }}
         </span>
       </div>
     </div>

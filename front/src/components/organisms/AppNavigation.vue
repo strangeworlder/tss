@@ -17,7 +17,8 @@ Usage:
   :is-open="navigationOpen"
   :is-authenticated="userIsAuthenticated"
   :is-admin="userIsAdmin"
-  :user-name="currentUserName"
+  :is-author="userIsAuthor"
+  :userName="currentUserName"
   :is-user-menu-open="userMenuOpen"
   @toggle-user-menu="handleUserMenuToggle"
   @logout="handleLogout"
@@ -30,6 +31,7 @@ Props:
 | isOpen          | boolean   | false   | Controls navigation visibility on mobile        |
 | isAuthenticated | boolean   | false   | User authentication state                      |
 | isAdmin         | boolean   | false   | User admin status                              |
+| isAuthor        | boolean   | false   | User author status                             |
 | userName        | string    | ''      | Display name for authenticated user            |
 | isUserMenuOpen  | boolean   | false   | Controls user menu dropdown state             |
 
@@ -50,7 +52,6 @@ Accessibility:
   <nav 
     class="navigation" 
     :class="{ 'navigation--open': isOpen }"
-    :aria-expanded="isOpen"
     @keydown="handleKeyDown"
   >
     <ul class="navigation__list">
@@ -105,6 +106,7 @@ const props = defineProps<{
   isOpen: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isAuthor: boolean;
   userName: string;
   isUserMenuOpen: boolean;
 }>();
@@ -128,6 +130,10 @@ const navItems: ComputedRef<INavItem[]> = computed(() => {
 
   if (props.isAdmin) {
     items.push({ to: '/admin', text: 'Admin' });
+  }
+
+  if (props.isAuthor) {
+    items.push({ to: '/author', text: 'Author Dashboard' });
   }
 
   if (!props.isAuthenticated) {

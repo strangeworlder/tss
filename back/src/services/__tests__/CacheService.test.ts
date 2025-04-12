@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import { CacheService } from '../CacheService';
 import type { IScheduledContent } from '../../types/scheduling';
 
@@ -36,7 +36,7 @@ describe('CacheService', () => {
     });
 
     it('should emit contentCached event', () => {
-      const spy = vi.fn();
+      const spy = jest.fn();
       cacheService.on('contentCached', spy);
       cacheService.cacheScheduledContent(mockContent);
       expect(spy).toHaveBeenCalledWith(
@@ -69,7 +69,7 @@ describe('CacheService', () => {
     });
 
     it('should emit cacheInvalidated event', () => {
-      const spy = vi.fn();
+      const spy = jest.fn();
       cacheService.on('cacheInvalidated', spy);
       cacheService.cacheScheduledContent(mockContent);
       cacheService.invalidateCache(mockContent.id);
@@ -90,7 +90,7 @@ describe('CacheService', () => {
     });
 
     it('should emit maxCacheSizeChanged event', () => {
-      const spy = vi.fn();
+      const spy = jest.fn();
       cacheService.on('maxCacheSizeChanged', spy);
       cacheService.setMaxCacheSize(500);
       expect(spy).toHaveBeenCalledWith(
@@ -110,7 +110,7 @@ describe('CacheService', () => {
     });
 
     it('should emit defaultExpiryChanged event', () => {
-      const spy = vi.fn();
+      const spy = jest.fn();
       cacheService.on('defaultExpiryChanged', spy);
       cacheService.setDefaultExpiry(120);
       expect(spy).toHaveBeenCalledWith(
@@ -122,16 +122,17 @@ describe('CacheService', () => {
   });
 
   describe('getCacheStats', () => {
-    it('should return correct cache statistics', () => {
+    it('should return cache statistics', () => {
+      cacheService.setMaxCacheSize(500);
+      cacheService.setDefaultExpiry(120);
       cacheService.cacheScheduledContent(mockContent);
+
       const stats = cacheService.getCacheStats();
-      expect(stats).toEqual(
-        expect.objectContaining({
-          size: 1,
-          maxSize: 1000,
-          expiryMinutes: 60,
-        })
-      );
+      expect(stats).toEqual({
+        size: 1,
+        maxSize: 500,
+        expiryMinutes: 120,
+      });
     });
   });
 });

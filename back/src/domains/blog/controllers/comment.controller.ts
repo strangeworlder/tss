@@ -300,19 +300,19 @@ export const deleteComment = async (req: Request, res: Response) => {
 
     // Check if user is admin or comment author
     const isAdmin = req.user.role === 'admin';
-    const isAuthor = comment.author.id === req.user.id;
+    const isAuthor = comment.author.id?.toString() === req.user.id.toString();
     console.log('Authorization check:', {
       isAdmin,
       isAuthor,
-      commentAuthorId: comment.author.id,
-      requestUserId: req.user.id,
+      commentAuthorId: comment.author.id?.toString(),
+      requestUserId: req.user.id.toString(),
     });
 
     if (!isAdmin && !isAuthor) {
       console.log('Authorization failed:', {
         userRole: req.user.role,
-        commentAuthorId: comment.author.id,
-        requestUserId: req.user.id,
+        commentAuthorId: comment.author.id?.toString(),
+        requestUserId: req.user.id.toString(),
       });
       return res.status(403).json({
         success: false,

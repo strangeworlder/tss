@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import {
   OfflineNotificationService,
   type IQueuedNotification,
@@ -7,15 +7,15 @@ import type { IScheduledContent } from '../../types/scheduling';
 import SchedulingService from '../SchedulingService';
 
 // Mock dependencies
-vi.mock('../SchedulingService', () => ({
+jest.mock('../SchedulingService', () => ({
   default: {
-    emit: vi.fn(),
+    emit: jest.fn(),
   },
 }));
 
-vi.mock('../MonitoringService', () => ({
+jest.mock('../MonitoringService', () => ({
   default: {
-    updateHealthCheck: vi.fn(),
+    updateHealthCheck: jest.fn(),
   },
 }));
 
@@ -34,7 +34,7 @@ describe('OfflineNotificationService', () => {
 
   beforeEach(() => {
     service = OfflineNotificationService.getInstance();
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('queueNotification', () => {
@@ -73,7 +73,9 @@ describe('OfflineNotificationService', () => {
 
     it('should handle failed notifications and retry', async () => {
       const type = 'contentScheduled';
-      vi.mocked(SchedulingService.emit).mockRejectedValueOnce(new Error('Failed to emit'));
+      jest
+        .mocked(SchedulingService.emit)
+        .mockRejectedValueOnce(new Error('Failed to emit') as never);
 
       await service.queueNotification(type, mockContent);
       await service.processQueue();
@@ -85,7 +87,7 @@ describe('OfflineNotificationService', () => {
 
     it('should remove notification after max retries', async () => {
       const type = 'contentScheduled';
-      vi.mocked(SchedulingService.emit).mockRejectedValue(new Error('Failed to emit'));
+      jest.mocked(SchedulingService.emit).mockRejectedValue(new Error('Failed to emit') as never);
 
       await service.queueNotification(type, mockContent);
 

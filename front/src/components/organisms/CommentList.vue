@@ -351,14 +351,14 @@ const handleReplySubmit = async (): Promise<void> => {
 
 const canDelete = (comment: IComment | undefined): boolean => {
   if (!comment || !comment.author) return false;
-  const currentUser = authStore.user;
+  const currentUser = authStore.currentUser;
   const canDelete = currentUser?.id === comment.author.id || authStore.isAdmin;
   console.log('Checking delete permission:', {
     commentId: comment.id,
     currentUserId: currentUser?.id,
     commentAuthorId: comment.author.id,
     isAdmin: authStore.isAdmin,
-    canDelete
+    canDelete,
   });
   return canDelete;
 };
@@ -387,7 +387,7 @@ const confirmDelete = async (): Promise<void> => {
     error.value = apiError.message || 'Failed to delete comment';
     console.error('Error deleting comment:', {
       commentId: commentToDelete.value,
-      error: apiError
+      error: apiError,
     });
     emit('error', error.value);
   } finally {
@@ -410,7 +410,7 @@ const handleCommentSuccess = async (): Promise<void> => {
     const apiError = err as IApiError;
     error.value = apiError.message || 'Failed to refresh comments after adding';
     console.error('Error after comment success:', {
-      error: apiError
+      error: apiError,
     });
     emit('error', error.value);
   }

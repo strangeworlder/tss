@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { vi } from 'vitest';
+import { jest } from '@jest/globals';
+import type { IBlogPost } from '../../types/blog';
 import BlogView from '../BlogView.vue';
 import { mockBlogViewData } from './__fixtures__/BlogView.fixture';
-import type { IBlogPost } from '@/types/blog';
 
 /**
  * Interface for BlogView store state
@@ -12,6 +12,7 @@ interface IBlogViewStoreState {
   posts: IBlogPost[];
   loading: boolean;
   error: string | null;
+  fetchPosts: () => Promise<void>;
 }
 
 /**
@@ -33,15 +34,18 @@ export function mountBlogView(
     posts: storeState.posts || mockBlogViewData.blogPosts,
     loading: storeState.loading || false,
     error: storeState.error || null,
-    fetchPosts: vi.fn().mockResolvedValue(undefined),
+    fetchPosts: jest.fn<() => Promise<void>>().mockResolvedValue(),
   };
 
-  // Mock the ref for serverStarting
-  vi.mock('../BlogView.vue', async () => {
-    const actual = await vi.importActual('../BlogView.vue');
+  // Mock the BlogView component
+  jest.mock('../BlogView.vue', () => {
+    const actual = jest.requireActual<typeof BlogView>('../BlogView.vue');
     return {
-      ...actual,
-      serverStarting: { value: serverStarting },
+      __esModule: true,
+      default: {
+        ...actual.default,
+        serverStarting: { value: serverStarting },
+      },
     };
   });
 
@@ -69,6 +73,7 @@ export function createDefaultStoreState(
     posts: mockBlogViewData.blogPosts,
     loading: false,
     error: null,
+    fetchPosts: jest.fn<() => Promise<void>>().mockResolvedValue(),
     ...overrides,
   };
 }

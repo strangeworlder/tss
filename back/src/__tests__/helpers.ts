@@ -2,7 +2,10 @@ import { Types } from 'mongoose';
 import { faker } from '@faker-js/faker';
 import type { IUser } from '../types/user';
 import type { IBlogPost, PostStatus, ModerationStatus } from '../domains/blog/types/BlogTypes';
-import type { IComment, CommentStatus as CommentStatusType } from '../domains/blog/types/CommentTypes';
+import type {
+  IComment,
+  CommentStatus as CommentStatusType,
+} from '../domains/blog/types/CommentTypes';
 import { type INotification, NotificationType } from '../types/notification';
 import type { INotificationPreferences } from '../models/NotificationPreferencesModel';
 
@@ -132,7 +135,7 @@ export function createMockNotificationPreferences(
       NotificationType.CONTENT_SCHEDULED,
       NotificationType.CONTENT_PUBLISHED,
       NotificationType.CONTENT_PUBLICATION_FAILED,
-      NotificationType.SYSTEM_ERROR
+      NotificationType.SYSTEM_ERROR,
     ],
     notificationTypes: allNotificationTypes,
     createdAt: new Date(),
@@ -152,8 +155,8 @@ export function createMockNotificationPreferences(
       emailTypes: mockPreferences.emailTypes,
       notificationTypes: mockPreferences.notificationTypes,
       createdAt: mockPreferences.createdAt,
-      updatedAt: mockPreferences.updatedAt
-    })
+      updatedAt: mockPreferences.updatedAt,
+    }),
   } as INotificationPreferences;
 }
 

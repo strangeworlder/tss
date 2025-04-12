@@ -20,22 +20,24 @@ export const useScheduledContentStore = defineStore('scheduledContent', () => {
   const error = ref<string | null>(null);
 
   // Computed properties
-  const scheduledPosts = computed(() => 
-    scheduledContent.value.filter(content => 
-      // Filter based on metadata or other properties
-      content.metadata?.contentType === 'post'
+  const scheduledPosts = computed(() =>
+    scheduledContent.value.filter(
+      (content) =>
+        // Filter based on metadata or other properties
+        content.metadata?.contentType === 'post'
     )
   );
 
-  const scheduledComments = computed(() => 
-    scheduledContent.value.filter(content => 
-      // Filter based on metadata or other properties
-      content.metadata?.contentType === 'comment'
+  const scheduledComments = computed(() =>
+    scheduledContent.value.filter(
+      (content) =>
+        // Filter based on metadata or other properties
+        content.metadata?.contentType === 'comment'
     )
   );
 
   function getContentById(id: string): IScheduledContent | undefined {
-    return scheduledContent.value.find(content => content.id === id);
+    return scheduledContent.value.find((content) => content.id === id);
   }
 
   function setScheduledContent(content: IScheduledContent[]): void {
@@ -79,23 +81,21 @@ export const useScheduledContentStore = defineStore('scheduledContent', () => {
 
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-      const endpoint = contentId 
-        ? `/v1/scheduled-content/${contentId}` 
-        : '/v1/scheduled-content';
-      
+      const endpoint = contentId ? `/v1/scheduled-content/${contentId}` : '/v1/scheduled-content';
+
       const response = await apiGet(endpoint);
-      
+
       if (response.success) {
         if (contentId) {
           // Single content fetched
           if (response.data) {
             // Type assertion for response data
             const contentData = response.data as IScheduledContent;
-            
+
             const index = scheduledContent.value.findIndex(
               (content) => content.id === contentData.id
             );
-            
+
             if (index !== -1) {
               // Update existing content
               scheduledContent.value[index] = contentData;

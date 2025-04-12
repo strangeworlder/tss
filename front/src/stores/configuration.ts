@@ -4,7 +4,8 @@ import { api } from '@/services/api';
 
 export const useConfigurationStore = defineStore('configuration', {
   state: (): IConfigurationState => ({
-    globalDelay: 24,
+    postDelay: 24,
+    commentDelay: 12,
     contentOverrides: [],
     configurationHistory: [],
     loading: false,
@@ -12,7 +13,8 @@ export const useConfigurationStore = defineStore('configuration', {
   }),
 
   getters: {
-    getGlobalDelay: (state: IConfigurationState) => state.globalDelay,
+    getPostDelay: (state: IConfigurationState) => state.postDelay,
+    getCommentDelay: (state: IConfigurationState) => state.commentDelay,
     getContentOverrides: (state: IConfigurationState) => state.contentOverrides,
     getConfigurationHistory: (state: IConfigurationState) => state.configurationHistory,
     isLoading: (state: IConfigurationState) => state.loading,
@@ -25,7 +27,8 @@ export const useConfigurationStore = defineStore('configuration', {
       this.error = null;
       try {
         const response = await api.getGlobalDelay();
-        this.globalDelay = response.globalDelay;
+        this.postDelay = response.postDelay;
+        this.commentDelay = response.commentDelay;
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch global delay';
       } finally {
@@ -33,12 +36,13 @@ export const useConfigurationStore = defineStore('configuration', {
       }
     },
 
-    async setGlobalDelay(this: IConfigurationState, delay: number) {
+    async setGlobalDelay(this: IConfigurationState, postDelay: number, commentDelay: number) {
       this.loading = true;
       this.error = null;
       try {
-        await api.setGlobalDelay(delay);
-        this.globalDelay = delay;
+        await api.setGlobalDelay(postDelay, commentDelay);
+        this.postDelay = postDelay;
+        this.commentDelay = commentDelay;
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to set global delay';
       } finally {

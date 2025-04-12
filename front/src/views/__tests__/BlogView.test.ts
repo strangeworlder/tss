@@ -1,21 +1,18 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { mountBlogView, createDefaultStoreState } from './BlogView.test-utils';
 import { mockBlogViewData } from './__fixtures__/BlogView.fixture';
-import { useBlogStore } from '@/stores/blogStore';
 
 // Mock the blog store
-vi.mock('@/stores/blogStore', () => ({
-  useBlogStore: vi.fn(),
-}));
+jest.mock('../../stores/blogStore');
 
 // Mock the API client
-vi.mock('@/api/apiClient', () => ({
-  checkApiHealth: vi.fn().mockResolvedValue(true),
+jest.mock('../../api/apiClient', () => ({
+  checkApiHealth: jest.fn<() => Promise<boolean>>().mockResolvedValue(true),
 }));
 
 describe('BlogView', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('Rendering', () => {

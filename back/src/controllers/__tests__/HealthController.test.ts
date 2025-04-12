@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import type { Request, Response } from 'express';
 import { HealthController } from '../HealthController';
 import MonitoringService, {
@@ -12,42 +12,42 @@ import SchedulingService from '../../services/SchedulingService';
 import PublicationService from '../../services/PublicationService';
 
 // Mock the services
-vi.mock('../../services/MonitoringService', () => ({
+jest.mock('../../services/MonitoringService', () => ({
   default: {
-    getHealthChecks: vi.fn(),
-    collectMetrics: vi.fn(),
-    updateHealthCheck: vi.fn(),
-    getPerformanceMetrics: vi.fn(),
+    getHealthChecks: jest.fn(),
+    collectMetrics: jest.fn(),
+    updateHealthCheck: jest.fn(),
+    getPerformanceMetrics: jest.fn(),
   },
   HealthStatus,
 }));
 
-vi.mock('../../services/ErrorHandler', () => ({
+jest.mock('../../services/ErrorHandler', () => ({
   default: {
-    getInstance: vi.fn().mockReturnValue({
-      getErrorCount: vi.fn().mockReturnValue(0),
-      getErrorRate: vi.fn().mockReturnValue(0),
+    getInstance: jest.fn().mockReturnValue({
+      getErrorCount: jest.fn().mockReturnValue(0),
+      getErrorRate: jest.fn().mockReturnValue(0),
     }),
   },
 }));
 
-vi.mock('../../services/BatchProcessor', () => ({
+jest.mock('../../services/BatchProcessor', () => ({
   default: {
-    getInstance: vi.fn().mockReturnValue({}),
+    getInstance: jest.fn().mockReturnValue({}),
   },
 }));
 
-vi.mock('../../services/SchedulingService', () => ({
+jest.mock('../../services/SchedulingService', () => ({
   default: {
-    getInstance: vi.fn().mockReturnValue({
-      getScheduledContent: vi.fn().mockResolvedValue([]),
+    getInstance: jest.fn().mockReturnValue({
+      getScheduledContent: jest.fn().mockResolvedValue([]),
     }),
   },
 }));
 
-vi.mock('../../services/PublicationService', () => ({
+jest.mock('../../services/PublicationService', () => ({
   default: {
-    getInstance: vi.fn().mockReturnValue({}),
+    getInstance: jest.fn().mockReturnValue({}),
   },
 }));
 
@@ -60,13 +60,13 @@ describe('HealthController', () => {
     healthController = HealthController.getInstance();
     mockReq = {} as Request;
     mockRes = {
-      json: vi.fn(),
-      status: vi.fn().mockReturnThis(),
+      json: jest.fn(),
+      status: jest.fn().mockReturnThis(),
     } as unknown as Response;
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('getBasicHealth', () => {
@@ -82,7 +82,7 @@ describe('HealthController', () => {
         },
       };
 
-      vi.mocked(MonitoringService.getHealthChecks).mockReturnValue([mockHealthCheck]);
+      jest.mocked(MonitoringService.getHealthChecks).mockReturnValue([mockHealthCheck]);
 
       await healthController.getBasicHealth(mockReq, mockRes);
 
@@ -95,7 +95,7 @@ describe('HealthController', () => {
     });
 
     it('should return unhealthy status when error occurs', async () => {
-      vi.mocked(MonitoringService.getHealthChecks).mockImplementation(() => {
+      jest.mocked(MonitoringService.getHealthChecks).mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -136,8 +136,8 @@ describe('HealthController', () => {
         },
       ];
 
-      vi.mocked(MonitoringService.getHealthChecks).mockReturnValue(mockHealthChecks);
-      vi.mocked(MonitoringService.collectMetrics).mockResolvedValue();
+      jest.mocked(MonitoringService.getHealthChecks).mockReturnValue(mockHealthChecks);
+      jest.mocked(MonitoringService.collectMetrics).mockResolvedValue();
 
       await healthController.getDetailedHealth(mockReq, mockRes);
 
@@ -155,7 +155,7 @@ describe('HealthController', () => {
     });
 
     it('should return error when health check fails', async () => {
-      vi.mocked(MonitoringService.getHealthChecks).mockImplementation(() => {
+      jest.mocked(MonitoringService.getHealthChecks).mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -185,7 +185,7 @@ describe('HealthController', () => {
       };
 
       mockReq.params = { service: 'batch-processor' };
-      vi.mocked(MonitoringService.getHealthChecks).mockReturnValue([mockHealthCheck]);
+      jest.mocked(MonitoringService.getHealthChecks).mockReturnValue([mockHealthCheck]);
 
       await healthController.getServiceHealth(mockReq, mockRes);
 
@@ -199,7 +199,7 @@ describe('HealthController', () => {
 
     it('should return 404 when service not found', async () => {
       mockReq.params = { service: 'non-existent' };
-      vi.mocked(MonitoringService.getHealthChecks).mockReturnValue([]);
+      jest.mocked(MonitoringService.getHealthChecks).mockReturnValue([]);
 
       await healthController.getServiceHealth(mockReq, mockRes);
 
@@ -213,7 +213,7 @@ describe('HealthController', () => {
 
     it('should return 500 when error occurs', async () => {
       mockReq.params = { service: 'batch-processor' };
-      vi.mocked(MonitoringService.getHealthChecks).mockImplementation(() => {
+      jest.mocked(MonitoringService.getHealthChecks).mockImplementation(() => {
         throw new Error('Test error');
       });
 

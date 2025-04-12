@@ -48,8 +48,8 @@ export function useOfflineStorage() {
     /**
      * Add content to the sync queue
      */
-    addToSyncQueue: (content: IOfflineContent): void => {
-      service.addToSyncQueue(content);
+    addToSyncQueue: (content: IOfflineContent) => {
+      service.addToSyncQueue(content, 'create');
     },
 
     /**
@@ -77,7 +77,7 @@ export function useOfflineStorage() {
      * Get content with sync conflicts
      */
     getConflictingContent: (): IOfflineContent[] => {
-      return service.getConflictingContent();
+      return service.getConflictingContent() as unknown as IOfflineContent[];
     },
 
     /**
@@ -91,7 +91,11 @@ export function useOfflineStorage() {
      * Get sync status
      */
     getSyncStatus: (): { isSyncing: boolean; error: string | null } => {
-      return service.getSyncStatus();
+      const status = service.getSyncStatus();
+      return {
+        isSyncing: status.isSyncing,
+        error: status.error || null,
+      };
     },
 
     /**

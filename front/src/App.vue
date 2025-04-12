@@ -71,6 +71,7 @@ onMounted((): void => {
           :is-open="isMenuOpen"
           :is-authenticated="authStore.isAuthenticated"
           :is-admin="authStore.isAdmin"
+          :is-author="authStore.isAuthor"
           :user-name="userFullName"
           :is-user-menu-open="isUserMenuOpen"
           @toggle-user-menu="isUserMenuOpen = !isUserMenuOpen"

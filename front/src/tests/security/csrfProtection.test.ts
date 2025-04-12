@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createComment, updateComment, deleteComment } from '@/api/commentService';
-import type { IComment } from '@/types/comment';
-import { CommentParentTypeEnum } from '@/types/comment';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { createComment, updateComment, deleteComment } from '../../api/commentService';
+import type { IComment } from '../../types/comment';
+import { CommentParentTypeEnum } from '../../types/comment';
 
 // Mock the API client
-vi.mock('@/api/apiClient', () => {
-  const apiPost = vi.fn();
-  const apiDelete = vi.fn();
-  const apiRequest = vi.fn();
+jest.mock('../../api/apiClient', () => {
+  const apiPost = jest.fn();
+  const apiDelete = jest.fn();
+  const apiRequest = jest.fn();
 
   return {
     apiPost,
@@ -17,10 +17,10 @@ vi.mock('@/api/apiClient', () => {
 });
 
 describe('CSRF Protection Tests', () => {
-  const { apiPost, apiDelete, apiRequest } = require('@/api/apiClient');
+  const { apiPost, apiDelete, apiRequest } = require('../../api/apiClient');
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
 
     // Mock successful responses
     apiPost.mockResolvedValue({

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { validateInput } from '@/utils/validation';
-import type { CreateCommentInput } from '@/types/comment';
-import { CommentParentTypeEnum } from '@/types/comment';
+import { describe, it, expect } from '@jest/globals';
+import { validateInput } from '../../utils/validation';
+import type { CreateCommentInput } from '../../types/comment';
+import { CommentParentTypeEnum } from '../../types/comment';
 
 describe('Input Validation', () => {
   describe('Comment Input Validation', () => {

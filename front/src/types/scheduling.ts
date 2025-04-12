@@ -5,6 +5,15 @@ export enum ScheduledContentStatusEnum {
   CANCELLED = 'cancelled',
 }
 
+export interface ISchedule {
+  id: string;
+  title: string;
+  startTime: Date;
+  status: string;
+  hasConflict: boolean;
+  conflictingSchedules?: ISchedule[];
+}
+
 export interface IScheduledContent {
   id: string;
   type: 'post' | 'comment';

@@ -1,19 +1,19 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import BatchProcessor from '../BatchProcessor';
 import SchedulingService from '../SchedulingService';
 import PublicationService from '../PublicationService';
 import type { IScheduledContent } from '../../types/scheduling';
 
 // Mock the dependencies
-vi.mock('../SchedulingService', () => ({
+jest.mock('../SchedulingService', () => ({
   default: {
-    getScheduledContent: vi.fn(),
+    getScheduledContent: jest.fn(),
   },
 }));
 
-vi.mock('../PublicationService', () => ({
+jest.mock('../PublicationService', () => ({
   default: {
-    publishContent: vi.fn(),
+    publishContent: jest.fn(),
   },
 }));
 
@@ -22,13 +22,13 @@ describe('BatchProcessor', () => {
 
   beforeEach(() => {
     // Reset mocks
-    vi.clearAllMocks();
+    jest.clearAllMocks();
 
     // Get a fresh instance
     batchProcessor = BatchProcessor;
 
     // Spy on event emitter methods
-    vi.spyOn(batchProcessor, 'emit');
+    jest.spyOn(batchProcessor, 'emit');
   });
 
   afterEach(() => {
@@ -111,10 +111,10 @@ describe('BatchProcessor', () => {
       ];
 
       // Mock the getScheduledContent method
-      vi.mocked(SchedulingService.getScheduledContent).mockResolvedValue(mockScheduledContent);
+      jest.mocked(SchedulingService.getScheduledContent).mockResolvedValue(mockScheduledContent);
 
       // Mock the publishContent method
-      vi.mocked(PublicationService.publishContent).mockResolvedValue();
+      jest.mocked(PublicationService.publishContent).mockResolvedValue();
 
       // Process a batch
       const result = await batchProcessor.processBatch();
@@ -160,10 +160,11 @@ describe('BatchProcessor', () => {
       ];
 
       // Mock the getScheduledContent method
-      vi.mocked(SchedulingService.getScheduledContent).mockResolvedValue(mockScheduledContent);
+      jest.mocked(SchedulingService.getScheduledContent).mockResolvedValue(mockScheduledContent);
 
       // Mock the publishContent method to throw an error for the second item
-      vi.mocked(PublicationService.publishContent)
+      jest
+        .mocked(PublicationService.publishContent)
         .mockResolvedValueOnce()
         .mockRejectedValueOnce(new Error('Publication failed'));
 
@@ -188,7 +189,7 @@ describe('BatchProcessor', () => {
 
     it('should not process if already processing', async () => {
       // Mock the processBatch method to simulate processing
-      const processBatchSpy = vi.spyOn(batchProcessor, 'processBatch');
+      const processBatchSpy = jest.spyOn(batchProcessor, 'processBatch');
 
       // Start processing
       const promise1 = batchProcessor.processBatch();

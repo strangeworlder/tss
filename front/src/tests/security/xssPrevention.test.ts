@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import type { IScheduledContent } from '@/types/content';
-import { ScheduledContentStatusEnum } from '@/types/scheduling';
-import { sanitizeInput } from '@/utils/security';
+import { describe, it, expect } from '@jest/globals';
+import type { IScheduledContent } from '../../types/content';
+import { ScheduledContentStatusEnum } from '../../types/scheduling';
+import { sanitizeInput } from '../../utils/security';
 
 describe('XSS Prevention', () => {
   describe('Content Sanitization', () => {

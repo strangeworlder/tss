@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import ErrorHandler, { ErrorSeverity, ErrorCategory, IErrorDetails } from '../ErrorHandler';
 
 describe('ErrorHandler', () => {
@@ -12,7 +12,7 @@ describe('ErrorHandler', () => {
     errorHandler.resetErrorCount();
 
     // Spy on event emitter methods
-    vi.spyOn(errorHandler, 'emit');
+    jest.spyOn(errorHandler, 'emit');
   });
 
   describe('handleError', () => {

@@ -1,32 +1,32 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
 import { EncryptionService, EncryptionEvent, IEncryptionKey } from '../EncryptionService';
 import ErrorHandler, { ErrorCategory, ErrorSeverity } from '../ErrorHandler';
 import MonitoringService from '../MonitoringService';
 
 // Mock crypto
-vi.mock('crypto', () => {
+jest.mock('crypto', () => {
   return {
-    randomUUID: vi.fn().mockReturnValue('test-uuid'),
-    randomBytes: vi.fn().mockReturnValue(Buffer.from('test-key')),
-    createCipheriv: vi.fn().mockReturnValue({
-      update: vi.fn().mockReturnValue('encrypted'),
-      final: vi.fn().mockReturnValue('data'),
-      getAuthTag: vi.fn().mockReturnValue(Buffer.from('auth-tag')),
+    randomUUID: jest.fn().mockReturnValue('test-uuid'),
+    randomBytes: jest.fn().mockReturnValue(Buffer.from('test-key')),
+    createCipheriv: jest.fn().mockReturnValue({
+      update: jest.fn().mockReturnValue('encrypted'),
+      final: jest.fn().mockReturnValue('data'),
+      getAuthTag: jest.fn().mockReturnValue(Buffer.from('auth-tag')),
     }),
-    createDecipheriv: vi.fn().mockReturnValue({
-      update: vi.fn().mockReturnValue('decrypted'),
-      final: vi.fn().mockReturnValue('data'),
-      setAuthTag: vi.fn(),
+    createDecipheriv: jest.fn().mockReturnValue({
+      update: jest.fn().mockReturnValue('decrypted'),
+      final: jest.fn().mockReturnValue('data'),
+      setAuthTag: jest.fn(),
     }),
   };
 });
 
 // Mock ErrorHandler
-vi.mock('../ErrorHandler', () => {
+jest.mock('../ErrorHandler', () => {
   return {
     ErrorHandler: {
-      getInstance: vi.fn().mockReturnValue({
-        handleError: vi.fn(),
+      getInstance: jest.fn().mockReturnValue({
+        handleError: jest.fn(),
       }),
     },
     ErrorCategory: {
@@ -42,11 +42,11 @@ vi.mock('../ErrorHandler', () => {
 });
 
 // Mock MonitoringService
-vi.mock('../MonitoringService', () => {
+jest.mock('../MonitoringService', () => {
   return {
     MonitoringService: {
-      getInstance: vi.fn().mockReturnValue({
-        updateSecurityMetrics: vi.fn(),
+      getInstance: jest.fn().mockReturnValue({
+        updateSecurityMetrics: jest.fn(),
       }),
     },
   };
@@ -69,12 +69,12 @@ describe('EncryptionService', () => {
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('Key Management', () => {
     it('should create a key on initialization', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       encryptionService.on(EncryptionEvent.KEY_CREATED, eventSpy);
 
       // Reset the singleton instance to trigger initialization
@@ -91,7 +91,7 @@ describe('EncryptionService', () => {
     });
 
     it('should rotate key', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       encryptionService.on(EncryptionEvent.KEY_ROTATED, eventSpy);
 
       const oldKeyId = encryptionService.getActiveKeyId();
@@ -110,7 +110,7 @@ describe('EncryptionService', () => {
     });
 
     it('should expire key', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       encryptionService.on(EncryptionEvent.KEY_EXPIRED, eventSpy);
 
       const keyId = encryptionService.getActiveKeyId();
@@ -152,7 +152,7 @@ describe('EncryptionService', () => {
     });
 
     it('should handle encryption errors', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       encryptionService.on(EncryptionEvent.ENCRYPTION_ERROR, eventSpy);
 
       // Mock crypto.createCipheriv to throw an error
@@ -171,7 +171,7 @@ describe('EncryptionService', () => {
     });
 
     it('should handle decryption errors', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       encryptionService.on(EncryptionEvent.DECRYPTION_ERROR, eventSpy);
 
       // Mock crypto.createDecipheriv to throw an error

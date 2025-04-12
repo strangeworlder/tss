@@ -1,7 +1,7 @@
 import type { IConfiguration, IContentOverride } from '@/types/configuration';
 
 export const api = {
-  async getGlobalDelay(): Promise<{ globalDelay: number }> {
+  async getGlobalDelay(): Promise<{ postDelay: number; commentDelay: number }> {
     const response = await fetch('/api/configuration/global-delay');
     if (!response.ok) {
       throw new Error('Failed to fetch global delay');
@@ -9,13 +9,13 @@ export const api = {
     return response.json();
   },
 
-  async setGlobalDelay(delay: number): Promise<void> {
+  async setGlobalDelay(postDelay: number, commentDelay: number): Promise<void> {
     const response = await fetch('/api/configuration/global-delay', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ delay }),
+      body: JSON.stringify({ postDelay, commentDelay }),
     });
     if (!response.ok) {
       throw new Error('Failed to set global delay');

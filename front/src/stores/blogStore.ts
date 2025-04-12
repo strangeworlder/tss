@@ -14,6 +14,7 @@ import { useNetworkStatus } from '@/composables/useNetworkStatus';
 import type { IScheduledContent } from '@/types/content';
 import type { IOfflineContent } from '@/types/offline';
 import { apiGet, apiPut, apiPost } from '@/api/apiClient';
+import { ScheduledContentStatusEnum } from '@/types/scheduling';
 
 interface IParsedContent {
   content: string;
@@ -182,15 +183,17 @@ export const useBlogStore = defineStore('blog', () => {
     publishAt: content.publishAt,
     status:
       content.status === 'scheduled'
-        ? 'scheduled'
+        ? ScheduledContentStatusEnum.SCHEDULED
         : content.status === 'published'
-          ? 'published'
-          : 'failed',
+          ? ScheduledContentStatusEnum.PUBLISHED
+          : ScheduledContentStatusEnum.FAILED,
     authorId: content.authorId,
     version: 1,
     hasActiveUpdate: false,
     lastModified: content.updatedAt,
     syncStatus: 'pending',
+    syncError: null,
+    lastRetryAt: null,
     retryCount: 0,
     maxRetries: 3,
   });
@@ -216,16 +219,17 @@ export const useBlogStore = defineStore('blog', () => {
       const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
       // Using correct endpoint as per API documentation
       const url = `${apiBaseUrl}/v1/blog`;
-      
+
       console.log('Fetching posts from:', url);
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         // Try to get more error details
         let errorMessage = 'Failed to fetch posts';
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || `Server returned ${response.status}: ${response.statusText}`;
+          errorMessage =
+            errorData.message || `Server returned ${response.status}: ${response.statusText}`;
         } catch (e) {
           // If can't parse JSON, try to get text
           try {
@@ -240,7 +244,7 @@ export const useBlogStore = defineStore('blog', () => {
 
       const data = await response.json();
       console.log('API response structure:', Object.keys(data));
-      
+
       // Use data.data instead of data.posts based on the actual API response structure
       posts.value = data.data;
 
@@ -280,13 +284,13 @@ export const useBlogStore = defineStore('blog', () => {
       // Online mode - fetch from server using apiGet with proper auth
       try {
         const response = await apiGet<any>('/v1/blog/admin/all');
-        
+
         console.log('Admin posts API response:', response);
-        
+
         if (!response.success) {
           throw new Error(response.message || 'Failed to fetch admin posts');
         }
-        
+
         // Use data from the response
         posts.value = response.data;
 
@@ -337,16 +341,17 @@ export const useBlogStore = defineStore('blog', () => {
       const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
       // Using correct endpoint as per API documentation
       const url = `${apiBaseUrl}/v1/blog/${slug}`;
-      
+
       console.log('Fetching post by slug from:', url);
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         // Try to get more error details
         let errorMessage = 'Failed to fetch post';
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || `Server returned ${response.status}: ${response.statusText}`;
+          errorMessage =
+            errorData.message || `Server returned ${response.status}: ${response.statusText}`;
         } catch (e) {
           // If can't parse JSON, try to get text
           try {
@@ -402,16 +407,17 @@ export const useBlogStore = defineStore('blog', () => {
       const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
       // Using correct endpoint as per API documentation
       const url = `${apiBaseUrl}/v1/blog/id/${id}`;
-      
+
       console.log('Fetching post by ID from:', url);
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         // Try to get more error details
         let errorMessage = 'Failed to fetch post';
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || `Server returned ${response.status}: ${response.statusText}`;
+          errorMessage =
+            errorData.message || `Server returned ${response.status}: ${response.statusText}`;
         } catch (e) {
           // If can't parse JSON, try to get text
           try {
@@ -464,16 +470,17 @@ export const useBlogStore = defineStore('blog', () => {
       const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
       // Using correct endpoint as per API documentation
       const url = `${apiBaseUrl}/v1/blog/tag/${tag}`;
-      
+
       console.log('Fetching posts by tag from:', url);
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         // Try to get more error details
         let errorMessage = 'Failed to fetch posts by tag';
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || `Server returned ${response.status}: ${response.statusText}`;
+          errorMessage =
+            errorData.message || `Server returned ${response.status}: ${response.statusText}`;
         } catch (e) {
           // If can't parse JSON, try to get text
           try {
@@ -557,17 +564,17 @@ export const useBlogStore = defineStore('blog', () => {
 
       // Online mode - create post with apiPost to include auth headers
       console.log('Creating post with', post instanceof FormData ? 'FormData' : 'JSON');
-      
+
       try {
         // Using apiPost to properly include auth headers
         const response = await apiPost<IBlogPost>('/v1/blog', post);
-        
+
         console.log('Create response:', response);
-        
+
         if (!response.success) {
           throw new Error(response.message || 'Failed to create post');
         }
-        
+
         // Use data from the response
         const newPost = response.data;
 
@@ -594,7 +601,10 @@ export const useBlogStore = defineStore('blog', () => {
     }
   };
 
-  const updatePost = async (id: string, post: Partial<IBlogPost> | FormData): Promise<IBlogPost | null> => {
+  const updatePost = async (
+    id: string,
+    post: Partial<IBlogPost> | FormData
+  ): Promise<IBlogPost | null> => {
     try {
       isLoading.value = true;
       error.value = null;
@@ -642,17 +652,17 @@ export const useBlogStore = defineStore('blog', () => {
 
       // Online mode - update on server using apiPut with authentication
       console.log('Updating post with', post instanceof FormData ? 'FormData' : 'JSON');
-      
+
       try {
         // Using apiPut to properly include auth headers
         const response = await apiPut<IBlogPost>(`/v1/blog/id/${id}`, post);
-        
+
         console.log('Update response:', response);
-        
+
         if (!response.success) {
           throw new Error(response.message || 'Failed to update post');
         }
-        
+
         // Use data from the response
         const updatedPost = response.data;
 

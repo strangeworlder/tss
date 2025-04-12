@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import {
   SecurityService,
   SecurityEvent,
@@ -9,21 +9,21 @@ import ErrorHandler from '../ErrorHandler';
 import MonitoringService from '../MonitoringService';
 
 // Mock Redis
-vi.mock('ioredis', () => {
+jest.mock('ioredis', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      get: vi.fn(),
-      setex: vi.fn(),
-      incr: vi.fn(),
+    default: jest.fn().mockImplementation(() => ({
+      get: jest.fn(),
+      setex: jest.fn(),
+      incr: jest.fn(),
     })),
   };
 });
 
 // Mock ErrorHandler
-vi.mock('../ErrorHandler', () => {
+jest.mock('../ErrorHandler', () => {
   return {
     default: {
-      handleError: vi.fn(),
+      handleError: jest.fn(),
     },
     ErrorCategory: {
       SECURITY: 'security',
@@ -38,10 +38,10 @@ vi.mock('../ErrorHandler', () => {
 });
 
 // Mock MonitoringService
-vi.mock('../MonitoringService', () => {
+jest.mock('../MonitoringService', () => {
   return {
     default: {
-      updateSecurityMetrics: vi.fn(),
+      updateSecurityMetrics: jest.fn(),
     },
   };
 });
@@ -53,10 +53,6 @@ describe('SecurityService', () => {
     // Reset the singleton instance for each test
     (SecurityService as any).instance = null;
     securityService = SecurityService.getInstance();
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   describe('Rate Limiting', () => {
@@ -89,7 +85,7 @@ describe('SecurityService', () => {
       const redis = (securityService as any).redis;
       redis.get.mockResolvedValue('150');
 
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.RATE_LIMIT_EXCEEDED, eventSpy);
 
       await securityService.checkRateLimit('user123', '192.168.1.1', 'api');
@@ -112,7 +108,7 @@ describe('SecurityService', () => {
         blockDuration: 2 * 60 * 60 * 1000, // 2 hours
       };
 
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.PATTERN_UPDATED, eventSpy);
 
       securityService.setRateLimitConfig('custom', config);
@@ -129,7 +125,7 @@ describe('SecurityService', () => {
 
   describe('Abuse Detection', () => {
     it('should detect abuse patterns in content', async () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.ABUSE_DETECTED, eventSpy);
 
       const result = await securityService.checkForAbuse(
@@ -148,7 +144,7 @@ describe('SecurityService', () => {
     });
 
     it('should not detect abuse in clean content', async () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.ABUSE_DETECTED, eventSpy);
 
       const result = await securityService.checkForAbuse('user123', 'This is a normal comment');
@@ -166,7 +162,7 @@ describe('SecurityService', () => {
         action: 'warn',
       };
 
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.PATTERN_UPDATED, eventSpy);
 
       securityService.addAbusePattern(pattern);
@@ -195,7 +191,7 @@ describe('SecurityService', () => {
       const patterns = securityService.getAbusePatterns();
       const patternId = patterns[0].id;
 
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.PATTERN_UPDATED, eventSpy);
 
       securityService.removeAbusePattern(patternId);
@@ -211,7 +207,7 @@ describe('SecurityService', () => {
 
   describe('IP Restrictions', () => {
     it('should restrict IP address', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.IP_BLOCKED, eventSpy);
 
       securityService.restrictIP('192.168.1.1', 'Suspicious activity', 60 * 60 * 1000); // 1 hour
@@ -229,7 +225,7 @@ describe('SecurityService', () => {
       // First restrict an IP
       securityService.restrictIP('192.168.1.1', 'Suspicious activity', 60 * 60 * 1000); // 1 hour
 
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.RESTRICTION_REMOVED, eventSpy);
 
       securityService.unrestrictIP('192.168.1.1');
@@ -246,7 +242,7 @@ describe('SecurityService', () => {
 
   describe('Account Blocking', () => {
     it('should block account', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.ACCOUNT_BLOCKED, eventSpy);
 
       securityService.blockAccount('user123', 'Violation of terms', 24 * 60 * 60 * 1000); // 24 hours
@@ -264,7 +260,7 @@ describe('SecurityService', () => {
       // First block an account
       securityService.blockAccount('user123', 'Violation of terms', 24 * 60 * 60 * 1000); // 24 hours
 
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.RESTRICTION_REMOVED, eventSpy);
 
       const result = securityService.unblockAccount('user123');
@@ -282,7 +278,7 @@ describe('SecurityService', () => {
 
   describe('Security Audit', () => {
     it('should log security audit', () => {
-      const eventSpy = vi.fn();
+      const eventSpy = jest.fn();
       securityService.on(SecurityEvent.SECURITY_AUDIT, eventSpy);
 
       const auditId = securityService.logSecurityAudit({

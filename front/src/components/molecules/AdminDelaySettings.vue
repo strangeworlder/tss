@@ -1,9 +1,9 @@
 <!--
 @component AdminDelaySettings
-@description A component that allows administrators to manage global delay settings.
+@description A component that allows administrators to manage global delay settings for posts and comments.
 
 @features
-- Display current global delay settings
+- Display current global delay settings for posts and comments
 - Edit global delay settings
 - View and manage content-specific overrides
 - Apply changes with validation
@@ -20,7 +20,7 @@
 @events {
   settingsUpdated: {
     description: "Emitted when settings are successfully updated"
-    payload: IDelaySettings
+    payload: { postDelay: number, commentDelay: number }
   }
   error: {
     description: "Emitted when an error occurs"
@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import { adminService, type IDelaySettings } from '@/services/AdminService';
+import { adminService } from '@/services/AdminService';
 import { featureFlagService } from '@/services/FeatureFlagService';
 import AppButton from '@/components/atoms/AppButton.vue';
 import FormGroup from '@/components/molecules/FormGroup.vue';
@@ -49,11 +49,12 @@ interface Props {
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
-  (e: 'settingsUpdated', settings: IDelaySettings): void;
+  (e: 'settingsUpdated', settings: { postDelay: number; commentDelay: number }): void;
   (e: 'error', message: string): void;
 }>();
 
-const globalDelay = ref(24);
+const postDelay = ref(24);
+const commentDelay = ref(12);
 const minDelay = ref(1);
 const maxDelay = ref(72);
 const isSaving = ref(false);
@@ -70,8 +71,10 @@ const canEdit = computed(() => {
 
 const isFormValid = computed(() => {
   return (
-    globalDelay.value >= minDelay.value &&
-    globalDelay.value <= maxDelay.value &&
+    postDelay.value >= minDelay.value &&
+    postDelay.value <= maxDelay.value &&
+    commentDelay.value >= minDelay.value &&
+    commentDelay.value <= maxDelay.value &&
     minDelay.value > 0 &&
     maxDelay.value > minDelay.value
   );
@@ -98,7 +101,8 @@ async function loadSettings(): Promise<void> {
     const settings = adminService.currentDelaySettings.value;
 
     if (settings) {
-      globalDelay.value = settings.globalDelay;
+      postDelay.value = settings.postDelay;
+      commentDelay.value = settings.commentDelay;
       minDelay.value = settings.minDelay;
       maxDelay.value = settings.maxDelay;
     }
@@ -116,8 +120,9 @@ async function saveSettings(): Promise<void> {
   saveSuccess.value = false;
 
   try {
-    const settings: Partial<IDelaySettings> = {
-      globalDelay: globalDelay.value,
+    const settings = {
+      postDelay: postDelay.value,
+      commentDelay: commentDelay.value,
       minDelay: minDelay.value,
       maxDelay: maxDelay.value,
     };
@@ -125,7 +130,10 @@ async function saveSettings(): Promise<void> {
     await adminService.updateDelaySettings(settings);
 
     saveSuccess.value = true;
-    emit('settingsUpdated', adminService.currentDelaySettings.value as IDelaySettings);
+    emit('settingsUpdated', {
+      postDelay: postDelay.value,
+      commentDelay: commentDelay.value,
+    });
 
     // Reset success message after 3 seconds
     setTimeout(() => {
@@ -148,83 +156,56 @@ function resetForm(): void {
 
 <template>
   <div class="admin-delay-settings">
-    <header class="admin-delay-settings__header">
-      <h2 class="admin-delay-settings__title">Global Delay Settings</h2>
-      <p class="admin-delay-settings__description">
-        Configure the default delay period for all scheduled content.
-      </p>
-    </header>
-
-    <div v-if="!canEdit" class="admin-delay-settings__not-authorized">
-      <p>You do not have permission to edit these settings.</p>
+    <h2 class="admin-delay-settings__title">Global Delay Settings</h2>
+    
+    <div class="admin-delay-settings__current">
+      <h3 class="admin-delay-settings__subtitle">Current Delays</h3>
+      <div class="admin-delay-settings__delays">
+        <p class="admin-delay-settings__delay">
+          Posts: {{ postDelay }} hours
+        </p>
+        <p class="admin-delay-settings__delay">
+          Comments: {{ commentDelay }} hours
+        </p>
+      </div>
     </div>
 
-    <form 
-      v-else 
-      class="admin-delay-settings__form"
-      @submit.prevent="saveSettings"
-    >
+    <form v-if="canEdit" class="admin-delay-settings__form" @submit.prevent="saveSettings">
       <FormGroup
-        id="global-delay"
-        label="Global Delay (hours)"
-        :model-value="String(globalDelay)"
-        :error="globalDelay < minDelay || globalDelay > maxDelay ? 'Delay must be between min and max values' : ''"
+        id="post-delay"
+        label="Post Delay (hours)"
+        :model-value="String(postDelay)"
+        :error="postDelay < minDelay || postDelay > maxDelay ? 'Invalid delay value' : ''"
       >
         <input
-          v-model.number="globalDelay"
+          v-model.number="postDelay"
           type="number"
-          min="1"
+          :min="minDelay"
           :max="maxDelay"
-          step="1"
           class="admin-delay-settings__input"
-          :disabled="!canEdit || isSaving"
-          aria-label="Global delay in hours"
         />
       </FormGroup>
 
-      <div class="admin-delay-settings__range">
-        <FormGroup
-          id="min-delay"
-          label="Minimum Delay (hours)"
-          :model-value="String(minDelay)"
-          :error="minDelay <= 0 ? 'Minimum delay must be greater than 0' : ''"
-        >
-          <input
-            v-model.number="minDelay"
-            type="number"
-            min="1"
-            :max="maxDelay - 1"
-            step="1"
-            class="admin-delay-settings__input"
-            :disabled="!canEdit || isSaving"
-            aria-label="Minimum delay in hours"
-          />
-        </FormGroup>
-
-        <FormGroup
-          id="max-delay"
-          label="Maximum Delay (hours)"
-          :model-value="String(maxDelay)"
-          :error="maxDelay <= minDelay ? 'Maximum delay must be greater than minimum delay' : ''"
-        >
-          <input
-            v-model.number="maxDelay"
-            type="number"
-            :min="minDelay + 1"
-            step="1"
-            class="admin-delay-settings__input"
-            :disabled="!canEdit || isSaving"
-            aria-label="Maximum delay in hours"
-          />
-        </FormGroup>
-      </div>
+      <FormGroup
+        id="comment-delay"
+        label="Comment Delay (hours)"
+        :model-value="String(commentDelay)"
+        :error="commentDelay < minDelay || commentDelay > maxDelay ? 'Invalid delay value' : ''"
+      >
+        <input
+          v-model.number="commentDelay"
+          type="number"
+          :min="minDelay"
+          :max="maxDelay"
+          class="admin-delay-settings__input"
+        />
+      </FormGroup>
 
       <div class="admin-delay-settings__actions">
         <AppButton
           type="submit"
           :variant="ButtonVariantEnum.PRIMARY"
           :disabled="!isFormValid || isSaving"
-          aria-label="Save delay settings"
         >
           {{ isSaving ? 'Saving...' : 'Save Settings' }}
         </AppButton>
@@ -232,63 +213,50 @@ function resetForm(): void {
           type="button"
           :variant="ButtonVariantEnum.SECONDARY"
           @click="resetForm"
-          :disabled="isSaving"
-          aria-label="Reset form"
         >
           Reset
         </AppButton>
       </div>
-
-      <div 
-        v-if="saveSuccess" 
-        class="admin-delay-settings__success"
-        role="alert"
-      >
-        Settings saved successfully!
-      </div>
-
-      <div 
-        v-if="errorMessage" 
-        class="admin-delay-settings__error"
-        role="alert"
-      >
-        {{ errorMessage }}
-      </div>
     </form>
+
+    <div v-if="saveSuccess" class="admin-delay-settings__success">
+      Settings updated successfully!
+    </div>
+    <div v-if="errorMessage" class="admin-delay-settings__error">
+      {{ errorMessage }}
+    </div>
   </div>
 </template>
 
 <style scoped>
 .admin-delay-settings {
+  padding: var(--spacing-md);
   background-color: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: var(--spacing-xs);
-  padding: var(--spacing-lg);
-}
-
-.admin-delay-settings__header {
-  margin-bottom: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-delay-settings__title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text);
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
-.admin-delay-settings__description {
-  font-size: var(--font-size-md);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.admin-delay-settings__not-authorized {
-  padding: var(--spacing-md);
-  background-color: var(--color-warning-bg);
-  color: var(--color-warning);
-  border-radius: var(--spacing-xs);
   margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.admin-delay-settings__subtitle {
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.admin-delay-settings__delays {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.admin-delay-settings__delay {
+  margin: 0;
+  font-size: var(--font-size-md);
 }
 
 .admin-delay-settings__form {
@@ -301,21 +269,8 @@ function resetForm(): void {
   width: 100%;
   padding: var(--spacing-sm);
   border: 1px solid var(--color-border);
-  border-radius: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
   font-size: var(--font-size-md);
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-
-.admin-delay-settings__input:disabled {
-  background-color: var(--color-background-muted);
-  cursor: not-allowed;
-}
-
-.admin-delay-settings__range {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
 }
 
 .admin-delay-settings__actions {
@@ -325,18 +280,18 @@ function resetForm(): void {
 }
 
 .admin-delay-settings__success {
-  padding: var(--spacing-sm);
-  background-color: var(--color-success-bg);
-  color: var(--color-success);
-  border-radius: var(--spacing-xs);
   margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  border-radius: var(--border-radius-sm);
 }
 
 .admin-delay-settings__error {
-  padding: var(--spacing-sm);
-  background-color: var(--color-danger-bg);
-  color: var(--color-danger);
-  border-radius: var(--spacing-xs);
   margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  border-radius: var(--border-radius-sm);
 }
 </style> 

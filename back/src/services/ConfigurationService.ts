@@ -36,7 +36,8 @@ interface IConfigurationHistory {
 
 class ConfigurationService extends EventEmitter {
   private static instance: ConfigurationService;
-  private defaultDelayHours = 24;
+  private defaultPostDelayHours = 24;
+  private defaultCommentDelayHours = 12;
   private contentOverrides: Map<string, IContentOverride> = new Map();
   private defaultDelay: number = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   private errorHandler: typeof ErrorHandler;
@@ -67,6 +68,18 @@ class ConfigurationService extends EventEmitter {
           key: 'slow_feature_delay',
           value: this.defaultDelay,
           description: 'Global delay for The Slow feature in milliseconds',
+          requiresVerification: true,
+          verificationMethod: '2fa',
+        },
+        {
+          key: 'globalDelay',
+          value: {
+            postDelayHours: this.defaultPostDelayHours,
+            commentDelayHours: this.defaultCommentDelayHours,
+            updatedAt: new Date(),
+            updatedBy: 'system',
+          },
+          description: 'Global delay settings for posts and comments',
           requiresVerification: true,
           verificationMethod: '2fa',
         },
@@ -102,22 +115,25 @@ class ConfigurationService extends EventEmitter {
 
   /**
    * Update global delay settings
-   * @param delayHours New delay in hours
+   * @param postDelayHours New delay for posts in hours
+   * @param commentDelayHours New delay for comments in hours
    * @param userId ID of the user making the change
    * @returns Promise<IGlobalDelaySettings>
    */
   public async updateGlobalDelay(
-    delayHours: number,
+    postDelayHours: number,
+    commentDelayHours: number,
     userId: string
   ): Promise<IGlobalDelaySettings> {
-    if (delayHours < 0) {
+    if (postDelayHours < 0 || commentDelayHours < 0) {
       const error = new Error('Delay hours must be positive') as IConfigurationError;
       error.code = 'INVALID_DELAY';
       throw error;
     }
 
     const settings: IGlobalDelaySettings = {
-      delayHours,
+      postDelayHours,
+      commentDelayHours,
       updatedAt: new Date(),
       updatedBy: userId,
     };
@@ -213,12 +229,13 @@ class ConfigurationService extends EventEmitter {
     }
 
     const globalSettings = await this.getGlobalDelay();
-    return globalSettings.delayHours;
+    return type === 'post' ? globalSettings.postDelayHours : globalSettings.commentDelayHours;
   }
 
   private async initializeGlobalDelay(): Promise<IGlobalDelaySettings> {
     const settings: IGlobalDelaySettings = {
-      delayHours: this.defaultDelayHours,
+      postDelayHours: this.defaultPostDelayHours,
+      commentDelayHours: this.defaultCommentDelayHours,
       updatedAt: new Date(),
       updatedBy: 'system',
     };
