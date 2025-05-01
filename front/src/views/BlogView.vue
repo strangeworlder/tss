@@ -37,12 +37,15 @@ import AppButton from '@/components/atoms/AppButton.vue';
 import { checkApiHealth } from '@/api/apiClient';
 import { BlogPostTitleVariantEnum } from '@/types/blogPost';
 import { ButtonVariantEnum } from '@/types/button';
+import { BlogPostStatus } from '@/types/blog';
 import type { IBlogPost } from '@/types/blog';
 
 // Get the blog store
 const blogStore = useBlogStore();
 // Use computed properties to ensure reactivity with store changes
-const posts = computed(() => blogStore.posts);
+const posts = computed(() =>
+  blogStore.posts.filter((post: IBlogPost) => post.status === BlogPostStatus.PUBLISHED)
+);
 const loading = computed(() => blogStore.loading);
 const error = computed(() => blogStore.error);
 const serverStarting = ref(false);

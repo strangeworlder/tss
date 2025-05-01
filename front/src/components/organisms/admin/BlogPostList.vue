@@ -29,8 +29,8 @@ import AuthorInfo from '@/components/molecules/AuthorInfo.vue';
 import AppButton from '@/components/atoms/AppButton.vue';
 import { ButtonVariantEnum } from '@/types/button';
 import type { IUser } from '@/types/user';
-import type { Author, IBlogPost } from '@/types/blog';
-import { BlogPostStatus } from '@/types/blog';
+import type { IBlogPost, IAuthor } from '@shared/types/blog';
+import { BlogPostStatus } from '@shared/types/blog';
 
 /**
  * Emits when the edit button is clicked for a post
@@ -43,11 +43,11 @@ const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 
 /**
- * Maps an IUser to an Author
+ * Maps an IUser to an IAuthor
  * @param user - The user to map
- * @returns An Author object
+ * @returns An IAuthor object
  */
-const mapUserToAuthor = (user: IUser | undefined): Author => {
+const mapUserToAuthor = (user: IUser | undefined): IAuthor => {
   if (!user) {
     return {
       type: 'text',

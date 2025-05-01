@@ -4,8 +4,12 @@
   "private": true,
   "workspaces": [
     "front",
-    "back"
+    "back",
+    "shared"
   ],
+  "workspaceConfig": {
+    "packages": ["front", "back", "shared"]
+  },
   "scripts": {
     "prepare": "husky install",
     "lint": "npm run lint --workspaces",
@@ -17,7 +21,8 @@
   "devDependencies": {
     "@types/supertest": "^6.0.3",
     "husky": "^8.0.0",
-    "supertest": "^7.1.0"
+    "supertest": "^7.1.0",
+    "@types/mongoose": "^5.11.97"
   },
   "dependencies": {
     "@types/ioredis": "^5.0.0",

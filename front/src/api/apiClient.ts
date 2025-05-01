@@ -36,7 +36,21 @@ export class ApiError extends Error {
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', headers = {}, body, timeout = DEFAULT_TIMEOUT } = options;
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  // Remove leading slash if present to prevent double slashes
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+
+  // Construct the URL, preventing duplicate /api/ prefixes
+  let url;
+  if (normalizedEndpoint.startsWith('http')) {
+    // Full URL was provided
+    url = normalizedEndpoint;
+  } else if (normalizedEndpoint.startsWith('api/')) {
+    // Endpoint already includes api/ prefix, don't add the base URL's /api
+    url = `${API_BASE_URL.replace(/\/api$/, '')}/${normalizedEndpoint}`;
+  } else {
+    // Normal case: add the endpoint to the base URL
+    url = `${API_BASE_URL}/${normalizedEndpoint}`;
+  }
 
   // Get token from localStorage
   const token = localStorage.getItem('token');

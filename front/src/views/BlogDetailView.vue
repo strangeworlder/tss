@@ -38,6 +38,7 @@ import { checkApiHealth } from '@/api/apiClient';
 import { marked } from 'marked';
 import { CommentParentTypeEnum } from '@/types/comment';
 import { useDocumentTitle } from '@/composables/useDocumentTitle';
+import { BlogPostStatus, BlogPostModerationStatus } from '@/types/blog';
 import type { IBlogPost } from '@/types/blog';
 import type { IScheduledContent } from '@/types/scheduledContent';
 import ScheduledPostPreview from '@/components/molecules/ScheduledPostPreview.vue';

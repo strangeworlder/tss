@@ -1,10 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { Types } from 'mongoose';
-import {
-  BlogPostModel,
-  type IBlogPost,
-  BlogPostStatus,
-} from '../domains/blog/models/BlogPostModel';
+import { BlogPostModel } from '../domains/blog/models/BlogPostModel';
+import { type IBlogPost, BlogPostStatus } from '@shared/types/blog/blog';
 import { HealthStatus } from './MonitoringService';
 import type { IScheduledContent, IPendingUpdate } from '../types/scheduling';
 import ErrorHandler, { ErrorCategory, ErrorSeverity } from './ErrorHandler';
@@ -285,8 +282,8 @@ export class SchedulingService extends EventEmitter {
     try {
       const scheduledContent = await ScheduledContentModel.create({
         type: 'post',
-        content: post._id?.toString() || '',
-        authorId: post.author.id?.toString() || '',
+        content: post.id,
+        authorId: post.author.id || '',
         publishAt,
         status: BlogPostStatus.SCHEDULED,
         timezone: post.timezone || 'UTC',
@@ -323,7 +320,7 @@ export class SchedulingService extends EventEmitter {
         category: ErrorCategory.DATABASE,
         context: {
           operation: 'SchedulingService.schedulePost',
-          postId: post._id?.toString() ?? 'unknown',
+          postId: post.id,
           publishAt: publishAt.toISOString(),
           type: 'post',
         },
@@ -340,8 +337,8 @@ export class SchedulingService extends EventEmitter {
     try {
       const scheduledContent = await ScheduledContentModel.create({
         type: 'comment',
-        content: comment._id?.toString() || '',
-        authorId: comment.author.id?.toString() || '',
+        content: comment.id,
+        authorId: comment.author.id || '',
         publishAt,
         status: BlogPostStatus.SCHEDULED,
         timezone: comment.timezone || 'UTC',
@@ -378,7 +375,7 @@ export class SchedulingService extends EventEmitter {
         category: ErrorCategory.DATABASE,
         context: {
           operation: 'SchedulingService.scheduleComment',
-          commentId: comment._id?.toString() ?? 'unknown',
+          commentId: comment.id,
           publishAt: publishAt.toISOString(),
           type: 'comment',
         },

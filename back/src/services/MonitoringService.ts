@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import ErrorHandler, { ErrorSeverity, ErrorCategory } from './ErrorHandler';
 import BatchProcessor from './BatchProcessor';
 import SchedulingService from './SchedulingService';
-import PublicationService from './PublicationService';
+import PublicationService, { type IPublicationEvent } from './PublicationService';
 
 export enum HealthStatus {
   HEALTHY = 'healthy',
@@ -91,8 +91,9 @@ class MonitoringService extends EventEmitter {
     });
 
     // Listen for publication events from the PublicationService
-    PublicationService.on('contentPublished', (data) => {
-      const publicationTime = Date.now() - new Date(data.timestamp).getTime();
+    const publicationService = PublicationService.getInstance();
+    publicationService.on('contentPublished', (data: IPublicationEvent) => {
+      const publicationTime = Date.now() - data.timestamp.getTime();
       this.publicationTimes.push(publicationTime);
 
       // Keep only the last 100 publication times

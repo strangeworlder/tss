@@ -37,7 +37,8 @@ None - This component doesn't provide slots
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useBlogStore } from '@/stores/blogStore';
-import type { IBlogPost, Author } from '@/types/blog';
+import { BlogPostStatus, BlogPostModerationStatus } from '@/types/blog';
+import type { IBlogPost } from '@/types/blog';
 import type { IUser } from '@/types/user';
 import BlogPostCard from '@/components/organisms/BlogPostCard.vue';
 import { checkApiHealth } from '@/api/apiClient';
@@ -64,7 +65,9 @@ const newsletterSuccess = ref<boolean>(false);
 
 // Computed
 const recentPosts = computed(() => {
-  return blogStore.posts.slice(0, 3) as IBlogPost[];
+  return blogStore.posts
+    .filter((post: IBlogPost) => post.status === BlogPostStatus.PUBLISHED)
+    .slice(0, 3) as IBlogPost[];
 });
 
 const errorMessage = computed<string>(() => {
@@ -208,7 +211,6 @@ onMounted(() => {
               :content="post.excerpt"
               :hero-image-filename="post.heroImage?.filename"
               :hero-image-alt="post.heroImage?.altText"
-              :hero-image-url="post.heroImage?.url"
               :slug="post.slug"
               :tags="post.tags"
               :variant="BlogPostTitleVariantEnum.COMPACT"

@@ -1,33 +1,9 @@
 // Blog post model interface
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string;
-  author: {
-    type: 'user' | 'text';
-    id?: string; // User ID if type is 'user'
-    name: string;
-    avatar?: {
-      filename: string;
-      altText: string;
-    };
-  };
-  heroImage: {
-    filename: string;
-    altText: string;
-  };
-  heroImageUrl?: string;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date | null;
-  isPublished: boolean;
-}
+import type { IBlogPost } from '@shared/types/blog';
+import { BlogPostStatus, BlogPostModerationStatus } from '@shared/types/blog';
 
 // Dummy blog posts data
-const blogPosts: BlogPost[] = [
+const blogPosts: IBlogPost[] = [
   {
     id: '6',
     title: 'Getting Started with Vue 3',
@@ -93,14 +69,20 @@ Start building with Vue 3 today to take advantage of these improvements!`,
       },
     },
     tags: ['vue', 'javascript', 'frontend', 'composition-api'],
-    createdAt: new Date('2025-03-22T09:00:00Z'),
-    updatedAt: new Date('2025-03-22T09:00:00Z'),
-    publishedAt: new Date('2025-03-22T09:00:00Z'),
+    createdAt: new Date('2025-03-22T09:00:00Z').toISOString(),
+    updatedAt: new Date('2025-03-22T09:00:00Z').toISOString(),
+    publishedAt: new Date('2025-03-22T09:00:00Z').toISOString(),
     isPublished: true,
     heroImage: {
       filename: 'placeholder2.webp',
       altText: 'Vue 3 logo and code',
     },
+    status: BlogPostStatus.PUBLISHED,
+    timezone: 'UTC',
+    version: 1,
+    hasActiveUpdate: false,
+    moderationStatus: BlogPostModerationStatus.APPROVED,
+    abuseScore: 0,
   },
   {
     id: '1',
@@ -156,14 +138,20 @@ Start building your robust API today!`,
       },
     },
     tags: ['typescript', 'express', 'nodejs', 'backend'],
-    createdAt: new Date('2023-10-10T10:00:00Z'),
-    updatedAt: new Date('2023-10-10T10:00:00Z'),
-    publishedAt: new Date('2023-10-10T10:00:00Z'),
+    createdAt: new Date('2023-10-10T10:00:00Z').toISOString(),
+    updatedAt: new Date('2023-10-10T10:00:00Z').toISOString(),
+    publishedAt: new Date('2023-10-10T10:00:00Z').toISOString(),
     isPublished: true,
     heroImage: {
       filename: 'placeholder2.webp',
       altText: 'TypeScript and Express code on a computer screen',
     },
+    status: BlogPostStatus.PUBLISHED,
+    timezone: 'UTC',
+    version: 1,
+    hasActiveUpdate: false,
+    moderationStatus: BlogPostModerationStatus.APPROVED,
+    abuseScore: 0,
   },
   {
     id: '2',
@@ -236,14 +224,20 @@ Following these practices will help you build a production-ready API!`,
       },
     },
     tags: ['nodejs', 'express', 'rest', 'api', 'backend'],
-    createdAt: new Date('2023-09-15T14:30:00Z'),
-    updatedAt: new Date('2023-09-16T08:15:00Z'),
-    publishedAt: new Date('2023-09-16T10:00:00Z'),
+    createdAt: new Date('2023-09-15T14:30:00Z').toISOString(),
+    updatedAt: new Date('2023-09-16T08:15:00Z').toISOString(),
+    publishedAt: new Date('2023-09-16T10:00:00Z').toISOString(),
     isPublished: true,
     heroImage: {
       filename: 'placeholder1.webp',
       altText: 'REST API concept diagram with Node.js logo',
     },
+    status: BlogPostStatus.PUBLISHED,
+    timezone: 'UTC',
+    version: 1,
+    hasActiveUpdate: false,
+    moderationStatus: BlogPostModerationStatus.APPROVED,
+    abuseScore: 0,
   },
   {
     id: '3',
@@ -341,14 +335,20 @@ Start leveraging the power of the Composition API in your Vue 3 projects today!`
       },
     },
     tags: ['vue', 'javascript', 'frontend', 'composition-api'],
-    createdAt: new Date('2023-11-05T09:45:00Z'),
-    updatedAt: new Date('2023-11-06T11:20:00Z'),
-    publishedAt: new Date('2023-11-06T14:00:00Z'),
+    createdAt: new Date('2023-11-05T09:45:00Z').toISOString(),
+    updatedAt: new Date('2023-11-06T11:20:00Z').toISOString(),
+    publishedAt: new Date('2023-11-06T14:00:00Z').toISOString(),
     isPublished: true,
     heroImage: {
       filename: 'vue3-composition-api-hero.jpg',
       altText: 'Vue 3 Composition API code example on screen',
     },
+    status: BlogPostStatus.PUBLISHED,
+    timezone: 'UTC',
+    version: 1,
+    hasActiveUpdate: false,
+    moderationStatus: BlogPostModerationStatus.APPROVED,
+    abuseScore: 0,
   },
   {
     id: '4',
@@ -446,14 +446,20 @@ Choose the right tool for the specific requirements of your project!`,
       },
     },
     tags: ['database', 'mongodb', 'postgresql', 'nosql', 'sql'],
-    createdAt: new Date('2023-08-20T16:15:00Z'),
-    updatedAt: new Date('2023-08-21T09:30:00Z'),
-    publishedAt: new Date('2023-08-21T13:00:00Z'),
+    createdAt: new Date('2023-08-20T16:15:00Z').toISOString(),
+    updatedAt: new Date('2023-08-21T09:30:00Z').toISOString(),
+    publishedAt: new Date('2023-08-21T13:00:00Z').toISOString(),
     isPublished: true,
     heroImage: {
       filename: 'mongodb-nodejs-hero.jpg',
       altText: 'MongoDB and Node.js integration diagram',
     },
+    status: BlogPostStatus.PUBLISHED,
+    timezone: 'UTC',
+    version: 1,
+    hasActiveUpdate: false,
+    moderationStatus: BlogPostModerationStatus.APPROVED,
+    abuseScore: 0,
   },
   {
     id: '5',
@@ -616,40 +622,37 @@ By mastering these tools, you can create maintainable, responsive layouts that w
       },
     },
     tags: ['css', 'responsive-design', 'frontend', 'flexbox', 'css-grid'],
-    createdAt: new Date('2023-09-30T13:15:00Z'),
-    updatedAt: new Date('2023-10-01T16:30:00Z'),
-    publishedAt: new Date('2023-10-01T17:00:00Z'),
+    createdAt: new Date('2023-09-30T13:15:00Z').toISOString(),
+    updatedAt: new Date('2023-10-01T16:30:00Z').toISOString(),
+    publishedAt: new Date('2023-10-01T17:00:00Z').toISOString(),
     isPublished: true,
     heroImage: {
       filename: 'css-grid-hero.jpg',
       altText: 'CSS Grid layout example with colorful grid cells',
     },
+    status: BlogPostStatus.PUBLISHED,
+    timezone: 'UTC',
+    version: 1,
+    hasActiveUpdate: false,
+    moderationStatus: BlogPostModerationStatus.APPROVED,
+    abuseScore: 0,
   },
 ];
 
 // Get all posts (optionally limited)
-export const getPosts = (limit = 10): BlogPost[] => {
-  // Sort posts by publishedAt date (newest first) and filter only published posts
-  return blogPosts
-    .filter((post) => post.isPublished)
-    .sort((a, b) => {
-      // Handle null publishedAt dates
-      if (!a.publishedAt) return 1;
-      if (!b.publishedAt) return -1;
-      return b.publishedAt.getTime() - a.publishedAt.getTime();
-    })
-    .slice(0, limit);
+export const getPosts = (limit = 10): IBlogPost[] => {
+  return blogPosts.slice(0, limit);
 };
 
 /**
  * Get post by slug
  * @param slug The post slug to find
  */
-export const getPostBySlug = (slug: string): BlogPost | undefined => {
+export const getPostBySlug = (slug: string): IBlogPost | undefined => {
   return blogPosts.find((post) => post.slug === slug);
 };
 
 // Get total post count
 export const getPostCount = (): number => {
-  return blogPosts.filter((post) => post.isPublished).length;
+  return blogPosts.length;
 };

@@ -62,6 +62,11 @@ Accessibility:
             </select>
           </div>
         </div>
+        
+        <div class="author-content-management__quick-links">
+          <router-link to="/author/content/new" class="author-content-management__quick-link">New Content</router-link>
+          <router-link to="/author/content/drafts" class="author-content-management__quick-link">View Drafts</router-link>
+        </div>
       </div>
 
       <div v-if="error" class="author-content-management__error">
@@ -111,7 +116,7 @@ Accessibility:
                   class="author-content-management__status"
                   :class="`author-content-management__status--${item.status}`"
                 >
-                  {{ item.status }}
+                  {{ getStatusDisplay(item) }}
                 </span>
               </td>
               <td>{{ formatDate(item.createdAt) }}</td>
@@ -185,7 +190,7 @@ import { useAuthorStore } from '@/stores/author';
 import { useAuthStore } from '@/stores/authStore';
 import { useBlogStore } from '@/stores/blogStore';
 import { AuthorPermission } from '@/types/author';
-import { BlogPostStatus } from '@/types/blog';
+import { type BlogPostStatus, BlogPostModerationStatus } from '@/types/blog';
 import type { IBlogPost } from '@/types/blog';
 import AuthorDashboardLayout from '@/components/templates/AuthorDashboardLayout.vue';
 
@@ -193,8 +198,14 @@ interface IContentItem {
   id: string;
   title: string;
   type: 'post' | 'comment';
-  status: 'draft' | 'scheduled' | 'published';
+  status: BlogPostStatus;
+  moderationStatus: BlogPostModerationStatus;
   createdAt: string;
+  author: {
+    type: 'user' | 'text';
+    id?: string;
+    name: string;
+  };
 }
 
 const authorStore = useAuthorStore();
@@ -204,7 +215,7 @@ const blogStore = useBlogStore();
 // State
 const content = ref<IContentItem[]>([]);
 const searchQuery = ref('');
-const statusFilter = ref('');
+const statusFilter = ref<BlogPostStatus | ''>('');
 const typeFilter = ref('');
 const selectedItems = ref<string[]>([]);
 const currentPage = ref(1);
@@ -290,6 +301,13 @@ const nextPage = () => {
   }
 };
 
+const getStatusDisplay = (item: IContentItem) => {
+  if (item.moderationStatus === BlogPostModerationStatus.PENDING) {
+    return 'Pending Review';
+  }
+  return item.status;
+};
+
 // Initial data fetch
 const fetchContent = async () => {
   try {
@@ -318,6 +336,11 @@ const fetchContent = async () => {
     // Debug the fetched posts
     console.log('Fetched posts:', blogStore.posts);
 
+    // Add detailed debug logs for post status fields
+    for (const post of blogStore.posts) {
+      console.log(`Post "${post.title}": isPublished=${post.isPublished}, status=${post.status}`);
+    }
+
     // Transform blog posts to content items and filter by current user
     const authorPosts = blogStore.posts.filter((post: IBlogPost) => {
       console.log('Post author:', post.author);
@@ -345,13 +368,14 @@ const fetchContent = async () => {
       id: post.id,
       title: post.title,
       type: 'post',
-      status:
-        post.status === BlogPostStatus.PUBLISHED
-          ? 'published'
-          : post.status === BlogPostStatus.SCHEDULED
-            ? 'scheduled'
-            : 'draft',
+      status: post.status,
+      moderationStatus: post.moderationStatus,
       createdAt: post.createdAt,
+      author: {
+        type: post.author?.type,
+        id: post.author?.id,
+        name: post.author?.name,
+      },
     }));
 
     if (content.value.length === 0) {
@@ -409,6 +433,7 @@ initializeContent();
   display: flex;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .author-content-management__search {
@@ -534,5 +559,27 @@ initializeContent();
 
 .author-content-management__bulk-button:hover {
   background-color: var(--color-danger-dark);
+}
+
+.author-content-management__quick-links {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.author-content-management__quick-link {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-primary-500);
+  color: var(--color-text-inverse);
+  border-radius: var(--border-radius-sm);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.author-content-management__quick-link:hover {
+  background-color: var(--color-primary-600);
 }
 </style> 

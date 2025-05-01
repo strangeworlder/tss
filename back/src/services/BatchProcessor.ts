@@ -86,7 +86,8 @@ class BatchProcessor extends EventEmitter {
 
       for (const content of contentToProcess) {
         try {
-          await PublicationService.publishContent(content.id, content.type);
+          const publicationService = PublicationService.getInstance();
+          await publicationService.publishContent(content.id, content.type);
           result.processed++;
         } catch (error) {
           result.failed++;

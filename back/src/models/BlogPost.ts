@@ -1,46 +1,132 @@
-import mongoose, { Schema, type Document } from 'mongoose';
+import mongoose, { Schema, type Document, Types } from 'mongoose';
+import {
+  BlogPostStatus,
+  BlogPostModerationStatus,
+  type IBlogPost,
+  type IBlogPostDocument as BaseDocument,
+} from '@shared/types/blog/blog';
 
-export interface IAuthor {
-  name: string;
-  avatar?: string;
-}
+// Re-export shared types
+export type { IBlogPost } from '@shared/types/blog/blog';
+export { BlogPostStatus, BlogPostModerationStatus };
 
-export interface IHeroImage {
-  url: string;
-  alt: string;
-}
-
-export enum BlogPostStatus {
-  DRAFT = 'draft',
-  SCHEDULED = 'scheduled',
-  PUBLISHED = 'published',
-  PENDING_UPDATE = 'pending_update',
-}
-
-export interface IBlogPost extends Document {
+/**
+ * MongoDB-specific blog post document interface
+ * Extends the shared document interface with Mongoose Document features
+ */
+export interface IBlogPostDocument extends Document {
+  _id: Types.ObjectId;
   title: string;
   slug: string;
   content: string;
   excerpt: string;
-  author: IAuthor;
-  heroImage?: IHeroImage;
+  author: {
+    type: 'user' | 'text';
+    id?: Types.ObjectId;
+    name: string;
+    avatar?: {
+      filename: string;
+      altText: string;
+    };
+  };
+  heroImage?: {
+    filename: string;
+    altText: string;
+    url?: string;
+  };
   tags: string[];
-  publishDate: Date;
-  publishAt: Date | null;
   status: BlogPostStatus;
+  publishAt?: Date;
   timezone: string;
   version: number;
-  pendingUpdateId: mongoose.Types.ObjectId | null;
   hasActiveUpdate: boolean;
-  originalPostId: mongoose.Types.ObjectId | null;
-  moderationStatus: 'pending' | 'approved' | 'rejected' | 'flagged';
+  pendingUpdateId?: Types.ObjectId;
+  originalPostId?: Types.ObjectId;
+  moderationStatus: BlogPostModerationStatus;
   abuseScore: number;
-  lastModeratedAt: Date | null;
+  lastModeratedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  isPublished: boolean;
 }
 
-const BlogPostSchema = new Schema(
+/**
+ * Converts a MongoDB document to a shared blog post interface
+ * @param doc MongoDB document
+ * @returns Shared blog post interface
+ */
+export function toBlogPost(doc: IBlogPostDocument): IBlogPost {
+  if (!doc) return null as any;
+
+  // Use type assertion to ensure _id is treated as ObjectId
+  const docWithId = doc as IBlogPostDocument & { _id: Types.ObjectId };
+
+  return {
+    id: docWithId._id.toString(),
+    title: doc.title,
+    slug: doc.slug,
+    content: doc.content,
+    excerpt: doc.excerpt,
+    author: {
+      type: doc.author.type,
+      id: doc.author.id?.toString(),
+      name: doc.author.name,
+      avatar: doc.author.avatar,
+    },
+    heroImage: doc.heroImage,
+    tags: doc.tags,
+    status: doc.status,
+    publishAt: doc.publishAt?.toISOString(),
+    timezone: doc.timezone,
+    version: doc.version,
+    hasActiveUpdate: doc.hasActiveUpdate,
+    pendingUpdateId: doc.pendingUpdateId?.toString(),
+    originalPostId: doc.originalPostId?.toString(),
+    moderationStatus: doc.moderationStatus,
+    abuseScore: doc.abuseScore,
+    lastModeratedAt: doc.lastModeratedAt?.toISOString(),
+    createdAt: doc.createdAt.toISOString(),
+    updatedAt: doc.updatedAt.toISOString(),
+  };
+}
+
+/**
+ * Converts a shared blog post interface to MongoDB document data
+ * @param post Shared blog post interface
+ * @returns MongoDB document data
+ */
+export function toBlogPostDocument(post: IBlogPost): Partial<IBlogPostDocument> {
+  if (!post) return null as any;
+
+  return {
+    title: post.title,
+    slug: post.slug,
+    content: post.content,
+    excerpt: post.excerpt,
+    author: {
+      type: post.author.type,
+      id: post.author.id ? new Types.ObjectId(post.author.id) : undefined,
+      name: post.author.name,
+      avatar: post.author.avatar,
+    },
+    heroImage: post.heroImage,
+    tags: post.tags,
+    status: post.status,
+    publishAt: post.publishAt ? new Date(post.publishAt) : undefined,
+    timezone: post.timezone,
+    version: post.version,
+    hasActiveUpdate: post.hasActiveUpdate,
+    pendingUpdateId: post.pendingUpdateId ? new Types.ObjectId(post.pendingUpdateId) : undefined,
+    originalPostId: post.originalPostId ? new Types.ObjectId(post.originalPostId) : undefined,
+    moderationStatus: post.moderationStatus,
+    abuseScore: post.abuseScore,
+    lastModeratedAt: post.lastModeratedAt ? new Date(post.lastModeratedAt) : undefined,
+    createdAt: post.createdAt ? new Date(post.createdAt) : new Date(),
+    updatedAt: post.updatedAt ? new Date(post.updatedAt) : new Date(),
+  };
+}
+
+const BlogPostSchema = new Schema<IBlogPostDocument>(
   {
     title: {
       type: String,
@@ -49,7 +135,7 @@ const BlogPostSchema = new Schema(
     },
     slug: {
       type: String,
-      required: true,
+      required: [true, 'Slug is required'],
       unique: true,
       trim: true,
     },
@@ -62,15 +148,22 @@ const BlogPostSchema = new Schema(
       required: [true, 'Excerpt is required'],
     },
     author: {
-      name: {
+      type: {
         type: String,
+        enum: ['user', 'text'],
         required: true,
       },
-      avatar: String,
+      id: { type: Schema.Types.ObjectId, ref: 'User' },
+      name: { type: String, required: true },
+      avatar: {
+        filename: String,
+        altText: String,
+      },
     },
     heroImage: {
+      filename: String,
+      altText: String,
       url: String,
-      alt: String,
     },
     tags: [
       {
@@ -78,19 +171,14 @@ const BlogPostSchema = new Schema(
         trim: true,
       },
     ],
-    publishDate: {
-      type: Date,
-      default: Date.now,
-    },
-    publishAt: {
-      type: Date,
-      default: null,
-      index: true,
-    },
     status: {
       type: String,
       enum: Object.values(BlogPostStatus),
       default: BlogPostStatus.DRAFT,
+    },
+    publishAt: {
+      type: Date,
+      default: null,
     },
     timezone: {
       type: String,
@@ -101,8 +189,7 @@ const BlogPostSchema = new Schema(
       default: 1,
     },
     pendingUpdateId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'BlogPost',
+      type: Schema.Types.ObjectId,
       default: null,
     },
     hasActiveUpdate: {
@@ -110,14 +197,13 @@ const BlogPostSchema = new Schema(
       default: false,
     },
     originalPostId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'BlogPost',
+      type: Schema.Types.ObjectId,
       default: null,
     },
     moderationStatus: {
       type: String,
-      enum: ['pending', 'approved', 'rejected', 'flagged'],
-      default: 'pending',
+      enum: Object.values(BlogPostModerationStatus),
+      default: BlogPostModerationStatus.PENDING,
     },
     abuseScore: {
       type: Number,
@@ -133,6 +219,11 @@ const BlogPostSchema = new Schema(
   }
 );
 
+// Add virtual for isPublished
+BlogPostSchema.virtual('isPublished').get(function (this: IBlogPostDocument) {
+  return this.status === BlogPostStatus.PUBLISHED;
+});
+
 // Generate slug from title before saving
 BlogPostSchema.pre('save', function (next) {
   if (this.isModified('title')) {
@@ -146,6 +237,6 @@ BlogPostSchema.pre('save', function (next) {
 
 // Create the model if it doesn't exist already
 export const BlogPostModel =
-  mongoose.models.BlogPost || mongoose.model<IBlogPost>('BlogPost', BlogPostSchema);
+  mongoose.models.BlogPost || mongoose.model<IBlogPostDocument>('BlogPost', BlogPostSchema);
 
 export default BlogPostModel;

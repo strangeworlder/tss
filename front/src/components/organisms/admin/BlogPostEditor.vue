@@ -7,8 +7,8 @@ import AppImage from '@/components/atoms/AppImage.vue';
 import { ImageSizeEnum } from '@/types/image';
 import { deleteBlogPost } from '@/api/blogService';
 import type { IUser } from '@/types/user';
-import type { IBlogPost } from '@/types/blog';
-import { BlogPostStatus, BlogPostModerationStatus } from '@/types/blog';
+import type { IBlogPost, IAuthor } from '@shared/types/blog';
+import { BlogPostStatus, BlogPostModerationStatus } from '@shared/types/blog';
 import AppButton from '@/components/atoms/AppButton.vue';
 import { ButtonVariantEnum } from '@/types/button';
 
@@ -206,7 +206,7 @@ const handleSubmit = async () => {
           throw new Error('Selected user not found');
         }
 
-        const authorData = {
+        const authorData: IAuthor = {
           type: 'user',
           id: getUserIdentifier(selectedUser),
           name: `${selectedUser.firstName} ${selectedUser.lastName}`,
@@ -222,7 +222,7 @@ const handleSubmit = async () => {
         if (!authorName.value.trim()) {
           throw new Error('Author name is required');
         }
-        const authorData = {
+        const authorData: IAuthor = {
           type: 'text',
           name: authorName.value.trim(),
         };
@@ -230,7 +230,7 @@ const handleSubmit = async () => {
       }
     } else if (currentUser.value) {
       // Non-admin users can only post as themselves
-      const authorData = {
+      const authorData: IAuthor = {
         type: 'user',
         id: getUserIdentifier(currentUser.value),
         name: `${currentUser.value.firstName} ${currentUser.value.lastName}`,

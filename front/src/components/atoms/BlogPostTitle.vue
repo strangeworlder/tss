@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { BlogPostTitleVariantEnum } from '@/types/blogPost';
+import type { BlogPostTitleVariantEnum } from '@/types/blog';
 
 /**
  * BlogPostTitle Component
@@ -38,12 +38,10 @@ interface IBlogPostTitleProps {
    * The visual variant of the title (compact or full)
    * @default 'full'
    */
-  variant?: BlogPostTitleVariantEnum;
+  variant: BlogPostTitleVariantEnum;
 }
 
-const props = withDefaults(defineProps<IBlogPostTitleProps>(), {
-  variant: BlogPostTitleVariantEnum.FULL,
-});
+const props = defineProps<IBlogPostTitleProps>();
 
 // Validate title is not empty
 if (!props.title.trim()) {

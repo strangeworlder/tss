@@ -20,6 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@graphql-tools/schema": "^10.0.23",
+    "@shared/types": "1.0.0",
     "@types/express": "^4.17.21",
     "@types/helmet": "^0.0.48",
     "@types/multer": "^1.4.12",
@@ -43,7 +44,8 @@
     "ts-node": "^10.9.2",
     "type-graphql": "^2.0.0-rc.2",
     "typescript": "^5.8.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -1,25 +1,25 @@
+/**
+ * Blog Types Module
+ * Re-exports shared blog post types and enums for use in the backend
+ */
+
 import type { Types } from 'mongoose';
+import { BlogPostStatus, BlogPostModerationStatus, type IBlogPost } from '@shared/types/blog';
 
-export type PostStatus = 'draft' | 'scheduled' | 'published' | 'archived';
-export type ModerationStatus = 'pending' | 'approved' | 'rejected' | 'flagged';
+/**
+ * Re-export shared blog post interface
+ * @see {@link IBlogPost} in @shared/types/blog
+ */
+export type { IBlogPost };
 
-export interface IBlogPost {
-  _id: Types.ObjectId;
-  title: string;
-  content: string;
-  excerpt: string;
-  author: Types.ObjectId;
-  status: PostStatus;
-  publishAt: Date | null;
-  publishedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  timezone: string;
-  version: number;
-  pendingUpdateId: Types.ObjectId | null;
-  hasActiveUpdate: boolean;
-  originalPostId: Types.ObjectId | null;
-  moderationStatus: ModerationStatus;
-  abuseScore: number;
-  lastModeratedAt: Date | null;
-}
+/**
+ * Re-export blog post status enum
+ * @see {@link BlogPostStatus} in @shared/types/blog
+ */
+export { BlogPostStatus };
+
+/**
+ * Re-export blog post moderation status enum
+ * @see {@link BlogPostModerationStatus} in @shared/types/blog
+ */
+export { BlogPostModerationStatus };

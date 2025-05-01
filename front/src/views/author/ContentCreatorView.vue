@@ -584,8 +584,10 @@ const handleSubmit = async () => {
       title: form.title.trim(),
       slug: form.slug.trim(),
       content: form.content.trim(),
-      tags: form.tags,
+      tags: JSON.stringify(form.tags),
       isScheduled: form.isScheduled,
+      isPublished: false,
+      status: 'draft',
       scheduleDate: form.isScheduled ? form.scheduleDate.trim() : undefined,
       scheduleTime: form.isScheduled ? form.scheduleTime.trim() : undefined,
       media: uploadedMedia.value.map((media) => ({

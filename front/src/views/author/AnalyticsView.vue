@@ -37,6 +37,7 @@ import { useBlogStore } from '@/stores/blogStore';
 import AuthorDashboardLayout from '@/components/templates/AuthorDashboardLayout.vue';
 import AuthorStatistics from '@/components/molecules/author/AuthorStatistics.vue';
 import type { IContentStatistics, IActivity } from '@/types/content';
+import { BlogPostStatus } from '@/types/blog';
 import type { IBlogPost } from '@/types/blog';
 
 const route = useRoute();
@@ -125,9 +126,9 @@ const fetchAnalytics = async () => {
 
     contentStats.value = {
       total: posts.length,
-      published: posts.filter((post: IBlogPost) => post.status === 'published').length,
-      scheduled: posts.filter((post: IBlogPost) => post.status === 'scheduled').length,
-      draft: posts.filter((post: IBlogPost) => post.status === 'draft').length,
+      published: posts.filter((post: IBlogPost) => post.status === BlogPostStatus.PUBLISHED).length,
+      scheduled: posts.filter((post: IBlogPost) => post.status === BlogPostStatus.SCHEDULED).length,
+      draft: posts.filter((post: IBlogPost) => post.status === BlogPostStatus.DRAFT).length,
     };
 
     // Generate recent activity
@@ -135,9 +136,9 @@ const fetchAnalytics = async () => {
       id: post.id,
       date: new Date(post.updatedAt),
       action:
-        post.status === 'published'
+        post.status === BlogPostStatus.PUBLISHED
           ? 'published'
-          : post.status === 'scheduled'
+          : post.status === BlogPostStatus.SCHEDULED
             ? 'scheduled'
             : 'updated',
       content: post.title,

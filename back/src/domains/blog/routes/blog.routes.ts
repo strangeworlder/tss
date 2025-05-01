@@ -4,6 +4,10 @@ import { blogHeroUpload } from '../../../config/multer';
 import bodyParser from 'body-parser';
 import { authenticate } from '../../../middlewares/auth.middleware';
 import commentRoutes from './comment.routes';
+import {
+  validateBlogPostCreate,
+  validateBlogPostUpdate,
+} from '../../../validation/middleware/blogPost.middleware';
 
 const router = Router();
 
@@ -147,9 +151,8 @@ router.get('/admin/all', authenticate, blogController.getAllAdminPosts);
 router.post(
   '/',
   authenticate,
-  logRequest,
-  handleFormData,
-  parseRequestData,
+  blogHeroUpload.single('heroImage'),
+  validateBlogPostCreate,
   blogController.createPost
 );
 
@@ -174,10 +177,9 @@ router.get('/id/:id', blogController.getPostById);
  */
 router.put(
   '/id/:id',
-  handleFormData,
-  parseRequestData,
   authenticate,
-  logRequest,
+  blogHeroUpload.single('heroImage'),
+  validateBlogPostUpdate,
   blogController.updatePost
 );
 
@@ -193,6 +195,16 @@ router.get('/:slug', blogController.getPost);
  * @desc    Delete a blog post
  * @access  Private
  */
-router.delete('/id/:id', authenticate, logRequest, blogController.deletePost);
+router.delete('/id/:id', authenticate, blogController.deletePost);
+
+/**
+ * @route   GET /api/v1/blog/debug/diagnose/:id
+ * @desc    Temporary diagnostic endpoint to debug blog post validation issues
+ * @access  Private (Admin only)
+ */
+router.get('/debug/diagnose/:id', authenticate, blogController.diagnosePostValidation);
+
+// Comment routes
+router.use('/:postId/comments', commentRoutes);
 
 export default router;

@@ -145,6 +145,13 @@ export const useNotificationStore = defineStore('notification', () => {
     await loadNotifications();
   };
 
+  // After the existing success, error, warning, and info methods
+  // Add alias methods for backward compatibility
+  const showSuccess = success;
+  const showError = error;
+  const showWarning = warning;
+  const showInfo = info;
+
   return {
     notifications,
     preferences,
@@ -158,10 +165,15 @@ export const useNotificationStore = defineStore('notification', () => {
     notifyContentPublished,
     notifyPublicationFailed,
     addNotification,
-    // Add the new methods to the return value
+    // Existing methods
     success,
     error,
     warning,
     info,
+    // Alias methods for backward compatibility
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
   };
 });

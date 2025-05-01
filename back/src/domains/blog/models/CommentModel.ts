@@ -1,5 +1,5 @@
 import mongoose, { type Document, Schema, type Types } from 'mongoose';
-import { IBlogPost } from './BlogPostModel';
+import type { IBlogPost } from '@shared/types/blog/blog';
 import { IUser } from '../../users/models/user.model';
 
 export enum CommentStatus {

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "declaration": true,
+    "sourceMap": true,
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "baseUrl": ".",
+    "rootDir": ".",
+    "composite": true,
+    "declarationMap": true,
+    "incremental": true
+  },
+  "include": ["types/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,31 +1,27 @@
-import type { Types, Document } from 'mongoose';
-import { BlogPostModel, CommentModel } from '../models';
-import { BlogPostStatus } from '../domains/blog/models/BlogPostModel';
-import { CommentStatus } from '../domains/blog/models/CommentModel';
+import type { Types } from 'mongoose';
+import { BlogPostModel } from '../models';
+import { CommentModel, CommentStatus } from '../domains/blog/models/CommentModel';
+import { BlogPostModerationStatus, type IBlogPost } from '@shared/types/blog';
+import type { IComment } from '../domains/blog/models/CommentModel';
 import { EventEmitter } from 'node:events';
-import type { IBlogPost } from '../domains/blog/models/BlogPostModel';
-import type { IComment } from '../models/CommentModel';
-import ErrorHandler from './ErrorHandler';
-import MonitoringService from './MonitoringService';
-import { ErrorCategory, ErrorSeverity } from './ErrorHandler';
-import { HealthStatus } from './MonitoringService';
+import ErrorHandler, { ErrorSeverity, ErrorCategory } from './ErrorHandler';
+import MonitoringService, { HealthStatus } from './MonitoringService';
+import { toBlogPost } from '../domains/blog/models/BlogPostModel';
 
-// Define interfaces with proper _id typing
-interface IBlogPostWithId extends IBlogPost {
-  _id: Types.ObjectId;
-}
-
-interface ICommentWithId extends IComment {
-  _id: Types.ObjectId;
-}
-
+/**
+ * Event emitted when content is published
+ */
 export interface IPublicationEvent {
   contentId: string;
   type: 'post' | 'comment';
-  status: BlogPostStatus | CommentStatus;
+  status: string | CommentStatus;
   timestamp: Date;
+  content: IBlogPost | IComment;
 }
 
+/**
+ * Represents a failed publication attempt
+ */
 export interface IFailedPublication {
   contentId: string;
   type: 'post' | 'comment';
@@ -34,6 +30,25 @@ export interface IFailedPublication {
   retryCount: number;
 }
 
+/**
+ * Custom error class for publication failures
+ */
+export class PublicationError extends Error {
+  constructor(
+    message: string,
+    public readonly contentId: string,
+    public readonly type: 'post' | 'comment',
+    public readonly originalError?: Error
+  ) {
+    super(message);
+    this.name = 'PublicationError';
+  }
+}
+
+/**
+ * Service responsible for managing content publication
+ * Handles both posts and comments, with retry mechanisms and monitoring
+ */
 class PublicationService extends EventEmitter {
   private static instance: PublicationService;
   private failedPublications: IFailedPublication[] = [];
@@ -43,6 +58,9 @@ class PublicationService extends EventEmitter {
     super();
   }
 
+  /**
+   * Get the singleton instance of the PublicationService
+   */
   public static getInstance(): PublicationService {
     if (!PublicationService.instance) {
       PublicationService.instance = new PublicationService();
@@ -51,311 +69,234 @@ class PublicationService extends EventEmitter {
   }
 
   /**
-   * Publish scheduled content
+   * Publish content (blog post or comment)
    * @param contentId The ID of the content to publish
    * @param type The type of content ('post' | 'comment')
-   * @returns Promise<void>
    */
   public async publishContent(contentId: string, type: 'post' | 'comment'): Promise<void> {
     try {
       if (type === 'post') {
         const post = await BlogPostModel.findById(contentId);
         if (!post) {
-          throw new Error(`Post with ID ${contentId} not found`);
+          throw new PublicationError('Post not found', contentId, type);
         }
 
-        // Update post status to published
-        post.status = 'published';
-        post.publishedAt = new Date();
+        // Update post status
+        post.status = 'PUBLISHED';
+        post.publishedAt = new Date().toISOString();
+        post.isPublished = true;
         await post.save();
 
-        // Emit event for successful publication
-        this.emit('contentPublished', {
-          contentId,
-          type,
-          timestamp: new Date(),
-        });
-
-        // Update monitoring metrics
+        // Update monitoring
         MonitoringService.updateHealthCheck('publication', {
           name: 'publication',
           status: HealthStatus.HEALTHY,
           message: `Successfully published post ${contentId}`,
           timestamp: new Date(),
         });
+
+        // Emit publication event
+        const blogPost = toBlogPost(post);
+        const publicationEvent: IPublicationEvent = {
+          contentId: post._id.toString(),
+          type: 'post',
+          status: 'PUBLISHED',
+          timestamp: new Date(),
+          content: blogPost as unknown as IBlogPost | IComment,
+        };
+        this.emit('contentPublished', publicationEvent);
       } else {
         const comment = await CommentModel.findById(contentId);
         if (!comment) {
-          throw new Error(`Comment with ID ${contentId} not found`);
+          throw new PublicationError('Comment not found', contentId, type);
         }
 
-        // Update comment status to published
-        comment.status = 'published';
-        comment.publishedAt = new Date();
+        // Update comment status
+        comment.status = CommentStatus.PUBLISHED;
         await comment.save();
 
-        // Emit event for successful publication
-        this.emit('contentPublished', {
-          contentId,
-          type,
-          timestamp: new Date(),
-        });
-
-        // Update monitoring metrics
+        // Update monitoring
         MonitoringService.updateHealthCheck('publication', {
           name: 'publication',
           status: HealthStatus.HEALTHY,
           message: `Successfully published comment ${contentId}`,
           timestamp: new Date(),
         });
+
+        this.emit('commentPublished', comment);
       }
     } catch (error) {
-      await this.handleFailedPublication(contentId, type, error as Error);
-      throw error;
+      // Update monitoring
+      MonitoringService.updateHealthCheck('publication', {
+        name: 'publication',
+        status: HealthStatus.DEGRADED,
+        message: `Failed to publish ${type} ${contentId}`,
+        timestamp: new Date(),
+      });
+
+      // Log error
+      ErrorHandler.handleError(error instanceof Error ? error : new Error(String(error)), {
+        severity: ErrorSeverity.HIGH,
+        category: ErrorCategory.UPDATE,
+        context: {
+          contentId,
+          type,
+          status: type === 'post' ? 'PUBLISHED' : CommentStatus.PUBLISHED,
+          moderationStatus:
+            type === 'post' ? BlogPostModerationStatus.APPROVED : CommentStatus.APPROVED,
+        },
+      });
+
+      // Record failed publication
+      this.recordFailedPublication(contentId, type, error);
+
+      throw new PublicationError(
+        `Failed to publish ${type}`,
+        contentId,
+        type,
+        error instanceof Error ? error : undefined
+      );
     }
   }
 
   /**
-   * Publish an update to existing content
-   * @param contentId The ID of the content to update
-   * @param type The type of content ('post' | 'comment')
-   * @param updateData The data to update
-   * @returns Promise<void>
-   */
-  public async publishUpdate(
-    contentId: string,
-    type: 'post' | 'comment',
-    updateData: Record<string, unknown>
-  ): Promise<void> {
-    try {
-      if (type === 'post') {
-        const post = await BlogPostModel.findById(contentId);
-        if (!post) {
-          throw new Error(`Post with ID ${contentId} not found`);
-        }
-
-        // Apply the update data
-        Object.assign(post, updateData);
-        post.status = 'published';
-        post.publishedAt = new Date();
-        await post.save();
-
-        // Emit event for successful update
-        this.emit('contentUpdated', {
-          contentId,
-          type,
-          timestamp: new Date(),
-        });
-
-        // Update monitoring metrics
-        MonitoringService.updateHealthCheck('publication', {
-          name: 'publication',
-          status: HealthStatus.HEALTHY,
-          message: `Successfully updated post ${contentId}`,
-          timestamp: new Date(),
-        });
-      } else {
-        const comment = await CommentModel.findById(contentId);
-        if (!comment) {
-          throw new Error(`Comment with ID ${contentId} not found`);
-        }
-
-        // Apply the update data
-        Object.assign(comment, updateData);
-        comment.status = 'published';
-        comment.publishedAt = new Date();
-        await comment.save();
-
-        // Emit event for successful update
-        this.emit('contentUpdated', {
-          contentId,
-          type,
-          timestamp: new Date(),
-        });
-
-        // Update monitoring metrics
-        MonitoringService.updateHealthCheck('publication', {
-          name: 'publication',
-          status: HealthStatus.HEALTHY,
-          message: `Successfully updated comment ${contentId}`,
-          timestamp: new Date(),
-        });
-      }
-    } catch (error) {
-      await this.handleFailedPublication(contentId, type, error as Error);
-      throw error;
-    }
-  }
-
-  /**
-   * Handle failed publication attempts
+   * Record a failed publication attempt
    * @param contentId The ID of the content that failed to publish
    * @param type The type of content ('post' | 'comment')
    * @param error The error that occurred
-   * @returns Promise<void>
    */
-  public async handleFailedPublication(
+  private recordFailedPublication(
     contentId: string,
     type: 'post' | 'comment',
-    error: Error
-  ): Promise<void> {
-    // Log the error
-    ErrorHandler.handleError(error, {
-      contentId,
-      contentType: type,
-      category: ErrorCategory.UPDATE,
-      severity: ErrorSeverity.HIGH,
-    });
+    error: unknown
+  ): void {
+    const now = new Date();
+    const existingFailure = this.failedPublications.find((pub) => pub.contentId === contentId);
 
-    // Track the failure
-    const failedPublication: IFailedPublication = {
-      contentId,
-      type,
-      error: error.message,
-      timestamp: new Date(),
-      retryCount: 0,
-    };
-
-    this.failedPublications.push(failedPublication);
-
-    // Alert monitoring service
-    MonitoringService.updateHealthCheck('publication', {
-      name: 'publication',
-      status: HealthStatus.UNHEALTHY,
-      message: `Publication failed for ${type} ${contentId}: ${error.message}`,
-      timestamp: new Date(),
-      details: {
+    if (existingFailure) {
+      existingFailure.retryCount++;
+      existingFailure.timestamp = now;
+      existingFailure.error = error instanceof Error ? error.message : 'Unknown error';
+    } else {
+      this.failedPublications.push({
         contentId,
         type,
-        error: error.message,
-      },
-    });
+        timestamp: now,
+        retryCount: 1,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
 
-    this.emit('publicationFailed', {
-      contentId,
-      type,
-      error: error.message,
-      timestamp: new Date(),
-    });
+    console.error(`Failed publication recorded for ${type} ${contentId}`);
   }
 
   /**
    * Retry failed publications
-   * @returns Promise<void>
    */
   public async retryFailedPublications(): Promise<void> {
-    const failedPublicationsCopy = [...this.failedPublications];
-    this.failedPublications = [];
+    const now = new Date();
+    const retryablePublications = this.failedPublications.filter(
+      (pub) => pub.retryCount < this.maxRetries
+    );
 
-    for (const failedPublication of failedPublicationsCopy) {
+    console.log(`Retrying ${retryablePublications.length} failed publications`);
+
+    for (const publication of retryablePublications) {
       try {
-        // Attempt to publish the content again
-        await this.publishContent(failedPublication.contentId, failedPublication.type);
-
-        // Log successful retry
-        ErrorHandler.handleError(
-          new Error(
-            `Successfully retried publication for ${failedPublication.type} ${failedPublication.contentId}`
-          ),
-          {
-            contentId: failedPublication.contentId,
-            contentType: failedPublication.type,
-            category: ErrorCategory.UPDATE,
-            severity: ErrorSeverity.LOW,
-          }
+        await this.publishContent(publication.contentId, publication.type);
+        this.failedPublications = this.failedPublications.filter(
+          (pub) => pub.contentId !== publication.contentId
+        );
+        console.log(
+          `Successfully retried publication for ${publication.type} ${publication.contentId}`
         );
       } catch (error) {
-        // If retry fails, add back to failed publications with incremented retry count
-        this.failedPublications.push({
-          ...failedPublication,
-          retryCount: failedPublication.retryCount + 1,
-          error: (error as Error).message,
-        });
-
-        // Log the retry failure
-        ErrorHandler.handleError(error as Error, {
-          contentId: failedPublication.contentId,
-          contentType: failedPublication.type,
-          category: ErrorCategory.UPDATE,
-          severity: ErrorSeverity.MEDIUM,
-        });
+        publication.retryCount++;
+        publication.timestamp = now;
+        console.error(
+          `Failed to retry publication for ${publication.type} ${publication.contentId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     }
+  }
 
-    // If there are still failed publications after retrying, update monitoring
-    if (this.failedPublications.length > 0) {
-      MonitoringService.updateHealthCheck('publication', {
-        name: 'publication',
-        status: HealthStatus.UNHEALTHY,
-        message: `${this.failedPublications.length} publications still failed after retry`,
-        timestamp: new Date(),
-        details: {
-          failedCount: this.failedPublications.length,
-          failedIds: this.failedPublications.map((fp) => fp.contentId),
+  /**
+   * Get content that is ready to be published
+   * @returns Array of content IDs and types ready for publication
+   */
+  public async getContentReadyForPublication(): Promise<
+    Array<{ id: string; type: 'post' | 'comment' }>
+  > {
+    const readyContent: Array<{ id: string; type: 'post' | 'comment' }> = [];
+
+    try {
+      // Get scheduled posts
+      const scheduledPosts = await BlogPostModel.find({
+        status: 'SCHEDULED',
+        publishAt: { $lte: new Date() },
+      });
+
+      readyContent.push(
+        ...scheduledPosts.map((post) => ({ id: post._id.toString(), type: 'post' as const }))
+      );
+
+      // Get scheduled comments
+      const scheduledComments = await CommentModel.find({
+        status: CommentStatus.SCHEDULED,
+        publishAt: { $lte: new Date() },
+      });
+
+      readyContent.push(
+        ...scheduledComments.map((comment) => ({
+          id: comment._id.toString(),
+          type: 'comment' as const,
+        }))
+      );
+
+      console.log(`Found ${readyContent.length} items ready for publication`);
+      return readyContent;
+    } catch (error) {
+      throw ErrorHandler.handleError(error instanceof Error ? error : new Error(String(error)), {
+        category: ErrorCategory.DATABASE,
+        context: {
+          operation: 'PublicationService.getContentReadyForPublication',
         },
       });
     }
   }
 
   /**
-   * Get content that is ready to be published
-   * @returns Promise<Array<{ id: string; type: 'post' | 'comment' }>>
-   */
-  public async getContentReadyForPublication(): Promise<
-    Array<{ id: string; type: 'post' | 'comment' }>
-  > {
-    const now = new Date();
-
-    const readyPosts = (await BlogPostModel.find({
-      status: BlogPostStatus.SCHEDULED,
-      publishAt: { $lte: now },
-    })) as IBlogPostWithId[];
-
-    const readyComments = (await CommentModel.find({
-      status: CommentStatus.SCHEDULED,
-      publishAt: { $lte: now },
-    })) as ICommentWithId[];
-
-    const posts = readyPosts.map((post) => ({
-      id: post._id.toString(),
-      type: 'post' as const,
-    }));
-
-    const comments = readyComments.map((comment) => ({
-      id: comment._id.toString(),
-      type: 'comment' as const,
-    }));
-
-    return [...posts, ...comments];
-  }
-
-  /**
    * Check if content is ready to be published
    * @param contentId The ID of the content to check
-   * @param type The type of content ('post' or 'comment')
-   * @returns Promise<boolean>
+   * @param type The type of content ('post' | 'comment')
+   * @returns Whether the content is ready to be published
    */
   public async isContentReadyForPublication(
     contentId: string,
     type: 'post' | 'comment'
   ): Promise<boolean> {
-    const now = new Date();
-
-    if (type === 'post') {
-      const post = await BlogPostModel.findOne({
-        _id: contentId,
-        status: BlogPostStatus.SCHEDULED,
-        publishAt: { $lte: now },
+    try {
+      if (type === 'post') {
+        const post = await BlogPostModel.findById(contentId);
+        return post?.status === 'SCHEDULED' && post.publishAt && post.publishAt <= new Date();
+      }
+      const comment = await CommentModel.findById(contentId);
+      return (
+        comment?.status === CommentStatus.SCHEDULED &&
+        comment.publishAt &&
+        comment.publishAt <= new Date()
+      );
+    } catch (error) {
+      throw ErrorHandler.handleError(error instanceof Error ? error : new Error(String(error)), {
+        category: ErrorCategory.DATABASE,
+        context: {
+          operation: 'PublicationService.isContentReadyForPublication',
+          contentId,
+          type,
+        },
       });
-      return !!post;
     }
-    const comment = await CommentModel.findOne({
-      _id: contentId,
-      status: CommentStatus.SCHEDULED,
-      publishAt: { $lte: now },
-    });
-    return !!comment;
   }
 }
 
-export default PublicationService.getInstance();
+export default PublicationService;

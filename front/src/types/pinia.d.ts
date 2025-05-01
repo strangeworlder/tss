@@ -6,7 +6,7 @@
 import 'pinia';
 import type { Router } from 'vue-router';
 import type { Notification } from '@/stores/notification';
-import type { BlogPost, BlogPostPreview } from '@/types/blog';
+import type { IBlogPost, IBlogPostPreview } from '@shared/types/blog';
 import type { IUser } from '@/types/user';
 
 declare module 'pinia' {
@@ -39,19 +39,19 @@ export interface CounterStore {
 }
 
 export interface BlogStore {
-  posts: BlogPostPreview[];
-  currentPost: BlogPost | null;
+  posts: IBlogPostPreview[];
+  currentPost: IBlogPost | null;
   loading: boolean;
   error: string | null;
   notification: { type: 'success' | 'error' | 'info'; message: string } | null;
-  postsByTag: (tag: string) => BlogPostPreview[];
+  postsByTag: (tag: string) => IBlogPostPreview[];
   fetchPosts: (limit?: number) => Promise<void>;
   fetchAdminPosts: (limit?: number) => Promise<void>;
   fetchPostBySlug: (slug: string) => Promise<void>;
   fetchPostById: (id: string) => Promise<void>;
   fetchPostsByTag: (tag: string, limit?: number) => Promise<void>;
-  createPost: (formData: FormData) => Promise<BlogPost>;
-  updatePost: (id: string, formData: FormData) => Promise<BlogPost>;
+  createPost: (formData: FormData) => Promise<IBlogPost>;
+  updatePost: (id: string, formData: FormData) => Promise<IBlogPost>;
   setNotification: (notif: { type: 'success' | 'error' | 'info'; message: string }) => void;
   clearNotification: () => void;
 }

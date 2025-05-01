@@ -43,7 +43,7 @@
 -->
 
 <script setup lang="ts">
-import type { IBlogPost } from '@/types/blog';
+import type { IBlogPost } from '@shared/types/blog';
 import type { IUser } from '@/types/user';
 import type { IScheduledContent } from '@/types/scheduling';
 import { ref, computed } from 'vue';

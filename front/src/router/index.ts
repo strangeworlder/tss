@@ -67,6 +67,12 @@ const router = createRouter({
           component: () => import('../views/author/ContentManagementView.vue'),
         },
         {
+          path: 'content/drafts',
+          name: 'author-content-drafts',
+          component: () => import('../views/author/DraftsView.vue'),
+          meta: { title: 'Draft Content' },
+        },
+        {
           path: 'content/new',
           name: 'author-content-new',
           component: () => import('../views/author/ContentCreatorView.vue'),
